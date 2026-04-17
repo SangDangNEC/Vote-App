@@ -1,0 +1,1164 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>투표용지 교부매수 계산기</title>
+    <style>
+	.input-error {
+	border: 2px solid #dc2626 !important;
+	background-color: #fee2e2;
+	}
+
+        :root { --bg: #f4f4f5; --text: #18181b; }
+        body { font-family: -apple-system, "SF Pro Text", "Apple SD Gothic Neo", sans-serif; background-color: var(--bg); color: var(--text); margin: 0; padding: 10px; line-height: 1.5; -webkit-text-size-adjust: none; }
+        header { text-align: center; padding: 15px 0; background: white; border-radius: 12px; margin-bottom: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        h1 { font-size: 1.2rem; margin: 0; color: #1e40af; font-weight: 900; }
+        
+        /* 카드 영역 보강 */
+        #app { min-height: 100px; display: block; }
+
+        .election-card { background: white; border-radius: 20px; padding: 20px 15px; margin-bottom: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.08); border-top: 10px solid #ddd; }
+        .election-name { font-size: 1.15rem; font-weight: 900; margin-bottom: 18px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f1f5f9; padding-bottom: 10px; }
+        
+        .input-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 18px; }
+        .input-group { display: flex; align-items: center; background: #fff; border: 2px solid #e2e8f0; border-radius: 12px; padding: 10px 8px; }
+        label { font-size: 0.75rem; font-weight: 800; color: #64748b; width: 75px; flex-shrink: 0; line-height: 1.1; }
+        input { width: 100%; border: none; background: transparent; padding: 2px 0; font-size: 1.05rem; outline: none; text-align: right; font-weight: 800; color: #334155; -webkit-appearance: none; border-radius: 0; }
+
+        .result-bar { display: flex; justify-content: space-around; border-radius: 14px; padding: 15px 5px; border: 1px solid rgba(0,0,0,0.05); }
+        .res-item { text-align: center; flex: 1; }
+        .res-label { font-size: 0.8rem; color: #475569; display: block; margin-bottom: 5px; font-weight: 700; }
+        .res-val { font-size: 1.2rem; font-weight: 900; }
+        .res-val.highlight { color: #be123c; }
+
+        /* 컬러 테마 */
+        .theme-0 { border-color: #94a3b8; } .theme-0 .result-bar { background-color: #f1f5f9; }
+        .theme-1 { border-color: #84cc16; } .theme-1 .result-bar { background-color: #f7fee7; }
+        .theme-2 { border-color: #facc15; } .theme-2 .result-bar { background-color: #fefce8; }
+        .theme-3 { border-color: #f472b6; } .theme-3 .result-bar { background-color: #fdf2f8; }
+        .theme-4 { border-color: #38bdf8; } .theme-4 .result-bar { background-color: #f0f9ff; }
+        .theme-5 { border-color: #cbd5e1; } .theme-5 .result-bar { background-color: #f8fafc; }
+        .theme-6 { border-color: #fde68a; } .theme-6 .result-bar { background-color: #fffbeb; }
+
+        footer { text-align: center; padding: 10px 0 10px 0; color: #94a3b8; font-size: 0.75rem; line-height: 1.6; }
+
+        .footer-btns { position: sticky; bottom: 0; display: flex; flex-direction: column; gap: 8px; background: rgba(244, 244, 245, 0.95); padding: 15px 10px; z-index: 1000; border-top: 1px solid #e2e8f0; padding-bottom: calc(15px + env(safe-area-inset-bottom)); }
+        .btn-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        button { padding: 16px; border: none; border-radius: 12px; font-weight: 900; cursor: pointer; font-size: 1rem; box-shadow: 0 4px 6px rgba(0,0,0,0.1); -webkit-tap-highlight-color: transparent; }
+        .btn-save { background: #10b981; color: white; width: 100%; }
+        .btn-copy { background: #1e40af; color: white; }
+        .btn-reset { background: #64748b; color: white; }
+
+/* 거소 관련 3개 입력창 한 줄 */
+.big-input-container {
+    display: flex;
+    gap: 10px; /* 창 사이 간격 */
+    margin-bottom: 15px;
+}
+
+/* 각 입력창을 동일 비율로 나누기 */
+.big-input-container .big-input-group {
+    flex: 1; /* 남은 공간을 3등분 */
+    display: flex;
+    flex-direction: row;
+    background: #fff;
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 10px 8px;
+}
+
+    </style>
+
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#1e40af">
+
+</head>
+<body>
+
+
+
+<header>
+    <h1>🗳️ 투표용지 교부매수 계산기</h1>
+</header>
+
+
+
+<div style="padding:10px;display:flex; gap:8px; align-items:center;">
+    
+    <!-- 읍면동 선택 -->
+    <select id="sheetSelect">
+        <option value="낭성면">낭성면</option>
+        <option value="미원면">미원면</option>
+        <option value="가덕면">가덕면</option>
+        <option value="남일면">남일면</option>
+        <option value="문의면">문의면</option>
+        <option value="중앙동">중앙동</option>
+        <option value="성안동">성안동</option>
+        <option value="탑대성동">탑대성동</option>
+        <option value="영운동">영운동</option>
+        <option value="금천동">금천동</option>
+        <option value="용담명암산성동">용담명암산성동</option>
+        <option value="용암1동">용암1동</option>
+        <option value="용암2동">용암2동</option>
+    </select>
+
+    <!-- 투표구 선택 -->
+    <select id="pollType">
+
+    </select>
+
+    <div id="preview" style="margin-top:8px; font-weight:bold;"></div>
+
+</div>
+
+
+<!-- ✅ 파일 & 링크 영역 -->
+<div class="card">
+    <b>🔗 구글드라이브 파일 링크</b><br>
+    <input type="text" id="driveLink" placeholder="여기를 클릭한 후 구글드라이브 파일 링크를 붙여넣기 하세요" 
+      style="width:100%;
+        box-sizing: border-box;
+        padding:10px;
+        border:2px solid #1e40af;
+        border-radius:8px;
+        outline:none;
+       margin-bottom: 8px;
+    ">
+
+<div id="changeNotice" style="
+    display:none;
+    margin-top:8px;
+    padding:10px;
+    border-radius:8px;
+    background:#fef3c7;
+    color:#92400e;
+    font-weight:800;
+    text-align:center;
+">
+    ⚠️ 투표소가 변경되었습니다. 기본정보를 다시 불러오세요
+</div>
+    
+
+<button onclick="loadFromGoogle()" 
+    style="margin-top:8px; width:100%; background:#6366f1; color:white; padding:12px; border:none; border-radius:10px;margin-bottom: 8px;">
+    📥 기본 정보 불러오기
+</button>
+<div id="boxInfo" style="
+    margin-top:8px;
+    font-weight:bold;
+    color:#1e40af;
+"></div>
+
+</div>
+
+
+</div>
+
+<!-- style="display:none; 버튼 숨기기 처리 -->
+<!-- 📷 사진 업로드 -->  
+<input type="file" id="photoInput"  style="display:none; accept="image/*" multiple style="width:100%; margin-top:8px;">
+<button onclick="uploadPhoto()" style="display:none; style="width:100%; margin-top:8px; background:#16a34a; color:white; padding:12px; border:none; border-radius:10px;">
+    📤 사진 업로드
+</button>
+
+<!-- 🔍 사진 보기 -->
+<button onclick="viewPhotos()" style="display:none; style="width:100%; margin-top:8px; background:#0ea5e9; color:white; padding:12px; border:none; border-radius:10px;">
+    📷 사진보기
+</button>
+<div id="photoArea" style="margin-top:10px;"></div> 
+ 
+
+
+
+<div id="app"></div>
+
+
+<footer>
+    Copyright 2026. 전주시완산구선거관리위원회. All rights reserved. <br>
+    옥천군선거관리위원회 <br> 청주시상당구선거관리위원회
+</footer>
+
+<div class="footer-btns">
+
+<div id="saveWarning" style="
+    display:none;
+    text-align:center;
+    font-weight:900;
+    color:#dc2626;
+    margin-bottom:8px;
+">
+    ⚠️ 데이터가 변경되었습니다. 입력 후 반드시 저장하십시요
+</div>
+
+    <div class="btn-row">
+        <button class="btn-save" onclick="saveToGoogle()" >☁️ 구글시트 저장</button>
+        <button class="btn-copy" onclick="copyAll()" style="display:none;">   📋 전체 결과 복사 </button>
+        <button class="btn-reset" onclick="resetAll()">🔄 초기화</button>
+    </div>
+    <button id="reportBtn" onclick="toggleReport()"     style="width:100%; background:#0ea5e9; color:white; padding:12px; border:none; border-radius:10px; margin-bottom:8px;">    📊 투표록 2면 작성자료 열기</button>
+    <div id="reportArea" style="display:none; margin-top:1px;"></div>
+</div>
+
+<script>
+let isDataChanged = false;
+
+let prevDriveLink = "";
+let prevArea = "";
+let prevPoll = "";
+
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzfVdipecWx2Ezo7T-MvVH4dWqzpcShVmGWojkKEh6W8QPHzjtO7RDi4S_PIKT_RNrH/exec";
+
+const pollOptionsByArea = {
+    "낭성면": ["투표소"],
+    "미원면": ["제1투", "제2투", "제3투"],
+    "가덕면": ["제1투", "제2투"],
+    "남일면": ["제1투", "제2투"],
+    "문의면": ["제1투", "제2투"],
+    "중앙동": ["제1투", "제2투"],
+    "성안동": ["제1투", "제2투"],
+    "영운동": ["제1투", "제2투", "제3투"],
+    "탑대성동": ["제1투", "제2투", "제3투"],
+    "용담명암산성동": ["제1투", "제2투", "제3투"],
+    "금천동": ["제1투", "제2투", "제3투", "제4투", "제5투", "제6투", "제7투"],
+    "용암2동": ["제1투", "제2투", "제3투", "제4투", "제5투", "제6투", "제7투", "제8투", "제9투"],
+    "용암1동": ["제1투", "제2투", "제3투", "제4투", "제5투", "제6투", "제7투", "제8투", "제9투", "제10투", "제11투", "제12투"],
+};
+
+
+    // 선거 데이터 정의
+    const elections = [
+        "도지사선거", "교육감선거", "시장선거",
+        "도의원선거(지역)", "도의원선거(비례)", 
+        "시의원선거(지역)", "시의원선거(비례)"
+    ];
+
+    // 1. 카드 렌더링 함수 (보안 충돌 방지를 위해 즉시 실행)
+    function renderCards() {
+        const app = document.getElementById('app');
+        if(!app) return;
+        
+        let html = '';
+        elections.forEach((name, index) => {
+            html += `
+                <div class="election-card theme-${index}">
+                    <div class="election-name">
+                        <span>${name}</span>
+                        <span style="font-size:0.85rem; font-weight:600; color:#94a3b8;">${index+1} / ${elections.length} </span>
+                    </div>
+                    <div class="input-grid">
+                        <div class="input-group"><label>수령 첫번호</label><input type="number" inputmode="numeric" id="start_${index}" oninput="calc(${index}); markChanged();" readonly></div>
+                        <div class="input-group"><label>수령 끝번호</label><input type="number" inputmode="numeric" id="end_${index}" oninput="calc(${index}); markChanged();" readonly></div>
+                        <div class="input-group"><label>잔여 첫번호</label><input type="number" inputmode="numeric" id="curr_${index}" onchange="checkEndLimit(${index})" oninput="calc(${index}); markChanged(); this.classList.remove('input-error');"></div>
+                        <div class="input-group"><label>오훼손 매수</label>
+                            <input type="number" inputmode="numeric" id="dmg_${index}" 
+                                   placeholder="0" 
+                                   onfocus="if(this.value=='0'||this.value=='')this.value='';" 
+                                   oninput="calc(${index}); markChanged();">
+                        </div>
+
+
+                    </div>
+
+
+<div class="big-input-container">
+    <div class="big-input-group">         <label>거소미발송</label> <input type="number" inputmode="numeric" id="NoBalsong_${index}" placeholder="0" oninput="calc(${index}); markChanged();">    </div>
+    <div class="big-input-group">        <label>결정서지참</label>  <input type="number" inputmode="numeric" id="GeulJung_${index}" placeholder="0" oninput="calc(${index}); markChanged();">    </div>
+</div>
+
+<div class="big-input-container">
+    <div class="big-input-group">        <label>거소봉투반납</label>        <input type="number"  inputmode="numeric" id="GiveBack_${index}" placeholder="0" oninput="calc(${index}); markChanged();">    </div>
+    <div class="big-input-group">         <label>귀국투표</label> <input type="number" inputmode="numeric" id="ReturnKorea_${index}" placeholder="0" oninput="calc(${index}); markChanged();" readonly>    </div>
+</div>
+<div class="big-input-container">
+    <div class="big-input-group">        <label>중복교부</label>  <input type="number" inputmode="numeric" id="DoubleOut_${index}" placeholder="0" oninput="calc(${index}); markChanged();">    </div>
+</div>
+
+
+
+                    <div class="result-bar">
+                        <div class="res-item"><span class="res-label">수령매수</span><span class="res-val" id="total_${index}" style="color:#475569">0</span></div>
+                        <div class="res-item"><span class="res-label">교부매수</span><span class="res-val highlight" id="issued_${index}">0</span></div>
+                        <div class="res-item"><span class="res-label">잔여매수</span><span class="res-val" id="remain_${index}" style="color:#1e40af">0</span></div>
+                    </div>
+                </div>
+            `;
+        });
+        app.innerHTML = html;
+        loadSavedData(); // 카드 생성 후 데이터 로드
+    }
+
+    function checkEndLimit(i) {
+    const startEl = document.getElementById('start_' + i);
+    const endEl = document.getElementById('end_' + i);
+    const currEl = document.getElementById('curr_' + i);
+
+    const start = parseInt(startEl.value) || 0;
+    const end = parseInt(endEl.value) || 0;
+    const curr = parseInt(currEl.value) || 0;
+
+    // 👉 기존 에러 스타일 제거
+    currEl.classList.remove("input-error");
+
+    // ❗ 수령 끝번호 초과
+    if (end > 0 && curr > end) {
+        alert("수령 끝번호보다 큰 수가 입력되었습니다. 확인 후 다시 입력해 주세요");
+
+        currEl.classList.add("input-error");
+        currEl.value = "";
+        calc(i);
+        return;
+    }
+
+    // ❗ 수령 첫번호 미만
+    if (start > 0 && curr < start) {
+        alert("수령 첫번호보다 작은 수가 입력되었습니다. 확인 후 다시 입력해 주세요");
+
+        currEl.classList.add("input-error");
+        currEl.value = "";
+        calc(i);
+        return;
+    }
+}
+
+    function calc(i) {
+        const start = parseInt(document.getElementById('start_' + i).value) || 0;
+        const end = parseInt(document.getElementById('end_' + i).value) || 0;
+        const curr = parseInt(document.getElementById('curr_' + i).value) || 0;
+        const dmg = parseInt(document.getElementById('dmg_' + i).value) || 0;
+
+        const NoBalsong= parseInt(document.getElementById('NoBalsong_' + i).value) || 0;
+        const GeulJung= parseInt(document.getElementById('GeulJung_' + i).value) || 0;
+        const GiveBack= parseInt(document.getElementById('GiveBack_' + i).value) || 0;
+
+        const ReturnKorea= parseInt(document.getElementById('ReturnKorea_' + i).value) || 0;
+        const DoubleOut= parseInt(document.getElementById('DoubleOut_' + i).value) || 0;
+
+        if (start > 0 && end > 0) {
+            //const total = end - start + 1;
+            //document.getElementById('total_' + i).innerText = total.toLocaleString();
+
+	const totalText = document.getElementById('total_' + i).innerText.replace(/,/g, '');
+	const total = parseInt(totalText) || 0;
+
+            if (curr > 0) {
+                //const issued = (curr - start) - dmg;
+
+                const remain = (end - curr + 1) + dmg;
+                const issued = total - remain;
+
+                document.getElementById('issued_' + i).innerText = (issued < 0 ? 0 : issued).toLocaleString();
+                document.getElementById('remain_' + i).innerText = (remain < 0 ? 0 : remain).toLocaleString();
+            }
+        }
+    }
+
+    function saveData() {
+        try {
+            const data = {};
+            elections.forEach((_, i) => {
+                data['start_' + i] = document.getElementById('start_' + i).value;
+                data['end_' + i] = document.getElementById('end_' + i).value;
+                data['curr_' + i] = document.getElementById('curr_' + i).value;
+                data['dmg_' + i] = document.getElementById('dmg_' + i).value;
+
+	data['NoBalsong_' + i] = document.getElementById('NoBalsong_' + i).value;
+	data['GeulJung_' + i] = document.getElementById('GeulJung_' + i).value;
+	data['GiveBack_' + i] = document.getElementById('GiveBack_' + i).value;
+
+	data['ReturnKorea_' + i] = document.getElementById('ReturnKorea_' + i).value;
+	data['DoubleOut_' + i] = document.getElementById('DoubleOut_' + i).value;
+            
+            });
+
+	data['driveLink'] = document.getElementById('driveLink').value;
+    
+             localStorage.setItem('votecalc_data', JSON.stringify(data));
+            // alert("현재 데이터가 저장되었습니다.");
+        } catch (e) {
+            alert("아이폰 보안 설정으로 인해 저장이 차단되었습니다. 사파리 설정을 확인해주세요.");
+        }
+    }
+
+    function loadSavedData() {
+        try {
+            const saved = localStorage.getItem('votecalc_data');
+            if (saved) {
+                const data = JSON.parse(saved);
+                elections.forEach((_, i) => {
+                    document.getElementById('start_' + i).value = data['start_' + i] || "";
+                    document.getElementById('end_' + i).value = data['end_' + i] || "";
+                    document.getElementById('curr_' + i).value = data['curr_' + i] || "";
+                    const dmgVal = data['dmg_' + i];
+                    document.getElementById('dmg_' + i).value = (dmgVal == "0" || dmgVal == "") ? "" : dmgVal;
+
+
+	document.getElementById('NoBalsong_' + i).value = data['NoBalsong_' + i] || "";
+	document.getElementById('GeulJung_' + i).value = data['GeulJung_' + i] || "";
+	document.getElementById('GiveBack_' + i).value = data['GiveBack_' + i] || "";
+
+	document.getElementById('ReturnKorea_' + i).value = data['ReturnKorea_' + i] || "";
+	document.getElementById('DoubleOut_' + i).value = data['DoubleOut_' + i] || "";
+
+                    calc(i);
+                });
+            }
+        } catch (e) {
+            console.log("저장된 데이터가 없거나 접근이 차단되었습니다.");
+        }
+    }
+
+    function copyAll() {
+        let resultText = `[제9회 전국동시지방선거 투표용지 교부상황]\n전주시완산구선거관리위원회\n${new Date().toLocaleString()}\n\n`;
+        elections.forEach((name, i) => {
+            const t = document.getElementById('total_' + i).innerText;
+            const iso = document.getElementById('issued_' + i).innerText;
+            const r = document.getElementById('remain_' + i).innerText;
+            if(t !== "0") resultText += `${name}: 수령${t}/교부${iso}/잔여${r}\n`;
+        });
+
+        const textArea = document.createElement("textarea");
+        textArea.value = resultText;
+        textArea.style.position = "fixed"; textArea.style.left = "-9999px"; textArea.style.top = "0";
+        document.body.appendChild(textArea);
+        textArea.focus(); textArea.select();
+        textArea.setSelectionRange(0, 99999);
+        try {
+            document.execCommand('copy');
+            alert("복사되었습니다.");
+        } catch (err) {
+            alert("복사 실패. 수동으로 복사해주세요.");
+        }
+        document.body.removeChild(textArea);
+    }
+
+    function resetAll() {
+        if(confirm("모든 데이터를 초기화하시겠습니까?")) {
+            try { localStorage.removeItem('votecalc_data'); } catch(e) {}
+            clearChanged();
+            location.reload();
+        }
+    }
+
+
+
+
+function downloadXLSX() {
+    const data = [];
+
+    // 헤더
+    data.push(["선거명", "수령매수", "교부매수", "잔여매수"]);
+
+    elections.forEach((name, i) => {
+        const total = document.getElementById('total_' + i).innerText.replace(/,/g, '');
+        const issued = document.getElementById('issued_' + i).innerText.replace(/,/g, '');
+        const remain = document.getElementById('remain_' + i).innerText.replace(/,/g, '');
+
+        if (total !== "0") {
+            data.push([name, Number(total), Number(issued), Number(remain)]);
+        }
+    });
+
+    // 워크시트 생성
+    const ws = XLSX.utils.aoa_to_sheet(data);
+
+    // 컬럼 너비 설정
+    ws['!cols'] = [
+        { wch: 20 },
+        { wch: 15 },
+        { wch: 15 },
+        { wch: 15 }
+    ];
+
+    // 워크북 생성
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "교부현황");
+
+    // 파일명 (날짜 포함)
+    const now = new Date();
+    const fileName = `투표용지_교부현황_${now.getFullYear()}-${now.getMonth()+1}-${now.getDate()}.xlsx`;
+
+    // 다운로드
+    XLSX.writeFile(wb, fileName);
+}
+
+// ✅ 투표구명 생성
+function getPollName() {
+    const area = document.getElementById('sheetSelect').value;
+    const type = document.getElementById('pollType').value;
+    return area + type;
+}
+
+// ✅ 미리보기 업데이트
+function updatePreview() {
+    document.getElementById('preview').innerText = getPollName();
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+
+    renderCards();
+
+    loadSelection();
+    updatePollOptions(); 
+    updatePreview(); // 처음 실행
+    loadBoxInfo(); 
+    
+    prevArea = document.getElementById('sheetSelect').value;
+    prevPoll = document.getElementById('pollType').value;
+    prevDriveLink = document.getElementById('driveLink').value;
+
+});
+
+function findRowByPollName(ws, pollName) {
+    const range = XLSX.utils.decode_range(ws['!ref']);
+
+    for (let R = range.s.r; R <= range.e.r; ++R) {
+        const cellAddress = XLSX.utils.encode_cell({ r: R, c: 0 }); // A열
+        const cell = ws[cellAddress];
+
+        if (cell && cell.v === pollName) {
+            return R + 1; // 엑셀은 1부터 시작
+        }
+    }
+    return null;
+}
+
+function downloadTemplateWithMapping() {
+    const fileInput = document.getElementById('excelFile');
+    const file = fileInput.files[0];
+
+    const sheetName = document.getElementById('sheetSelect').value;
+    //const pollName = document.getElementById('pollName').value;
+    const pollName = getPollName();
+
+    if (!file || !pollName) {
+        alert("파일과 투표구명을 입력하세요");
+        return;
+    }
+
+    const reader = new FileReader();
+
+    reader.onload = function(e) {
+        const data = new Uint8Array(e.target.result);
+        const wb = XLSX.read(data, { type: 'array' });
+
+        const ws = wb.Sheets[sheetName];
+        if (!ws) {
+            alert("시트가 없습니다");
+            return;
+        }
+
+        // 👉 행 찾기
+        const row = findRowByPollName(ws, pollName);
+
+        if (!row) {
+            alert("투표구명을 찾을 수 없습니다");
+            return;
+        }
+
+        // 👉 값 가져오기
+        elections.forEach((name, i) => {
+            const total = Number(document.getElementById('total_' + i).innerText.replace(/,/g, ''));
+            const issued = Number(document.getElementById('issued_' + i).innerText.replace(/,/g, ''));
+            const remain = Number(document.getElementById('remain_' + i).innerText.replace(/,/g, ''));
+
+            // 예시: 열 배치 (원하는대로 수정 가능)
+            XLSX.utils.sheet_add_aoa(ws, [[total]], { origin: `B${row}` });
+            XLSX.utils.sheet_add_aoa(ws, [[issued]], { origin: `C${row}` });
+            XLSX.utils.sheet_add_aoa(ws, [[remain]], { origin: `D${row}` });
+        });
+
+        XLSX.writeFile(wb, "완성_보고서.xlsx");
+    };
+
+    reader.readAsArrayBuffer(file);
+}
+
+
+function updatePollOptions() {
+    const area = document.getElementById('sheetSelect').value;
+    const pollSelect = document.getElementById('pollType');
+
+    // 기존 옵션 삭제
+    pollSelect.innerHTML = "";
+
+    const options = pollOptionsByArea[area] || ["투표소"];
+
+    options.forEach(opt => {
+        const option = document.createElement("option");
+        option.value = opt;
+        option.textContent = opt;
+        pollSelect.appendChild(option);
+    });
+}
+
+
+function saveSelection() {
+    const area = document.getElementById('sheetSelect').value;
+    const poll = document.getElementById('pollType').value;
+    const link = document.getElementById('driveLink').value;
+
+    localStorage.setItem('selected_area', area);
+    localStorage.setItem('selected_poll', poll);
+    localStorage.setItem('drive_link', link);
+
+    alert("선택이 저장되었습니다 👍");
+}
+
+function loadSelection() {
+    const savedArea = localStorage.getItem('selected_area');
+    const savedPoll = localStorage.getItem('selected_poll');
+    const savedLink = localStorage.getItem('drive_link');
+
+    if (savedArea) {
+        document.getElementById('sheetSelect').value = savedArea;
+    }
+
+        updatePollOptions();
+
+       if (savedPoll) {
+        setTimeout(() => {
+            document.getElementById('pollType').value = savedPoll;
+            updatePreview();
+            updateReportButtonText(false); // ✅ 여기 추가 (핵심)
+        }, 0);
+    } else {
+        // 👉 저장값 없을 때도 처리
+        setTimeout(() => {
+            updatePreview();
+            updateReportButtonText(false);
+        }, 0);
+    }
+
+   if (savedLink) {
+        document.getElementById('driveLink').value = savedLink; // ✅ 핵심
+    }
+
+    updatePreview();
+}
+
+
+
+
+document.getElementById('sheetSelect').onchange = function() {
+    updatePollOptions();
+    updatePreview();
+    saveSelection();
+    updateReportButtonText(false);
+    checkSelectionChanged();
+    clearPhotos();    
+    clearPhotoInput(); 
+};
+
+document.getElementById('pollType').onchange = function() {
+    updatePreview();
+    saveSelection();
+    updateReportButtonText(false);
+    checkSelectionChanged();
+    clearPhotos();
+    clearPhotoInput(); 
+};
+
+document.getElementById('driveLink').addEventListener('input', function() {
+    saveSelection();
+    checkSelectionChanged();
+});
+
+// 파일 선택 시 실행
+document.getElementById('excelFile').addEventListener('change', function() {
+    const file = this.files[0];
+    if (file) {
+        localStorage.setItem('selectedExcelFileName', file.name); // 이름 저장
+        document.getElementById('excelFileName').innerText = `선택된 파일: ${file.name}`;
+    } else {
+        localStorage.removeItem('selectedExcelFileName');
+        document.getElementById('excelFileName').innerText = '';
+    }
+});
+
+// 페이지 로드 시 저장된 파일 이름 표시
+document.addEventListener('DOMContentLoaded', function() {
+    const savedFileName = localStorage.getItem('selectedExcelFileName');
+    if (savedFileName) {
+        document.getElementById('excelFileName').innerText = `마지막 선택 파일: ${savedFileName}`;
+    }
+});
+
+function saveToGoogle() {
+    
+   saveData();
+   clearChanged();
+   
+    const driveLink = document.getElementById('driveLink').value;
+    const fileId = extractFileId(driveLink);
+
+    if (!fileId) {
+        alert("❌ 올바른 구글시트 링크를 입력하세요");
+        return;
+    }
+
+    const pollName = getPollName();
+
+    const data = {
+        fileId: fileId,
+        pollName: pollName,
+        start: [],
+        noBalsong: [],
+        geulJung: [],
+        giveBack: [],
+        dmg: [],
+       doubleOut:  [],
+       returnKorea:  []
+    };
+
+    // 👉 7개 선거 값 수집
+    elections.forEach((_, i) => {
+        data.start.push(Number(document.getElementById('curr_' + i).value || 0));
+        data.noBalsong.push(Number(document.getElementById('NoBalsong_' + i).value || 0));
+        data.geulJung.push(Number(document.getElementById('GeulJung_' + i).value || 0));
+        data.giveBack.push(Number(document.getElementById('GiveBack_' + i).value || 0));
+        data.dmg.push(Number(document.getElementById('dmg_' + i).value || 0));
+        data.returnKorea.push(Number(document.getElementById('ReturnKorea_' + i).value || 0));
+        data.doubleOut.push(Number(document.getElementById('DoubleOut_' + i).value || 0));
+  });
+
+    fetch(SCRIPT_URL, {
+    method: "POST",
+    body: JSON.stringify(data)
+})
+
+.then(res => res.text())
+.then(res => {
+    alert("응답: " + res);
+})
+.catch(err => {
+    alert("❌ 저장 실패: " + err);
+});
+}
+
+
+
+function extractFileId(url) {
+    const match = url.match(/\/d\/([a-zA-Z0-9-_]+)/);
+    return match ? match[1] : null;
+}
+
+function mapHtmlToExcel(ws, pollName) {
+    // 1. 투표구명 찾기
+    const range = XLSX.utils.decode_range(ws['!ref']);
+    let startRow = null;
+
+    for (let R = range.s.r; R <= range.e.r; ++R) {
+        const cell = ws[XLSX.utils.encode_cell({ r: R, c: 0 })]; // A열
+        if (cell && cell.v === pollName) {
+            startRow = R;
+            break;
+        }
+    }
+    if (startRow === null) return alert("투표구명을 찾을 수 없음");
+
+    // 2. 선거명 매핑
+    const excelElections = ["도지사","교육감","청주시장","도의원","도비례","시의원","시비례"];
+    elections.forEach((htmlName, i) => {
+
+
+        const total = Number(document.getElementById('total_' + i).innerText.replace(/,/g,''));
+        const issued = Number(document.getElementById('issued_' + i).innerText.replace(/,/g,''));
+        const remain = Number(document.getElementById('remain_' + i).innerText.replace(/,/g,''));
+        
+        // 엑셀 열 (예시: 수령=K, 교부=L, 잔여=M)
+        XLSX.utils.sheet_add_aoa(ws, [[total]], { origin: `K${row+1}` }); // K열=수령매수
+        XLSX.utils.sheet_add_aoa(ws, [[issued]], { origin: `L${row+1}` }); // L열=교부매수
+        XLSX.utils.sheet_add_aoa(ws, [[remain]], { origin: `M${row+1}` }); // M열=잔여매수
+
+        // HTML 입력값: 거소미발송, 결정서지참, 거소봉투반납, 귀국투표, 이중교부
+        const NoBalsong = Number(document.getElementById('NoBalsong_' + i).value || 0);
+        const GeulJung = Number(document.getElementById('GeulJung_' + i).value || 0);
+        const GiveBack = Number(document.getElementById('GiveBack_' + i).value || 0);
+        const ReturnKorea = Number(document.getElementById('ReturnKorea_' + i).value || 0);
+        const DoubleOut = Number(document.getElementById('DoubleOut_' + i).value || 0);
+
+        XLSX.utils.sheet_add_aoa(ws, [[NoBalsong]], { origin: `O${row+1}` });
+        XLSX.utils.sheet_add_aoa(ws, [[GeulJung]], { origin: `P${row+1}` });
+        XLSX.utils.sheet_add_aoa(ws, [[GiveBack]], { origin: `Q${row+1}` });
+        XLSX.utils.sheet_add_aoa(ws, [[ReturnKorea]], { origin: `R${row+1}` });
+        XLSX.utils.sheet_add_aoa(ws, [[DoubleOut]], { origin: `S${row+1}` });
+    });
+}
+
+// ✅ [추가] 투표구 + 선거명으로 정확한 행 찾기
+function findRowByPollAndElection(sheet, pollName, electionName) {
+  const values = sheet.getDataRange().getValues();
+
+  for (let r = 0; r < values.length; r++) {
+    const poll = values[r][0]; // A열 (투표구명)
+    const election = values[r][2]; // C열 (선거명)
+
+    if (poll === pollName && election === electionName) {
+      return r + 1; // 시트 row (1부터 시작)
+    }
+  }
+  return null;
+}
+
+
+function loadFromGoogle() {
+
+    const driveLink = document.getElementById('driveLink').value;
+    const fileId = extractFileId(driveLink);
+
+    if (!fileId) {
+        alert("❌ 구글시트 링크 확인");
+        return;
+    }
+
+    const pollName = getPollName();
+    
+    clearPhotos();    
+    clearPhotoInput(); 
+
+    fetch(`${SCRIPT_URL}?fileId=${encodeURIComponent(fileId)}&pollName=${encodeURIComponent(pollName)}`)
+    .then(res => res.json())
+    .then(data => {
+
+        // 👉 핵심: 배열 그대로 처리
+        data.forEach((item, i) => {
+            document.getElementById('start_' + i).value = item.start || "";
+            document.getElementById('end_' + i).value = item.end || "";
+
+            document.getElementById('total_' + i).innerText = Number(item.total || 0).toLocaleString();
+
+	document.getElementById('curr_' + i).value = item.curr || "";
+    document.getElementById('dmg_' + i).value = item.dmg || "";
+
+    document.getElementById('NoBalsong_' + i).value = item.noBalsong || "";
+    document.getElementById('GeulJung_' + i).value = item.geulJung || "";
+    document.getElementById('GiveBack_' + i).value = item.giveBack || "";
+
+    document.getElementById('ReturnKorea_' + i).value = item.returnKorea || "";
+    document.getElementById('DoubleOut_' + i).value = item.doubleOut || "";
+
+
+            calc(i);
+	validateCurrRange(i);
+        });
+
+// ✅ ⭐ 투표함관리번호 처리 (추가)
+        const boxSet = new Set();
+
+        data.forEach(d => {
+            if (d.boxNo) boxSet.add(d.boxNo);
+        });
+
+        const boxList = Array.from(boxSet);
+        localStorage.setItem("box_info", JSON.stringify(boxList));
+
+        let boxText = "📦 투표함관리번호: ";
+        boxText += boxList.join(" / ");
+
+        document.getElementById("boxInfo").innerText = boxText;
+
+        alert("✅ 기본정보 불러오기 완료");
+
+    })
+    .catch(err => {
+
+        const notice = document.getElementById("changeNotice");
+        notice.innerText = "⚠️ 읍면동-투표소 또는 파일링크가 정확한지 확인하고 다시 불러오세요";
+        notice.style.display = "block";
+
+        alert("❌ 불러오기 실패: " + err);
+    });
+
+    document.getElementById("changeNotice").style.display = "none";
+   clearChanged();
+}
+
+
+
+function toggleReport() {
+    const area = document.getElementById("reportArea");
+
+    if (area.style.display === "none") {
+        area.style.display = "block";
+        updateReportButtonText(true);   // 🔥 열기 → 닫기
+        loadReport();
+    } else {
+        area.style.display = "none";
+        updateReportButtonText(false);  // 🔥 닫기 → 열기
+    }
+}
+
+function loadReport() {
+
+    const driveLink = document.getElementById('driveLink').value;
+    const fileId = extractFileId(driveLink);
+    const pollName = getPollName();
+
+    fetch(`${SCRIPT_URL}?fileId=${fileId}&pollName=${pollName}`)
+    .then(res => res.json())
+    .then(data => {
+
+        let html = "<h3 style='margin:0;'>📊 투표록 2면 작성자료</h3>";
+
+        // ✅ ⭐ 투표함관리번호 먼저 만들기
+        const boxSet = new Set();
+        data.forEach(d => {
+            if (d.boxNo) boxSet.add(d.boxNo);
+        });
+        const boxList = Array.from(boxSet);
+
+        // ✅ ⭐ 1줄짜리 표 (요청한 부분)
+        html += `
+        <table border="1" style="width:100%; font-size:12px; margin-bottom:5px;">
+        <tr>
+            <th style="width:30%;">투표함관리번호</th>
+            <td style="text-align:left; font-weight:bold;">
+                ${boxList.join(" / ")}
+            </td>
+        </tr>
+        </table> `;
+
+        // ✅ 1번 표
+        html += `<table border="1" style="width:100%; font-size:12px; margin-bottom:5px;">
+        <tr>
+        <th>선거명</th><th>명부(사전제외)</th><th>명부</th>
+        <th>미발송</th><th>결정서</th><th>봉투반납</th><th>계</th>
+        </tr>`;
+
+        data.forEach(d => {
+            const sum = d.voter || 0;
+            html += `<tr>
+            <td style="text-align:right">${d.election}</td>
+            <td style="text-align:right">${Number(d.list1 || 0).toLocaleString()}</td>
+            <td style="text-align:right">${Number(d.list2 || 0).toLocaleString()}</td>
+            <td style="text-align:right">${Number(d.noBalsong || 0).toLocaleString()}</td>
+            <td style="text-align:right">${Number(d.geulJung || 0).toLocaleString()}</td>
+            <td style="text-align:right">${Number(d.giveBack || 0).toLocaleString()}</td>
+            <td style="text-align:right">${Number(sum).toLocaleString()}</td>
+            </tr>`;
+        });
+
+        html += "</table>";
+
+        // ✅ 2번 표
+        html += `<table border="1" style="width:100%; font-size:12px; ">
+        <tr>
+        <th>선거명</th><th>수령</th><th>교부</th><th>잔여</th>
+        <th colspan="3"> 잔여 투표용지 일련번호 </th>
+        </tr>`;
+
+        data.forEach(d => {
+     const curr = Number(d.curr || 0);
+    const end = Number(d.end || 0);
+
+            html += `<tr>
+            <td style="text-align:right">${d.election}</td>
+            <td style="text-align:right">${Number(d.total || 0).toLocaleString()}</td>
+            <td style="text-align:right">${Number(d.issued || 0).toLocaleString()}</td>
+            <td style="text-align:right">${Number(d.remain || 0).toLocaleString()}</td>
+
+<td colspan="3" style="text-align:center;">
+    ${curr && end ? curr.toLocaleString() + " ~ " + end.toLocaleString() : ""}
+</td>
+
+        </tr>`;
+         });
+
+        html += "</table>";
+
+        document.getElementById("reportArea").innerHTML = html;
+
+    })
+    .catch(err => {
+        alert("❌ 불러오기 실패: " + err);
+    });
+}
+
+function updateReportButtonText(isOpen = false) {
+    const area = document.getElementById('sheetSelect').value;
+    const poll = document.getElementById('pollType').value;
+
+    const btn = document.getElementById('reportBtn');
+
+    const baseText = isOpen 
+        ? "투표록 2면 작성자료 닫기" 
+        : "투표록 2면 작성자료 열기";
+
+    btn.innerHTML = `📊 <span style="color:#000000; font-weight:900;">    ${area}${poll} </span> ${baseText}`;
+}
+
+function loadBoxInfo() {
+    const saved = localStorage.getItem("box_info");
+    if (!saved) return;
+
+    const boxList = JSON.parse(saved);
+
+    let boxText = "📦 투표함관리번호: ";
+    boxText += boxList.join(" / ");
+
+    document.getElementById("boxInfo").innerText = boxText;
+}
+
+function checkSelectionChanged() {
+    const currentArea = document.getElementById('sheetSelect').value;
+    const currentPoll = document.getElementById('pollType').value;
+     const currentLink = document.getElementById('driveLink').value;
+
+
+    if (
+       //  prevArea && prevPoll &&  (currentArea !== prevArea || currentPoll !== prevPoll)
+          (prevArea && prevPoll && (currentArea !== prevArea || currentPoll !== prevPoll)) || 
+          (prevDriveLink && currentLink !== prevDriveLink)
+    ) {
+        document.getElementById("changeNotice").innerText =
+            currentLink !== prevDriveLink
+            ? "⚠️ 파일링크가 변경되었습니다. 기본정보를 다시 불러오세요"
+            : "⚠️ 투표소가 변경되었습니다. 기본정보를 다시 불러오세요";
+        document.getElementById("changeNotice").style.display = "block";
+    }
+
+    prevArea = currentArea;
+    prevPoll = currentPoll;
+     prevDriveLink = currentLink;
+}
+
+function markChanged() {
+    isDataChanged = true;
+    document.getElementById("saveWarning").style.display = "block";
+}
+
+function clearChanged() {
+    isDataChanged = false;
+    document.getElementById("saveWarning").style.display = "none";
+}
+
+function validateCurrRange(i) {
+    const start = parseInt(document.getElementById('start_' + i).value) || 0;
+    const end = parseInt(document.getElementById('end_' + i).value) || 0;
+    const currEl = document.getElementById('curr_' + i);
+    const curr = parseInt(currEl.value) || 0;
+
+    // 기존 표시 제거
+    currEl.classList.remove("input-error");
+
+    if (!curr) return;
+
+    if ((start && curr < start) || (end && curr > end)) {
+        currEl.classList.add("input-error");
+    }
+}
+
+
+// 여기부터 사진 업로드
+function uploadPhoto() {
+    const fileInput = document.getElementById('photoInput');
+    const files = fileInput.files;
+
+    if (!files.length) {
+        alert("파일을 선택하세요");
+        return;
+    }
+
+    const area = document.getElementById('sheetSelect').value;
+    const poll = document.getElementById('pollType').value;
+
+    let uploadedCount = 0;
+    let existsCount = 0;
+
+    Array.from(files).forEach(file => {
+
+        const fileName = area + poll + "_" + file.name;
+        const reader = new FileReader();
+
+        reader.onload = function(e) {
+            const base64 = e.target.result.split(',')[1];
+
+            fetch(SCRIPT_URL, {
+                method: "POST",
+                body: JSON.stringify({
+                    type: "uploadPhoto",
+                    fileName: fileName,
+                    mimeType: file.type,
+                    data: base64
+                })
+            })
+            .then(res => res.text())
+            .then(res => {
+                if (res === "이미 업로드된 파일입니다") {
+                    existsCount++;
+                } else {
+                    uploadedCount++;
+                }
+
+                // 👉 마지막 파일 처리 후 알림
+                if (uploadedCount + existsCount === files.length) {
+                    alert(`업로드 완료 👍 (${uploadedCount}개 성공 / ${existsCount}개 중복)`);
+		fileInput.value = "";
+                }
+            })
+            .catch(err => {
+                alert("❌ 실패: " + err);
+            });
+        };
+
+        reader.readAsDataURL(file);
+    });
+}
+// 여기까지 사진 업로드
+
+//여기부터 사진 보기
+function viewPhotos() {
+    const area = document.getElementById('sheetSelect').value;
+    const poll = document.getElementById('pollType').value;
+
+    fetch(`${SCRIPT_URL}?type=getPhotos&keyword=${area + poll}`)
+    .then(res => res.json())
+    .then(list => {
+
+console.log(list);
+
+        const box = document.getElementById('photoArea');
+        box.innerHTML = "";
+
+        list.forEach(url => {
+            box.innerHTML += `<img src="${url}" style="width:100%; margin-bottom:10px; border-radius:10px;">`;
+        });
+
+        if (list.length === 0) {
+            box.innerHTML = `
+        <div style="text-align:center; font-weight:900; color:#64748b; padding:10px;">
+            📷 ${area} ${poll} - 사진 없음
+        </div>
+    `;
+        }
+    });
+}
+//여기까지 사진 보기
+
+//여기부터 사진 초기화
+function clearPhotos() {
+    const box = document.getElementById('photoArea');
+    box.innerHTML = "";
+}
+//여기까지 사진 초기화
+
+function clearPhotoInput() {
+    const photoInput = document.getElementById('photoInput');
+    if (photoInput) {
+        photoInput.value = ""; // ⭐ 핵심
+    }
+}
+
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('sw.js');
+    }
+
+
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+
+
+</body>
+</html>
