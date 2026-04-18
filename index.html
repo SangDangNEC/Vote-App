@@ -62,9 +62,9 @@
 }
 
 .btn-row button {
-    padding: 10px 12px;   /* 핵심 */
-    font-size: 0.95rem;
-    border-radius: 10px;
+    padding: 15px 12px;   /* 핵심 */
+    font-size: 1rem;
+    border-radius: 12px;
 }
 
 .big-input input {
@@ -177,7 +177,7 @@
     
 
 <button onclick="loadFromGoogle()" 
-    style="margin-top:6px; width:100%; padding:6px 10px; background:#6366f1; color:white;  border:none; border-radius:10px;margin-bottom: 8px;">
+    style="margin-top:6px; width:100%; padding:13px 10px; background:#6366f1; color:white;  border:none; border-radius:10px;margin-bottom: 8px;">
     📥 기본 정보 불러오기
 </button>
 <div id="boxInfo" style="
@@ -194,8 +194,8 @@
 <!-- style="display:none;" 버튼 숨기기 처리 -->
 <!-- 📷 사진 업로드 -->  
 <div class="photo-row">
-    <input type="file" id="photoInput" accept="image/*" multiple  >
-    <button onclick="uploadPhoto()"  >📤 사진업로드</button>
+    <input type="file" id="photoInput" accept="image/*" multiple style="display:none;" >
+    <button onclick="uploadPhoto()" style="display:none;" >📤 사진업로드</button>
 </div>
 
 <!-- 🔍 사진 보기 -->
@@ -232,7 +232,7 @@
         <button class="btn-copy" onclick="copyAll()" style="display:none;">   📋 전체 결과 복사 </button>
         <button class="btn-reset" onclick="resetAll()" >🔄 초기화</button>
     </div>
-    <button id="reportBtn" onclick="toggleReport()"     style="width:100%; background:#0ea5e9; color:white; padding:8px 10px; border:none; border-radius:10px; margin-bottom:8px;">    📊 투표록 2면 작성자료 열기</button>
+    <button id="reportBtn" onclick="toggleReport()"     style="width:100%; background:#0ea5e9; color:white; padding:14px 10px; border:none; border-radius:10px; margin-bottom:8px;">    📊 투표록 2면 작성자료 열기</button>
     <div id="reportArea" style="display:none; margin-top:1px;"></div>
 </div>
 
