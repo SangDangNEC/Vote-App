@@ -1,12 +1,13 @@
-self.addEventListener('install', function(e) {
-    e.waitUntil(
-        caches.open('votecalc-cache').then(function(cache) {
-            return cache.addAll([
-                './',
-                './index.html'
-            ]);
-        })
-    );
+self.addEventListener("install", e => {
+  e.waitUntil(
+    caches.open("app-v1").then(cache => {
+      return cache.addAll([
+        "./",
+        "./index.html",
+        "./manifest.json"
+      ]);
+    })
+  );
 });
 
 self.addEventListener('fetch', function(e) {
