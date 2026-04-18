@@ -12,21 +12,21 @@
 
         :root { --bg: #f4f4f5; --text: #18181b; }
         body { font-family: -apple-system, "SF Pro Text", "Apple SD Gothic Neo", sans-serif; background-color: var(--bg); color: var(--text); margin: 0; padding: 10px; line-height: 1.5; -webkit-text-size-adjust: none; }
-        header { text-align: center; padding: 15px 0; background: white; border-radius: 12px; margin-bottom: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        header { text-align: center; padding: 6px 0; background: white; border-radius: 12px; margin-bottom: 3px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
         h1 { font-size: 1.2rem; margin: 0; color: #1e40af; font-weight: 900; }
         
         /* 카드 영역 보강 */
         #app { min-height: 100px; display: block; }
 
-        .election-card { background: white; border-radius: 20px; padding: 20px 15px; margin-bottom: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.08); border-top: 10px solid #ddd; }
-        .election-name { font-size: 1.15rem; font-weight: 900; margin-bottom: 18px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f1f5f9; padding-bottom: 10px; }
+        .election-card { background: white; border-radius: 20px; padding: 6px 15px; margin-bottom: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.08); border-top: 10px solid #ddd; }
+        .election-name { font-size: 1.15rem; font-weight: 900; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f1f5f9; padding-bottom: 6px; }
         
-        .input-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 18px; }
-        .input-group { display: flex; align-items: center; background: #fff; border: 2px solid #e2e8f0; border-radius: 12px; padding: 10px 8px; }
-        label { font-size: 0.75rem; font-weight: 800; color: #64748b; width: 75px; flex-shrink: 0; line-height: 1.1; }
+        .input-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; margin-bottom: 2px; margin-top: 0px;}
+        .input-group { display: flex; align-items: center; background: #fff; border: 2px solid #e2e8f0; border-radius: 12px; padding: 4px 8px; }
+        label { font-size: 0.75rem; font-weight: 800; color: #64748b; width: 90px; flex-shrink: 0; line-height: 1.1; }
         input { width: 100%; border: none; background: transparent; padding: 2px 0; font-size: 1.05rem; outline: none; text-align: right; font-weight: 800; color: #334155; -webkit-appearance: none; border-radius: 0; }
 
-        .result-bar { display: flex; justify-content: space-around; border-radius: 14px; padding: 15px 5px; border: 1px solid rgba(0,0,0,0.05); }
+        .result-bar { display: flex; justify-content: space-around; border-radius: 14px; padding: 8px 5px; border: 1px solid rgba(0,0,0,0.05); margin-top: 6px; margin-bottom: 15px;}
         .res-item { text-align: center; flex: 1; }
         .res-label { font-size: 0.8rem; color: #475569; display: block; margin-bottom: 5px; font-weight: 700; }
         .res-val { font-size: 1.2rem; font-weight: 900; }
@@ -50,11 +50,47 @@
         .btn-copy { background: #1e40af; color: white; }
         .btn-reset { background: #64748b; color: white; }
 
+.big-input {
+    padding: 5px 3px !important;
+    min-height: 30px;
+}
+
+.btn-row button {
+    padding: 10px 12px;   /* 핵심 */
+    font-size: 0.95rem;
+    border-radius: 10px;
+}
+
+.big-input input {
+    font-size: 1.0rem;
+    padding: 5px 0;
+}
+
+.photo-row {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.photo-row input[type="file"] {
+    flex: 1;               /* 파일 선택창 크게 */
+}
+
+.photo-row button {
+    flex-shrink: 0;
+    padding: 12px;
+    background: #16a34a;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-weight: 900;
+}
+
 /* 거소 관련 3개 입력창 한 줄 */
 .big-input-container {
     display: flex;
     gap: 10px; /* 창 사이 간격 */
-    margin-bottom: 15px;
+    margin-bottom: 4px;
 }
 
 /* 각 입력창을 동일 비율로 나누기 */
@@ -69,10 +105,6 @@
 }
 
     </style>
-
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#1e40af">
-
 </head>
 <body>
 
@@ -82,9 +114,7 @@
     <h1>🗳️ 투표용지 교부매수 계산기</h1>
 </header>
 
-
-
-<div style="padding:10px;display:flex; gap:8px; align-items:center;">
+<div style="padding: 4px 10px;display:flex; gap:8px; align-items:center;">
     
     <!-- 읍면동 선택 -->
     <select id="sheetSelect">
@@ -141,7 +171,7 @@
     
 
 <button onclick="loadFromGoogle()" 
-    style="margin-top:8px; width:100%; background:#6366f1; color:white; padding:12px; border:none; border-radius:10px;margin-bottom: 8px;">
+    style="margin-top:6px; width:100%; padding:6px 10px; background:#6366f1; color:white;  border:none; border-radius:10px;margin-bottom: 8px;">
     📥 기본 정보 불러오기
 </button>
 <div id="boxInfo" style="
@@ -155,15 +185,15 @@
 
 </div>
 
-<!-- style="display:none; 버튼 숨기기 처리 -->
+<!-- style="display:none;" 버튼 숨기기 처리 -->
 <!-- 📷 사진 업로드 -->  
-<input type="file" id="photoInput"  style="display:none; accept="image/*" multiple style="width:100%; margin-top:8px;">
-<button onclick="uploadPhoto()" style="display:none; style="width:100%; margin-top:8px; background:#16a34a; color:white; padding:12px; border:none; border-radius:10px;">
-    📤 사진 업로드
-</button>
+<div class="photo-row">
+    <input type="file" id="photoInput" accept="image/*" multiple  >
+    <button onclick="uploadPhoto()"  >📤 사진업로드</button>
+</div>
 
 <!-- 🔍 사진 보기 -->
-<button onclick="viewPhotos()" style="display:none; style="width:100%; margin-top:8px; background:#0ea5e9; color:white; padding:12px; border:none; border-radius:10px;">
+<button onclick="viewPhotos()" style="display:none;  style="width:100%; margin-top:8px; background:#0ea5e9; color:white; padding:12px; border:none; border-radius:10px;">
     📷 사진보기
 </button>
 <div id="photoArea" style="margin-top:10px;"></div> 
@@ -192,22 +222,27 @@
 </div>
 
     <div class="btn-row">
-        <button class="btn-save" onclick="saveToGoogle()" >☁️ 구글시트 저장</button>
+        <button class="btn-save" onclick="saveToGoogle()"  >☁️ 구글시트 저장</button>
         <button class="btn-copy" onclick="copyAll()" style="display:none;">   📋 전체 결과 복사 </button>
-        <button class="btn-reset" onclick="resetAll()">🔄 초기화</button>
+        <button class="btn-reset" onclick="resetAll()" >🔄 초기화</button>
     </div>
-    <button id="reportBtn" onclick="toggleReport()"     style="width:100%; background:#0ea5e9; color:white; padding:12px; border:none; border-radius:10px; margin-bottom:8px;">    📊 투표록 2면 작성자료 열기</button>
+    <button id="reportBtn" onclick="toggleReport()"     style="width:100%; background:#0ea5e9; color:white; padding:8px 10px; border:none; border-radius:10px; margin-bottom:8px;">    📊 투표록 2면 작성자료 열기</button>
     <div id="reportArea" style="display:none; margin-top:1px;"></div>
 </div>
 
 <script>
 let isDataChanged = false;
 
+let isPhotoVisible = false;
+
+let currentDamageIndex = null;  // 현재 훼손번호인덱스
+let damageData = {}; // 선거별 훼손번호 저장
+
 let prevDriveLink = "";
 let prevArea = "";
 let prevPoll = "";
 
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzfVdipecWx2Ezo7T-MvVH4dWqzpcShVmGWojkKEh6W8QPHzjtO7RDi4S_PIKT_RNrH/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxN223bIONJFK8swTW6sDHeNiq-1d2oM7KazeAxdUzo29dnEZ_nP1G9dTsC3wmn07WOtA/exec";
 
 const pollOptionsByArea = {
     "낭성면": ["투표소"],
@@ -225,6 +260,16 @@ const pollOptionsByArea = {
     "용암1동": ["제1투", "제2투", "제3투", "제4투", "제5투", "제6투", "제7투", "제8투", "제9투", "제10투", "제11투", "제12투"],
 };
 
+
+const electionDisplayMap = {
+       "도지사": "충청북도지사",
+       "교육감": "충청북도교육감",
+    "청주시장": "청주시장",
+      "도의원": "충청북도의원",
+      "도비례": "비례대표충청북도의원",
+      "시의원": "청주시의원",
+      "시비례": "비례대표청주시의원"
+};
 
     // 선거 데이터 정의
     const elections = [
@@ -247,14 +292,10 @@ const pollOptionsByArea = {
                         <span style="font-size:0.85rem; font-weight:600; color:#94a3b8;">${index+1} / ${elections.length} </span>
                     </div>
                     <div class="input-grid">
-                        <div class="input-group"><label>수령 첫번호</label><input type="number" inputmode="numeric" id="start_${index}" oninput="calc(${index}); markChanged();" readonly></div>
-                        <div class="input-group"><label>수령 끝번호</label><input type="number" inputmode="numeric" id="end_${index}" oninput="calc(${index}); markChanged();" readonly></div>
-                        <div class="input-group"><label>잔여 첫번호</label><input type="number" inputmode="numeric" id="curr_${index}" onchange="checkEndLimit(${index})" oninput="calc(${index}); markChanged(); this.classList.remove('input-error');"></div>
-                        <div class="input-group"><label>오훼손 매수</label>
-                            <input type="number" inputmode="numeric" id="dmg_${index}" 
-                                   placeholder="0" 
-                                   onfocus="if(this.value=='0'||this.value=='')this.value='';" 
-                                   oninput="calc(${index}); markChanged();">
+                        <div class="input-group big-input"><label>수령 첫번호</label><input type="number" inputmode="numeric" id="start_${index}" oninput="calc(${index}); markChanged();" readonly></div>
+                        <div class="input-group big-input"><label>수령 끝번호</label><input type="number" inputmode="numeric" id="end_${index}" oninput="calc(${index}); markChanged();" readonly></div>
+                        <div class="input-group big-input"><label>잔여 첫번호</label><input type="number" inputmode="numeric" id="curr_${index}" onchange="checkEndLimit(${index})" oninput="calc(${index}); markChanged(); this.classList.remove('input-error');"></div>
+                        <div class="input-group big-input">    <label>일련번호중복매수</label>    <input type="number" inputmode="numeric"        id="dupSerial_${index}"        placeholder="0"        oninput="calc(${index}); markChanged(); enforceNonNegative(this)"></div>
                         </div>
 
 
@@ -262,17 +303,19 @@ const pollOptionsByArea = {
 
 
 <div class="big-input-container">
-    <div class="big-input-group">         <label>거소미발송</label> <input type="number" inputmode="numeric" id="NoBalsong_${index}" placeholder="0" oninput="calc(${index}); markChanged();">    </div>
-    <div class="big-input-group">        <label>결정서지참</label>  <input type="number" inputmode="numeric" id="GeulJung_${index}" placeholder="0" oninput="calc(${index}); markChanged();">    </div>
+    <div class="big-input-group">         <label>거소미발송</label> <input type="number" inputmode="numeric" id="NoBalsong_${index}" placeholder="0" oninput="calc(${index}); markChanged(); enforceNonNegative(this)">    </div>
+    <div class="big-input-group">        <label>결정서지참</label>  <input type="number" inputmode="numeric" id="GeulJung_${index}" placeholder="0" oninput="calc(${index}); markChanged(); enforceNonNegative(this)">    </div>
 </div>
 
 <div class="big-input-container">
-    <div class="big-input-group">        <label>거소봉투반납</label>        <input type="number"  inputmode="numeric" id="GiveBack_${index}" placeholder="0" oninput="calc(${index}); markChanged();">    </div>
-    <div class="big-input-group">         <label>귀국투표</label> <input type="number" inputmode="numeric" id="ReturnKorea_${index}" placeholder="0" oninput="calc(${index}); markChanged();" readonly>    </div>
+    <div class="big-input-group">        <label>거소봉투반납</label>        <input type="number"  inputmode="numeric" id="GiveBack_${index}" placeholder="0" oninput="calc(${index}); markChanged(); enforceNonNegative(this)">    </div>
+    <div class="big-input-group">         <label>귀국투표</label> <input type="number" inputmode="numeric" id="ReturnKorea_${index}" placeholder="0" oninput="calc(${index}); markChanged(); enforceNonNegative(this)" readonly>    </div>
 </div>
 <div class="big-input-container">
-    <div class="big-input-group">        <label>중복교부</label>  <input type="number" inputmode="numeric" id="DoubleOut_${index}" placeholder="0" oninput="calc(${index}); markChanged();">    </div>
+    <div class="big-input-group">        <label>중복교부</label>  <input type="number" inputmode="numeric" id="DoubleOut_${index}" placeholder="0" oninput="calc(${index}); markChanged(); enforceNonNegative(this)">    </div>
+    <div class="big-input-group">         <label>오훼손 매수</label><input type="number" inputmode="numeric" id="dmg_${index}" onfocus="openDamageModal(${index})"  placeholder="0" readonly    onfocus="if(this.value=='0'||this.value=='')this.value='';"    oninput="calc(${index}); markChanged(); enforceNonNegative(this)"> </div>
 </div>
+
 
 
 
@@ -326,6 +369,7 @@ const pollOptionsByArea = {
         const end = parseInt(document.getElementById('end_' + i).value) || 0;
         const curr = parseInt(document.getElementById('curr_' + i).value) || 0;
         const dmg = parseInt(document.getElementById('dmg_' + i).value) || 0;
+        const dupSerial = parseInt(    document.getElementById('dupSerial_' + i).value) || 0;
 
         const NoBalsong= parseInt(document.getElementById('NoBalsong_' + i).value) || 0;
         const GeulJung= parseInt(document.getElementById('GeulJung_' + i).value) || 0;
@@ -335,21 +379,20 @@ const pollOptionsByArea = {
         const DoubleOut= parseInt(document.getElementById('DoubleOut_' + i).value) || 0;
 
         if (start > 0 && end > 0) {
-            //const total = end - start + 1;
-            //document.getElementById('total_' + i).innerText = total.toLocaleString();
 
-	const totalText = document.getElementById('total_' + i).innerText.replace(/,/g, '');
-	const total = parseInt(totalText) || 0;
+	//const totalText = document.getElementById('total_' + i).innerText.replace(/,/g, '');
+	//const total = parseInt(totalText) || 0;
 
-            if (curr > 0) {
-                //const issued = (curr - start) - dmg;
+	const total = (start > 0 && end > 0) ? (end - start + 1  + dupSerial ) :  dupSerial;
+	    document.getElementById('total_' + i).innerText = total.toLocaleString();
 
-                const remain = (end - curr + 1) + dmg;
-                const issued = total - remain;
+	    if (curr > 0) {
+	        const remain = (end - curr + 1) + dmg;
+	        const issued = total - remain;
 
-                document.getElementById('issued_' + i).innerText = (issued < 0 ? 0 : issued).toLocaleString();
-                document.getElementById('remain_' + i).innerText = (remain < 0 ? 0 : remain).toLocaleString();
-            }
+	        document.getElementById('issued_' + i).innerText = (issued < 0 ? 0 : issued).toLocaleString();
+	        document.getElementById('remain_' + i).innerText = (remain < 0 ? 0 : remain).toLocaleString();
+	    }
         }
     }
 
@@ -361,6 +404,7 @@ const pollOptionsByArea = {
                 data['end_' + i] = document.getElementById('end_' + i).value;
                 data['curr_' + i] = document.getElementById('curr_' + i).value;
                 data['dmg_' + i] = document.getElementById('dmg_' + i).value;
+	   data['damageNos_' + i] = damageData[i] || "";
 
 	data['NoBalsong_' + i] = document.getElementById('NoBalsong_' + i).value;
 	data['GeulJung_' + i] = document.getElementById('GeulJung_' + i).value;
@@ -368,6 +412,7 @@ const pollOptionsByArea = {
 
 	data['ReturnKorea_' + i] = document.getElementById('ReturnKorea_' + i).value;
 	data['DoubleOut_' + i] = document.getElementById('DoubleOut_' + i).value;
+	data['dupSerial_' + i] = document.getElementById('dupSerial_' + i).value;
             
             });
 
@@ -392,6 +437,8 @@ const pollOptionsByArea = {
                     const dmgVal = data['dmg_' + i];
                     document.getElementById('dmg_' + i).value = (dmgVal == "0" || dmgVal == "") ? "" : dmgVal;
 
+		damageData[i] = data['damageNos_' + i] || "";
+
 
 	document.getElementById('NoBalsong_' + i).value = data['NoBalsong_' + i] || "";
 	document.getElementById('GeulJung_' + i).value = data['GeulJung_' + i] || "";
@@ -399,6 +446,7 @@ const pollOptionsByArea = {
 
 	document.getElementById('ReturnKorea_' + i).value = data['ReturnKorea_' + i] || "";
 	document.getElementById('DoubleOut_' + i).value = data['DoubleOut_' + i] || "";
+	document.getElementById('dupSerial_' + i).value = data['dupSerial_' + i] || "";
 
                     calc(i);
                 });
@@ -503,11 +551,13 @@ document.addEventListener('DOMContentLoaded', function() {
     updatePreview(); // 처음 실행
     loadBoxInfo(); 
     
+});
+
+function initPrevState() {
     prevArea = document.getElementById('sheetSelect').value;
     prevPoll = document.getElementById('pollType').value;
     prevDriveLink = document.getElementById('driveLink').value;
-
-});
+}
 
 function findRowByPollName(ws, pollName) {
     const range = XLSX.utils.decode_range(ws['!ref']);
@@ -620,6 +670,7 @@ function loadSelection() {
         setTimeout(() => {
             document.getElementById('pollType').value = savedPoll;
             updatePreview();
+	initPrevState();
             updateReportButtonText(false); // ✅ 여기 추가 (핵심)
         }, 0);
     } else {
@@ -641,22 +692,39 @@ function loadSelection() {
 
 
 document.getElementById('sheetSelect').onchange = function() {
+    const oldArea = prevArea;
+    const oldPoll = prevPoll;
+
     updatePollOptions();
     updatePreview();
     saveSelection();
+
+    checkSelectionChanged(); // 👉 여기 그대로 OK
+
     updateReportButtonText(false);
-    checkSelectionChanged();
+
     clearPhotos();    
     clearPhotoInput(); 
+    isPhotoVisible = false;
 };
 
 document.getElementById('pollType').onchange = function() {
+    const oldPoll = prevPoll;
+    const newPoll = this.value;
+
     updatePreview();
     saveSelection();
-    updateReportButtonText(false);
-    checkSelectionChanged();
+
+    if (oldPoll && oldPoll !== newPoll) {
+        document.getElementById("changeNotice").innerText =
+            "⚠️ 투표소가 변경되었습니다. 기본정보를 다시 불러오세요";
+        document.getElementById("changeNotice").style.display = "block";
+    }
+
+    prevPoll = newPoll; // ⭐ 마지막에 갱신
     clearPhotos();
-    clearPhotoInput(); 
+    clearPhotoInput();
+    isPhotoVisible = false;
 };
 
 document.getElementById('driveLink').addEventListener('input', function() {
@@ -707,8 +775,10 @@ function saveToGoogle() {
         geulJung: [],
         giveBack: [],
         dmg: [],
+        damageNos: [],
        doubleOut:  [],
-       returnKorea:  []
+       returnKorea:  [],
+       dupSerial: [] 
     };
 
     // 👉 7개 선거 값 수집
@@ -718,8 +788,10 @@ function saveToGoogle() {
         data.geulJung.push(Number(document.getElementById('GeulJung_' + i).value || 0));
         data.giveBack.push(Number(document.getElementById('GiveBack_' + i).value || 0));
         data.dmg.push(Number(document.getElementById('dmg_' + i).value || 0));
+        data.damageNos.push(damageData[i] || "");
         data.returnKorea.push(Number(document.getElementById('ReturnKorea_' + i).value || 0));
         data.doubleOut.push(Number(document.getElementById('DoubleOut_' + i).value || 0));
+        data.dupSerial.push(Number(document.getElementById('dupSerial_' + i).value || 0));
   });
 
     fetch(SCRIPT_URL, {
@@ -829,7 +901,39 @@ function loadFromGoogle() {
             document.getElementById('total_' + i).innerText = Number(item.total || 0).toLocaleString();
 
 	document.getElementById('curr_' + i).value = item.curr || "";
-    document.getElementById('dmg_' + i).value = item.dmg || "";
+ 
+	document.getElementById('dupSerial_' + i).value = item.dupSerial || "";
+
+            // document.getElementById('dmg_' + i).value = item.dmg || "";
+	damageData[i] = item.damageNos || "";
+
+
+const list = (item.damageNos || "")
+    .split('/')
+    .map(v => v.trim())
+    .filter(v => v);
+
+let count = 0;
+
+list.forEach(val => {
+    if (val.includes("~")) {
+        const nums = val.replace("No. ", "").split("~");
+        const start = Number(nums[0]);
+        const end = Number(nums[1]);
+
+        if (start && end) {
+            count += (end - start + 1);
+        }
+    } else {
+        count += 1;
+    }
+});
+
+document.getElementById('dmg_' + i).value = count;
+
+
+
+
 
     document.getElementById('NoBalsong_' + i).value = item.noBalsong || "";
     document.getElementById('GeulJung_' + i).value = item.geulJung || "";
@@ -929,7 +1033,7 @@ function loadReport() {
         data.forEach(d => {
             const sum = d.voter || 0;
             html += `<tr>
-            <td style="text-align:right">${d.election}</td>
+            <td style="text-align:left">    ${electionDisplayMap[d.election] || d.election}</td>
             <td style="text-align:right">${Number(d.list1 || 0).toLocaleString()}</td>
             <td style="text-align:right">${Number(d.list2 || 0).toLocaleString()}</td>
             <td style="text-align:right">${Number(d.noBalsong || 0).toLocaleString()}</td>
@@ -953,13 +1057,19 @@ function loadReport() {
     const end = Number(d.end || 0);
 
             html += `<tr>
-            <td style="text-align:right">${d.election}</td>
+            <td style="text-align:left">    ${electionDisplayMap[d.election] || d.election}</td>
             <td style="text-align:right">${Number(d.total || 0).toLocaleString()}</td>
             <td style="text-align:right">${Number(d.issued || 0).toLocaleString()}</td>
             <td style="text-align:right">${Number(d.remain || 0).toLocaleString()}</td>
 
 <td colspan="3" style="text-align:center;">
-    ${curr && end ? curr.toLocaleString() + " ~ " + end.toLocaleString() : ""}
+    ${d.damageNos ? `<div style="color:#dc2626; font-weight:800;">
+        [훼손] ${d.damageNos}
+    </div>` : ""}
+
+    ${curr && end ? `<div>
+        ${curr.toLocaleString()} ~ ${end.toLocaleString()}
+    </div>` : ""}
 </td>
 
         </tr>`;
@@ -1003,24 +1113,28 @@ function loadBoxInfo() {
 function checkSelectionChanged() {
     const currentArea = document.getElementById('sheetSelect').value;
     const currentPoll = document.getElementById('pollType').value;
-     const currentLink = document.getElementById('driveLink').value;
+    const currentLink = document.getElementById('driveLink').value;
 
+    const areaChanged = currentArea !== prevArea;
+    const pollChanged = currentPoll !== prevPoll;
+    const linkChanged = currentLink !== prevDriveLink;
 
-    if (
-       //  prevArea && prevPoll &&  (currentArea !== prevArea || currentPoll !== prevPoll)
-          (prevArea && prevPoll && (currentArea !== prevArea || currentPoll !== prevPoll)) || 
-          (prevDriveLink && currentLink !== prevDriveLink)
-    ) {
+    if ((areaChanged || pollChanged) && prevArea && prevPoll) {
         document.getElementById("changeNotice").innerText =
-            currentLink !== prevDriveLink
-            ? "⚠️ 파일링크가 변경되었습니다. 기본정보를 다시 불러오세요"
-            : "⚠️ 투표소가 변경되었습니다. 기본정보를 다시 불러오세요";
+            "⚠️ 투표소가 변경되었습니다. 기본정보를 다시 불러오세요";
         document.getElementById("changeNotice").style.display = "block";
     }
 
+    if (linkChanged && prevDriveLink) {
+        document.getElementById("changeNotice").innerText =
+            "⚠️ 파일링크가 변경되었습니다. 기본정보를 다시 불러오세요";
+        document.getElementById("changeNotice").style.display = "block";
+    }
+
+    // ⭐ 핵심: 무조건 최신값으로 갱신
     prevArea = currentArea;
     prevPoll = currentPoll;
-     prevDriveLink = currentLink;
+    prevDriveLink = currentLink;
 }
 
 function markChanged() {
@@ -1109,6 +1223,18 @@ function uploadPhoto() {
 
 //여기부터 사진 보기
 function viewPhotos() {
+    const box = document.getElementById('photoArea');
+    const btn = document.querySelector('button[onclick="viewPhotos()"]');
+
+    // 👉 이미 열려있으면 닫기
+    if (isPhotoVisible) {
+        box.innerHTML = "";
+        isPhotoVisible = false;
+        btn.innerText = "📷 사진보기";
+        return;
+    }
+
+    // 👉 처음 클릭이면 불러오기
     const area = document.getElementById('sheetSelect').value;
     const poll = document.getElementById('pollType').value;
 
@@ -1116,9 +1242,6 @@ function viewPhotos() {
     .then(res => res.json())
     .then(list => {
 
-console.log(list);
-
-        const box = document.getElementById('photoArea');
         box.innerHTML = "";
 
         list.forEach(url => {
@@ -1127,11 +1250,15 @@ console.log(list);
 
         if (list.length === 0) {
             box.innerHTML = `
-        <div style="text-align:center; font-weight:900; color:#64748b; padding:10px;">
-            📷 ${area} ${poll} - 사진 없음
-        </div>
-    `;
+                <div style="text-align:center; font-weight:900; color:#64748b; padding:10px;">
+                    📷 ${area} ${poll} - 사진 없음
+                </div>
+            `;
         }
+
+        // 👉 상태 변경
+        isPhotoVisible = true;
+        btn.innerText = "📷 사진닫기";
     });
 }
 //여기까지 사진 보기
@@ -1150,14 +1277,358 @@ function clearPhotoInput() {
     }
 }
 
-    if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('sw.js');
+function openDamageModal(i) {
+    currentDamageIndex = i;
+
+    const listBox = document.getElementById("damageList");
+    listBox.innerHTML = "";
+
+    const existing = damageData[i] || "";
+
+    if (existing) {
+        const arr = existing.split('/').map(v => v.trim()).filter(v => v);
+
+        arr.forEach(val => {
+            const clean = val.replace("No. ", "");
+
+            listBox.innerHTML += `
+                <div style="display:flex; gap:5px; margin-bottom:5px;">
+                    <input type="text" value="${clean}" 
+                        style="flex:1; padding:10px; border:1px solid #ccc; border-radius:6px;">
+                    <button onclick="removeDamageInput(this)" 
+                        style="background:#dc2626;color:white;">삭제</button>
+                </div>
+            `;
+        });
     }
 
+    document.getElementById("newDamageInput").value = "";
+    document.getElementById("damageModal").style.display = "flex";
+}
+
+function removeDamageInput(btn) {
+    btn.parentElement.remove();
+}
+
+function closeDamageModal() {
+    // 모달 숨기기
+    document.getElementById("damageModal").style.display = "none";
+
+    // 입력값 초기화
+    document.getElementById("newDamageInput").value = "";
+    document.getElementById("rangeStart").value = "";
+    document.getElementById("rangeEnd").value = "";
+
+    // 리스트 초기화
+    document.getElementById("damageList").innerHTML = "";
+
+    // 빨간 테두리 제거
+    document.querySelectorAll("#damageModal .input-error").forEach(el => {
+        el.classList.remove("input-error");
+    });
+}
+
+function saveDamageNumbers() {
+    const inputs = document.querySelectorAll("#damageList input");
+
+    for (let input of inputs) {
+        if (!validateDamageInput(input)) return; // ❗ 하나라도 틀리면 저장 중단
+    }
+
+    let ranges = [];
+
+    inputs.forEach(input => {
+        const val = input.value.trim();
+        if (!val) return;
+
+        const r = parseRange(val);
+        if (r) ranges.push(r);
+    });
+
+    // ✅ 1. 정렬
+    ranges.sort((a, b) => a[0] - b[0]);
+
+    // ✅ 2. 자동 병합
+    const merged = [];
+
+    ranges.forEach(r => {
+        if (!merged.length) {
+            merged.push(r);
+        } else {
+            const last = merged[merged.length - 1];
+
+            // 👉 이어지거나 겹치면 병합
+            if (r[0] <= last[1] + 1) {
+                last[1] = Math.max(last[1], r[1]);
+            } else {
+                merged.push(r);
+            }
+        }
+    });
+
+    // ✅ 3. 문자열 + 개수 계산
+    let result = [];
+    let totalCount = 0;
+
+    merged.forEach(([start, end]) => {
+        if (start === end) {
+            result.push(`No. ${start}`);
+            totalCount += 1;
+        } else {
+            result.push(`No. ${start} ~ ${end}`);
+            totalCount += (end - start + 1);
+        }
+    });
+
+    damageData[currentDamageIndex] = result.join(" / ");
+
+    document.getElementById('dmg_' + currentDamageIndex).value = totalCount;
+
+    calc(currentDamageIndex);
+    markChanged();
+
+    closeDamageModal();
+}
+
+
+function clearDamage(i) {
+    if (!confirm("훼손번호를 모두 삭제하시겠습니까?")) return;
+
+    damageData[i] = "";
+    document.getElementById('dmg_' + i).value = "";
+    calc(i);
+    markChanged();
+}
+
+function addDamageInput() {
+    const input = document.getElementById("newDamageInput");
+    const val = input.value.trim();
+
+    if (!val) {
+        alert("번호를 입력하세요");
+        return;
+    }
+
+    if (!validateDamageInput(input)) return;
+
+    const newRange = parseRange(val);
+    if (!newRange) {
+        alert("올바른 번호 또는 범위를 입력하세요");
+        return;
+    }
+
+    const listBox = document.getElementById("damageList");
+
+    const newItem = document.createElement("div");
+    newItem.style.display = "flex";
+    newItem.style.gap = "5px";
+    newItem.style.marginBottom = "5px";
+
+    newItem.innerHTML = `
+        <input type="text" value="${val}" 
+            style="flex:1; padding:10px; border:1px solid #ccc; border-radius:6px;"
+            oninput="this.classList.remove('input-error'); validateDamageInput(this)">
+        <button onclick="removeDamageInput(this)" 
+            style="background:#dc2626;color:white;">삭제</button>
+    `;
+
+    listBox.prepend(newItem);
+
+    input.value = "";
+    input.focus();
+}
+
+function addDamageRange() {
+    const start = document.getElementById("rangeStart");
+    const end = document.getElementById("rangeEnd");
+
+    if (!validateDamageInput(start) || !validateDamageInput(end)) return;
+
+    if (!start.value || !end.value) {
+        alert("시작번호와 끝번호를 입력하세요");
+        return;
+    }
+
+    const val = `${start.value}~${end.value}`;
+    const newRange = parseRange(val);
+
+    if (!newRange) {
+        alert("범위 입력 오류");
+        return;
+    }
+
+    const listBox = document.getElementById("damageList");
+
+    const newItem = document.createElement("div");
+    newItem.style.display = "flex";
+    newItem.style.gap = "5px";
+    newItem.style.marginBottom = "5px";
+
+    newItem.innerHTML = `
+        <input type="text" value="${val}" 
+            style="flex:1; padding:10px; border:1px solid #ccc; border-radius:6px;"
+            oninput="this.classList.remove('input-error'); validateDamageInput(this)">
+        <button onclick="removeDamageInput(this)" 
+            style="background:#dc2626;color:white;">삭제</button>
+    `;
+
+    listBox.prepend(newItem);
+
+    start.value = "";
+    end.value = "";
+}
+
+
+
+function parseRange(val) {
+    val = val.trim();
+
+    if (val.includes("~")) {
+        const [start, end] = val.split("~").map(v => Number(v));
+        if (!start || !end || start > end) return null;
+        return [start, end];
+    } else {
+        const num = Number(val);
+        if (!num) return null;
+        return [num, num];
+    }
+}
+
+function isOverlap(r1, r2) {
+    return !(r1[1] < r2[0] || r2[1] < r1[0]);
+}
+
+function enforceNonNegative(el) {
+    if (el.value === "") return;
+
+    let val = Number(el.value);
+
+    if (val < 0) {
+        el.value = 0;
+    }
+}
+
+function validateDamageInput(inputEl) {
+    const val = inputEl.value.trim();
+    const range = parseRange(val);
+
+    const i = currentDamageIndex;
+
+    const start = parseInt(document.getElementById('start_' + i).value) || 0;
+    const end = parseInt(document.getElementById('end_' + i).value) || 0;
+
+    inputEl.classList.remove("input-error");
+
+    if (!range) return true;
+
+    const [s, e] = range;
+
+    // ❗ 음수 체크
+    if (s < 0 || e < 0) {
+        alert("0보다 작은 번호는 입력할 수 없습니다.");
+        inputEl.classList.add("input-error");
+        return false;
+    }
+
+    // ❗ 수령 범위 체크
+    if (start && s < start || end && e > end) {
+        alert("수령 범위를 벗어난 번호입니다.");
+        inputEl.classList.add("input-error");
+        return false;
+    }
+
+    return true;
+}
 
 </script>
 
 <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+
+<!-- 🧾 훼손번호 입력 팝업 -->
+<div id="damageModal" style="
+    display:none;
+    position:fixed;
+    top:0; left:0;
+    width:100%; height:100%;
+    background:rgba(0,0,0,0.5);
+    z-index:9999;
+    justify-content:center;
+    align-items:center;
+">
+    <div style="
+        background:white;
+        width:90%;
+        max-width:600px;
+        height:90vh;              
+        border-radius:12px;
+        padding:15px;
+        max-height:80vh;       /* ⭐ 화면 높이 기준 */
+        overflow-y:auto;   
+        flex-direction:column;
+    ">
+
+        <div style="display:flex; gap:8px; margin-top:auto;">
+            <button onclick="saveDamageNumbers()" style="flex:1; background:#10b981; color:white;">확인</button>
+            <button onclick="closeDamageModal()" style="flex:1; background:#64748b; color:white;">취소</button>
+        </div>
+
+
+
+<div style="display:flex; gap:5px; margin-top:10px;">
+    <input type="number" id="newDamageInput" placeholder="번호 입력"
+        style="flex:1; padding:10px; border:1px solid #ccc; border-radius:8px;">
+    
+    <button onclick="addDamageInput()" 
+        style="background:#0ea5e9; color:white; padding:10px 12px; border-radius:8px;">
+        ➕ 번호추가
+    </button>
+</div>
+<div style="display:flex; gap:5px; margin-top:5px;">
+    <input type="number" id="rangeStart" placeholder="시작번호"
+        style="flex:1; padding:10px; border:1px solid #ccc; border-radius:8px;">
+    <input type="number" id="rangeEnd" placeholder="끝번호"
+        style="flex:1; padding:10px; border:1px solid #ccc; border-radius:8px;">
+    
+    <button onclick="addDamageRange()" 
+        style="background:#22c55e; color:white; padding:10px 12px; border-radius:8px;">
+        ➕ 범위추가
+    </button>
+</div>
+	<div style="
+	    margin-top:10px;
+	    margin-bottom:5px;
+	    padding:10px;
+	    background:#fef3c7;
+	    color:#92400e;
+	    font-weight:800;
+	    border-radius:8px;
+	    font-size:0.9rem;
+	    text-align:center;
+	">
+	    ⚠️ 투표록에도 훼손된 투표용지 일련번호를 기재해 주세요
+	</div>
+
+        <h3>🧾 훼손된 투표용지 번호</h3>
+
+
+        <!-- 기존 값 -->
+        <div id="existingDamage" style="
+            font-size:13px;
+            margin-bottom:10px;
+            color:#334155;
+            word-break:break-all;
+        "></div>
+	<!-- 추가 -->
+	<div id="damageList" style="
+	    flex:1;
+	    overflow-y:auto;
+	    margin-bottom:10px;
+	"></div>
+
+
+    </div>
+</div>
+
 
 
 </body>
