@@ -1543,21 +1543,18 @@ function validateDamageInput(inputEl) {
 
 // ===== 뒤로가기 제어 =====
 let exitConfirmed = false;
-
-// 처음 진입 시 히스토리 추가 (뒤로가기 감지용)
+// 초기 히스토리 2번 쌓기
+history.pushState(null, null, location.href);
 history.pushState(null, null, location.href);
 
 window.addEventListener("popstate", function () {
 
-    // 이미 종료 확정이면 그냥 종료
-    if (exitConfirmed) {
-        return;
-    }
+    if (exitConfirmed) return;
 
     const exit = confirm("앱을 종료하시겠습니까?");
 
     if (!exit) {
-        // 취소 → 다시 현재 페이지 유지
+        // 뒤로가기 막기 (핵심)
         history.pushState(null, null, location.href);
         return;
     }
@@ -1565,17 +1562,15 @@ window.addEventListener("popstate", function () {
     const save = confirm("현재 값을 저장하시겠습니까?");
 
     if (save) {
-        // 저장 실행 (지금 네 코드 함수)
-        saveData();   // localStorage 저장
-        saveToGoogle(); // 필요하면 서버 저장도 가능
-
+        saveData();
+        saveToGoogle();
         alert("저장 완료 후 종료됩니다.");
     }
 
     exitConfirmed = true;
 
-    // 실제 뒤로가기 실행
-    history.back();
+    // 실제 종료 허용 (뒤로 2번)
+    history.go(-2);
 });
 
 </script>
