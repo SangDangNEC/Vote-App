@@ -1,9 +1,14 @@
 {
   "name": "투표용지 계산기",
-  "short_name": "투표계산",
+  "short_name": "투표계산기",
   "start_url": ".",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#1e40af",
-  "icons": []
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    }
 }
