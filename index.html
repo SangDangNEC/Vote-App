@@ -171,7 +171,6 @@ button:disabled {
 <div class="card">
     <b>🔗 구글드라이브 파일 링크</b><br>
     <input type="text" id="driveLink" 
-      value="https://docs.google.com/spreadsheets/d/10sA6znSJ6meSx8WvKyOnySecxZlqt7FoIG6mqiSmFWQ/edit?usp=sharing"
       placeholder="여기를 클릭한 후 구글드라이브 파일 링크를 붙여넣기 하세요" 
       style="width:100%;
         box-sizing: border-box;
@@ -265,6 +264,9 @@ button:disabled {
 </div>
 
 <script>
+const DEFAULT_DRIVE_LINK =
+"https://docs.google.com/spreadsheets/d/10sA6znSJ6meSx8WvKyOnySecxZlqt7FoIG6mqiSmFWQ/edit?usp=sharing";
+	
 let isDataChanged = false;
 
 let isPhotoVisible = false;
@@ -523,6 +525,7 @@ const electionDisplayMap = {
  	document.getElementById('sheetSelect').disabled = false;
 	document.getElementById('pollType').disabled = false;
 	document.getElementById('driveLink').readOnly = false;
+			document.getElementById('driveLink').value = DEFAULT_DRIVE_LINK;
         }
     }
 
@@ -738,8 +741,10 @@ function loadSelection() {
     }
 
    if (savedLink) {
-        document.getElementById('driveLink').value = savedLink; // ✅ 핵심
-    }
+    document.getElementById('driveLink').value = savedLink;
+} else {
+    document.getElementById('driveLink').value = DEFAULT_DRIVE_LINK;
+}
 const lock = localStorage.getItem("selection_lock");
 
 if (lock) {
