@@ -4,7 +4,7 @@
     <link rel="manifest" href="manifest.json">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="투표 계산기">
+    <meta name="apple-mobile-web-app-title" content="교부매수 계산기">
     <link rel="apple-touch-icon" href="icon.png">
 
     <meta charset="UTF-8">
@@ -170,7 +170,9 @@ button:disabled {
 <!-- ✅ 파일 & 링크 영역 -->
 <div class="card">
     <b>🔗 구글드라이브 파일 링크</b><br>
-    <input type="text" id="driveLink" placeholder="여기를 클릭한 후 구글드라이브 파일 링크를 붙여넣기 하세요" 
+    <input type="text" id="driveLink" 
+      value="https://docs.google.com/spreadsheets/d/10sA6znSJ6meSx8WvKyOnySecxZlqt7FoIG6mqiSmFWQ/edit?usp=sharing"
+      placeholder="여기를 클릭한 후 구글드라이브 파일 링크를 붙여넣기 하세요" 
       style="width:100%;
         box-sizing: border-box;
         padding:10px;
@@ -274,7 +276,7 @@ let prevDriveLink = "";
 let prevArea = "";
 let prevPoll = "";
 
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxN223bIONJFK8swTW6sDHeNiq-1d2oM7KazeAxdUzo29dnEZ_nP1G9dTsC3wmn07WOtA/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzVE87poMHjFBCCcIbfIYjxljOSMrASD0O5L3C27SXF8MBHopg_G4Q2gmJqvxdjZZaj_w/exec";
 
 const pollOptionsByArea = {
     "낭성면": ["투표소"],
@@ -294,20 +296,20 @@ const pollOptionsByArea = {
 
 
 const electionDisplayMap = {
-       "도지사": "충청북도지사",
        "교육감": "충청북도교육감",
+       "도지사": "충청북도지사",
     "청주시장": "청주시장",
       "도의원": "충청북도의원",
-      "도비례": "비례대표충청북도의원",
       "시의원": "청주시의원",
+      "도비례": "비례대표충청북도의원",
       "시비례": "비례대표청주시의원"
 };
 
     // 선거 데이터 정의
     const elections = [
-        "도지사선거", "교육감선거", "시장선거",
-        "도의원선거(지역)", "도의원선거(비례)", 
-        "시의원선거(지역)", "시의원선거(비례)"
+        "교육감선거", "도지사선거",  "시장선거",
+        "도의원선거(지역)", "시의원선거(지역)",
+        "도의원선거(비례)", "시의원선거(비례)"
     ];
 
     // 1. 카드 렌더링 함수 (보안 충돌 방지를 위해 즉시 실행)
@@ -831,7 +833,7 @@ function saveToGoogle() {
        dupSerial: [] 
     };
 
-    // 👉 7개 선거 값 수집
+    // 👉 선거 값 수집
     elections.forEach((_, i) => {
         data.start.push(Number(document.getElementById('curr_' + i).value || 0));
         data.noBalsong.push(Number(document.getElementById('NoBalsong_' + i).value || 0));
@@ -880,7 +882,7 @@ function mapHtmlToExcel(ws, pollName) {
     if (startRow === null) return alert("투표구명을 찾을 수 없음");
 
     // 2. 선거명 매핑
-    const excelElections = ["도지사","교육감","청주시장","도의원","도비례","시의원","시비례"];
+    const excelElections = ["교육감","도지사","청주시장","도의원","시의원","도비례","시비례"];
     elections.forEach((htmlName, i) => {
 
 
