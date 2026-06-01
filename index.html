@@ -265,6 +265,7 @@ button:disabled {
 </div>
 
     <div class="btn-row">
+        <button     style="background:#f59e0b;color:white;"     onclick="savePhone()">     📱 핸드폰에 저장 </button>
         <button class="btn-save" onclick="saveToGoogle()"  >☁️ 구글시트 저장</button>
         <button class="btn-copy" onclick="copyAll()" style="display:none;">   📋 전체 결과 복사 </button>
 
@@ -290,6 +291,23 @@ button:disabled {
 
 <div style="display:flex; gap:82px; align-items:center;">
     <button onclick="goMain()">← 돌아가기</button>
+
+<select id="adminAreaFilter" onchange="loadAdminData()">
+    <option value="전체">전체</option>
+    <option value="낭성면">낭성면</option>
+    <option value="미원면">미원면</option>
+    <option value="가덕면">가덕면</option>
+    <option value="남일면">남일면</option>
+    <option value="문의면">문의면</option>
+    <option value="중앙동">중앙동</option>
+    <option value="성안동">성안동</option>
+    <option value="탑대성동">탑대성동</option>
+    <option value="영운동">영운동</option>
+    <option value="금천동">금천동</option>
+    <option value="용담명암산성동">용담명암산성동</option>
+    <option value="용암1동">용암1동</option>
+    <option value="용암2동">용암2동</option>
+</select>
 
 </div>
 
@@ -361,7 +379,7 @@ let prevDriveLink = "";
 let prevArea = "";
 let prevPoll = "";
 
-const DEFAULT_DRIVE_LINK ="https://docs.google.com/spreadsheets/d/10sA6znSJ6meSx8WvKyOnySecxZlqt7FoIG6mqiSmFWQ/edit?usp=sharing";
+const DEFAULT_DRIVE_LINK ="https://docs.google.com/spreadsheets/d/18c0QpyMACXqr47b-WWDdhFSsUtogin_F2suIBREoxsU/edit?usp=sharing";
 
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwboJHsfDOWB84FMjXja-F1TjnxlLwTIsilXv-L6MDGCLIRdApsaONntWEl5FQKd6dCIg/exec";
 
@@ -974,7 +992,7 @@ elections.forEach((_, i) => {
     let changed = false;
 
     for (let key in curr) {
-        if ((orig[key] ?? "") != curr[key]) {
+        if (   String(orig[key] ?? "") !== String(curr[key])  ) {
             changed = true;
             break;
         }
@@ -1214,14 +1232,155 @@ function toggleReport() {
     if (area.style.display === "none") {
         area.style.display = "block";
         updateReportButtonText(true);   // 🔥 열기 → 닫기
-        loadReport();
+        // loadGoogleReport();
+        loadPhoneReport();
+
     } else {
         area.style.display = "none";
         updateReportButtonText(false);  // 🔥 닫기 → 열기
     }
 }
 
-function loadReport() {
+function savePhone() {
+
+    saveData();
+
+    alert("📱 핸드폰에 저장되었습니다.");
+}
+
+function loadPhoneReport() {
+
+    let html = "<h3 style='margin:0;'>📊 투표록 2면 작성자료</h3>";
+
+    // 투표함관리번호
+    const savedBox = localStorage.getItem("box_info");
+    const boxList = savedBox ? JSON.parse(savedBox) : [];
+
+    html += `
+    <table border="1" style="width:100%; font-size:12px; margin-bottom:5px;">
+    <tr>
+        <th style="width:30%;">투표함관리번호</th>
+        <td style="text-align:left; font-weight:bold;">
+            ${boxList.join(" / ")}
+        </td>
+    </tr>
+    </table>
+    `;
+
+    // 1번 표
+    html += `
+    <table border="1" style="width:100%; font-size:12px; margin-bottom:5px;">
+    <tr>
+        <th>선거명</th>
+        <th>미발송</th>
+        <th>결정서</th>
+        <th>봉투반납</th>
+    </tr>
+    `;
+
+    elections.forEach((name, i) => {
+
+        html += `
+        <tr>
+            <td style="text-align:left;">
+                ${name}
+            </td>
+
+            <td style="text-align:right;">
+                ${Number(document.getElementById('NoBalsong_' + i).value || 0).toLocaleString()}
+            </td>
+
+            <td style="text-align:right;">
+                ${Number(document.getElementById('GeulJung_' + i).value || 0).toLocaleString()}
+            </td>
+
+            <td style="text-align:right;">
+                ${Number(document.getElementById('GiveBack_' + i).value || 0).toLocaleString()}
+            </td>
+        </tr>
+        `;
+    });
+
+    html += "</table>";
+
+    // 2번 표
+    html += `
+    <table border="1" style="width:100%; font-size:12px;">
+    <tr>
+        <th>선거명</th>
+        <th>수령</th>
+        <th>교부</th>
+        <th>잔여</th>
+        <th colspan="3">잔여 투표용지 일련번호</th>
+    </tr>
+    `;
+
+    elections.forEach((name, i) => {
+
+        const total =
+            document.getElementById('total_' + i).innerText;
+
+        const issued =
+            document.getElementById('issued_' + i).innerText;
+
+        const remain =
+            document.getElementById('remain_' + i).innerText;
+
+        const curr =
+            Number(document.getElementById('curr_' + i).value || 0);
+
+        const end =
+            Number(document.getElementById('end_' + i).value || 0);
+
+        html += `
+        <tr>
+
+            <td style="text-align:left;">
+                ${name}
+            </td>
+
+            <td style="text-align:right;">
+                ${total}
+            </td>
+
+            <td style="text-align:right;">
+                ${issued}
+            </td>
+
+            <td style="text-align:right;">
+                ${remain}
+            </td>
+
+            <td colspan="3" style="text-align:center;">
+
+                ${
+                    damageData[i]
+                    ? `<div style="color:#dc2626;font-weight:800;">
+                        [훼손] ${damageData[i]}
+                       </div>`
+                    : ""
+                }
+
+                ${
+                    curr && end
+                    ? `<div>
+                        ${curr.toLocaleString()} ~ ${end.toLocaleString()}
+                       </div>`
+                    : ""
+                }
+
+            </td>
+
+        </tr>
+        `;
+    });
+
+    html += "</table>";
+
+    document.getElementById("reportArea").innerHTML = html;
+}
+
+function loadGoogleReport() {
 
     const driveLink = document.getElementById('driveLink').value;
     const fileId = extractFileId(driveLink);
@@ -1883,28 +2042,41 @@ function loadAdminData() {
         return;
     }
 
-    fetch(`${SCRIPT_URL}?type=adminSummary&fileId=${fileId}`)
-    .then(res => res.json())
-    .then(data => {
+    // 🔥 로딩 표시 (선택)
+    document.getElementById("adminTable").innerHTML = "⏳ 조회 중...";
+    document.getElementById("pollingDetailArea").innerHTML = "";
 
-        const now = new Date();
-        const timeStr = now.toLocaleString("ko-KR");
+    // ✅ 두 개 fetch 동시에 실행
+    const adminPromise = fetch(`${SCRIPT_URL}?type=adminSummary&fileId=${fileId}`)
+        .then(res => res.json());
 
-        let html = `
-        <div style="
-            margin-bottom:10px;
-            padding:10px;
-            background:#f1f5f9;
-            border-radius:8px;
-            text-align:center;
-            font-weight:800;
-        ">
-            ⏱️ ${timeStr} ✔️ 투표수를 조회했습니다.
-        </div>
-        `;
+    const detailPromise = fetch(`${SCRIPT_URL}?type=pollingDetail&fileId=${fileId}`)
+        .then(res => res.json());
 
-        // 🔥 읍면동 반복
-        data.forEach(block => {
+    Promise.all([adminPromise, detailPromise])
+    .then(([adminData, detailData]) => {
+
+        // 🔴 읍면동 필터
+        const selectedArea = document.getElementById("adminAreaFilter")?.value || "전체";
+
+        if (selectedArea !== "전체") {
+            adminData = adminData.filter(d => {
+                const text = JSON.stringify(d);
+                return text.includes(selectedArea);
+            });
+
+            detailData = detailData.filter(d => {
+                const text = JSON.stringify(d);
+                return text.includes(selectedArea);
+            });
+        }
+
+        // =========================
+        // ✅ 1. adminSummary 그리기
+        // =========================
+        let html = "";
+
+        adminData.forEach(block => {
 
             html += `
             <h3 style="margin-top:20px; color:#1e40af;">
@@ -1934,9 +2106,37 @@ function loadAdminData() {
             html += `</table>`;
         });
 
-        document.getElementById("adminTable").innerHTML = html;
+        // =========================
+        // ✅ 2. pollingDetail 그리기
+        // =========================
+        renderPollingDetail(detailData);
 
-        loadPollingDetail();
+        // =========================
+        // ✅ 3. 모든 작업 끝난 후 시간 생성
+        // =========================
+        const now = new Date();
+        const timeStr = now.toLocaleString("ko-KR");
+
+        // =========================
+        // ✅ 4. 메시지 맨 앞에 추가
+        // =========================
+        html = `
+        <div style="
+            margin-bottom:10px;
+            padding:10px;
+            background:#f1f5f9;
+            border-radius:8px;
+            text-align:center;
+            font-weight:800;
+        ">
+            ⏱️ ${timeStr} ✔️ 투표수를 조회했습니다.
+        </div>
+        ` + html;
+
+        // =========================
+        // ✅ 5. 마지막에 출력
+        // =========================
+        document.getElementById("adminTable").innerHTML = html;
 
     })
     .catch(err => {
@@ -1954,6 +2154,19 @@ function loadPollingDetail() {
     fetch(`${SCRIPT_URL}?type=pollingDetail&fileId=${fileId}`)
     .then(res => res.json())
     .then(data => {
+
+
+  const selectedArea = document.getElementById("adminAreaFilter")?.value || "전체";
+
+if (selectedArea !== "전체") {
+    data = data.filter(d => {
+        const text = JSON.stringify(d);
+        return text.includes(selectedArea);
+    });
+}
+
+
+
         renderPollingDetail(data);
     });
 }
