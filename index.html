@@ -265,7 +265,6 @@ button:disabled {
 </div>
 
     <div class="btn-row">
-        <button     style="background:#f59e0b;color:white;"     onclick="savePhone()">     📱 핸드폰에 저장 </button>
         <button class="btn-save" onclick="saveToGoogle()"  >☁️ 구글시트 저장</button>
         <button class="btn-copy" onclick="copyAll()" style="display:none;">   📋 전체 결과 복사 </button>
 
@@ -1232,155 +1231,14 @@ function toggleReport() {
     if (area.style.display === "none") {
         area.style.display = "block";
         updateReportButtonText(true);   // 🔥 열기 → 닫기
-        // loadGoogleReport();
-        loadPhoneReport();
-
+        loadReport();
     } else {
         area.style.display = "none";
         updateReportButtonText(false);  // 🔥 닫기 → 열기
     }
 }
 
-function savePhone() {
-
-    saveData();
-
-    alert("📱 핸드폰에 저장되었습니다.");
-}
-
-function loadPhoneReport() {
-
-    let html = "<h3 style='margin:0;'>📊 투표록 2면 작성자료</h3>";
-
-    // 투표함관리번호
-    const savedBox = localStorage.getItem("box_info");
-    const boxList = savedBox ? JSON.parse(savedBox) : [];
-
-    html += `
-    <table border="1" style="width:100%; font-size:12px; margin-bottom:5px;">
-    <tr>
-        <th style="width:30%;">투표함관리번호</th>
-        <td style="text-align:left; font-weight:bold;">
-            ${boxList.join(" / ")}
-        </td>
-    </tr>
-    </table>
-    `;
-
-    // 1번 표
-    html += `
-    <table border="1" style="width:100%; font-size:12px; margin-bottom:5px;">
-    <tr>
-        <th>선거명</th>
-        <th>미발송</th>
-        <th>결정서</th>
-        <th>봉투반납</th>
-    </tr>
-    `;
-
-    elections.forEach((name, i) => {
-
-        html += `
-        <tr>
-            <td style="text-align:left;">
-                ${name}
-            </td>
-
-            <td style="text-align:right;">
-                ${Number(document.getElementById('NoBalsong_' + i).value || 0).toLocaleString()}
-            </td>
-
-            <td style="text-align:right;">
-                ${Number(document.getElementById('GeulJung_' + i).value || 0).toLocaleString()}
-            </td>
-
-            <td style="text-align:right;">
-                ${Number(document.getElementById('GiveBack_' + i).value || 0).toLocaleString()}
-            </td>
-        </tr>
-        `;
-    });
-
-    html += "</table>";
-
-    // 2번 표
-    html += `
-    <table border="1" style="width:100%; font-size:12px;">
-    <tr>
-        <th>선거명</th>
-        <th>수령</th>
-        <th>교부</th>
-        <th>잔여</th>
-        <th colspan="3">잔여 투표용지 일련번호</th>
-    </tr>
-    `;
-
-    elections.forEach((name, i) => {
-
-        const total =
-            document.getElementById('total_' + i).innerText;
-
-        const issued =
-            document.getElementById('issued_' + i).innerText;
-
-        const remain =
-            document.getElementById('remain_' + i).innerText;
-
-        const curr =
-            Number(document.getElementById('curr_' + i).value || 0);
-
-        const end =
-            Number(document.getElementById('end_' + i).value || 0);
-
-        html += `
-        <tr>
-
-            <td style="text-align:left;">
-                ${name}
-            </td>
-
-            <td style="text-align:right;">
-                ${total}
-            </td>
-
-            <td style="text-align:right;">
-                ${issued}
-            </td>
-
-            <td style="text-align:right;">
-                ${remain}
-            </td>
-
-            <td colspan="3" style="text-align:center;">
-
-                ${
-                    damageData[i]
-                    ? `<div style="color:#dc2626;font-weight:800;">
-                        [훼손] ${damageData[i]}
-                       </div>`
-                    : ""
-                }
-
-                ${
-                    curr && end
-                    ? `<div>
-                        ${curr.toLocaleString()} ~ ${end.toLocaleString()}
-                       </div>`
-                    : ""
-                }
-
-            </td>
-
-        </tr>
-        `;
-    });
-
-    html += "</table>";
-
-    document.getElementById("reportArea").innerHTML = html;
-}
-
-function loadGoogleReport() {
+function loadReport() {
 
     const driveLink = document.getElementById('driveLink').value;
     const fileId = extractFileId(driveLink);
