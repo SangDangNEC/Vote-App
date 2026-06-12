@@ -6,7 +6,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="투표 계산기">
     <link rel="apple-touch-icon" href="icon.png">
- 
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>투표용지 교부매수 계산기</title>
@@ -101,6 +101,8 @@ button:disabled {
 }
 
 .photo-row input[type="file"] {
+	display: none;
+
     flex: 1;               /* 파일 선택창 크게 */
 }
 
@@ -131,6 +133,13 @@ button:disabled {
     border-radius: 12px;
     padding: 10px 8px;
 }
+
+
+@keyframes spin {
+    0%   { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
 
     </style>
 </head>
@@ -231,12 +240,12 @@ button:disabled {
 <!-- style="display:none;" 버튼 숨기기 처리 -->
 <!-- 📷 사진 업로드 -->  
 <div class="photo-row">
-    <input type="file" id="photoInput" accept="image/*" multiple style="display:none;" >
-    <button onclick="uploadPhoto()"  style="display:none;">📤 사진업로드</button>
+    <input type="file" id="photoInput" accept="image/*" multiple  >
+    <button onclick="uploadPhoto()"  style="display:none;"   >📤 사진업로드</button>
 </div>
 
 <!-- 🔍 사진 보기 -->
-<button onclick="viewPhotos()" style="display:none; width:100%; margin-top:8px; background:#0ea5e9; color:white; padding:12px; border:none; border-radius:10px;">
+<button onclick="viewPhotos()" style="  display:none;  width:100%; margin-top:8px; background:#0ea5e9; color:white; padding:12px; border:none; border-radius:10px;">
     📷 사진보기
 </button>
 <div id="photoArea" style="margin-top:10px;"></div> 
@@ -268,8 +277,9 @@ button:disabled {
         <button class="btn-save" onclick="saveToGoogle()"  >☁️ 구글시트 저장</button>
         <button class="btn-copy" onclick="copyAll()" style="display:none;">   📋 전체 결과 복사 </button>
 
-	<!-- 투표수 조회  style="display:none"  -->
-       <button onclick="goAdmin()"         style="  display:none;      background:#2563eb;         color:white;         border:none;        border-radius:8px;        font-weight:900;">         📊 전체 투표수    </button>
+	<!-- 투표수 조회  -->
+<!--        <button onclick="goAdmin()"         style="        background:#2563eb;         color:white;         border:none;        border-radius:8px;        font-weight:900;">         📊 전체 투표수    </button>  -->
+
 
         <button class="btn-reset" onclick="resetAll()" >🔄 초기화</button>
     </div>
@@ -308,10 +318,12 @@ button:disabled {
     <option value="용암2동">용암2동</option>
 </select>
 
+
 </div>
 
 
 <div style="margin-top:10px; display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+
 
     <label style="font-weight:900;">⏱️ 갱신간격</label>
 
@@ -380,7 +392,7 @@ let prevPoll = "";
 
 const DEFAULT_DRIVE_LINK ="https://docs.google.com/spreadsheets/d/18c0QpyMACXqr47b-WWDdhFSsUtogin_F2suIBREoxsU/edit?usp=sharing";
 
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwboJHsfDOWB84FMjXja-F1TjnxlLwTIsilXv-L6MDGCLIRdApsaONntWEl5FQKd6dCIg/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwk6g3lXmrAAs93ZCx2nBsexw0mGiP0kDpx7gO3S8Y7bt0Wr47ZYF_JfLS5_Pr17zTnDA/exec";
 
 const pollOptionsByArea = {
     "낭성면": ["투표소"],
@@ -928,14 +940,23 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function saveToGoogle() {
-    
+
+
+	showSaving();
+
+ setTimeout(() => {
+
    saveData();
    clearChanged();
+
+
+
    
     const driveLink = document.getElementById('driveLink').value;
     const fileId = extractFileId(driveLink);
 
     if (!fileId) {
+	hideSaving();
         alert("❌ 올바른 구글시트 링크를 입력하세요");
         return;
     }
@@ -991,7 +1012,7 @@ elections.forEach((_, i) => {
     let changed = false;
 
     for (let key in curr) {
-        if (   String(orig[key] ?? "") !== String(curr[key])  ) {
+        if (   String(orig[key] ?? "") !== String(curr[key])    ) {
             changed = true;
             break;
         }
@@ -1019,13 +1040,24 @@ elections.forEach((_, i) => {
     body: JSON.stringify(data)
 })
 
+
+
 .then(res => res.text())
 .then(res => {
+
+	hideSaving();
+
     alert("응답: " + res);
 })
 .catch(err => {
+
+	hideSaving();
+
     alert("❌ 저장 실패: " + err);
 });
+
+    }, 1000);
+
 }
 
 
@@ -1096,10 +1128,13 @@ function findRowByPollAndElection(sheet, pollName, electionName) {
 
 function loadFromGoogle() {
 
+showLoading();
+
     const driveLink = document.getElementById('driveLink').value;
     const fileId = extractFileId(driveLink);
 
     if (!fileId) {
+        hideLoading();
         alert("❌ 구글시트 링크 확인");
         return;
     }
@@ -1131,11 +1166,6 @@ function loadFromGoogle() {
             dupSerial: item.dupSerial || ""
 	};
 	// 여기까지 변경된 값만 저장
-
-
-
-
-
 
 
             document.getElementById('start_' + i).value = item.start || "";
@@ -1207,17 +1237,24 @@ document.getElementById('dmg_' + i).value = count;
 	
 	saveData();
 
+        hideLoading();
+
         alert("✅ 기본정보 불러오기 완료");
 
     })
     .catch(err => {
+	
+	hideLoading();
 
         const notice = document.getElementById("changeNotice");
         notice.innerText = "⚠️ 읍면동-투표소 또는 파일링크가 정확한지 확인하고 다시 불러오세요";
         notice.style.display = "block";
 
+        hideLoading();
+
         alert("❌ 불러오기 실패: " + err);
     });
+
 
     document.getElementById("changeNotice").style.display = "none";
    clearChanged();
@@ -1243,6 +1280,8 @@ function loadReport() {
     const driveLink = document.getElementById('driveLink').value;
     const fileId = extractFileId(driveLink);
     const pollName = getPollName();
+
+	showLoading();
 
     fetch(`${SCRIPT_URL}?fileId=${fileId}&pollName=${pollName}`)
     .then(res => res.json())
@@ -1323,9 +1362,11 @@ function loadReport() {
         html += "</table>";
 
         document.getElementById("reportArea").innerHTML = html;
+	hideLoading();
 
     })
     .catch(err => {
+	hideLoading();
         alert("❌ 불러오기 실패: " + err);
     });
 }
@@ -1341,6 +1382,8 @@ function updateReportButtonText(isOpen = false) {
         : "투표록 2면 작성자료 열기";
 
     btn.innerHTML = `📊 <span style="color:#000000; font-weight:900;">    ${area}${poll} </span> ${baseText}`;
+
+
 }
 
 function loadBoxInfo() {
@@ -1788,6 +1831,7 @@ function validateDamageInput(inputEl) {
 function confirmSelection() {
     const btn = document.getElementById('confirmBtn');
 
+
     // ❗ 이미 눌렸으면 재실행 방지
     if (btn.disabled) return;
 
@@ -1861,6 +1905,8 @@ function goAdmin() {
 
     document.getElementById("topControls").style.display = "none";
 
+
+
     loadAdminData();
 
     loadPollingDetail();
@@ -1900,9 +1946,11 @@ function loadAdminData() {
         return;
     }
 
+	showLoading();
+
     // 🔥 로딩 표시 (선택)
-    document.getElementById("adminTable").innerHTML = "⏳ 조회 중...";
-    document.getElementById("pollingDetailArea").innerHTML = "";
+    //document.getElementById("adminTable").innerHTML = "⏳ 조회 중...";
+    //document.getElementById("pollingDetailArea").innerHTML = "";
 
     // ✅ 두 개 fetch 동시에 실행
     const adminPromise = fetch(`${SCRIPT_URL}?type=adminSummary&fileId=${fileId}`)
@@ -1996,11 +2044,17 @@ function loadAdminData() {
         // =========================
         document.getElementById("adminTable").innerHTML = html;
 
+	hideLoading();
     })
+
+
+
     .catch(err => {
+	hideLoading();
         alert("❌ 불러오기 실패: " + err);
     });
 }
+
 
 function loadPollingDetail() {
 
@@ -2012,6 +2066,7 @@ function loadPollingDetail() {
     fetch(`${SCRIPT_URL}?type=pollingDetail&fileId=${fileId}`)
     .then(res => res.json())
     .then(data => {
+   
 
 
   const selectedArea = document.getElementById("adminAreaFilter")?.value || "전체";
@@ -2175,6 +2230,24 @@ function getColorMap(data) {
     return map;
 }
 
+function showLoading() {
+    document.getElementById("loadingOverlay").style.display = "flex";
+}
+
+function hideLoading() {
+    document.getElementById("loadingOverlay").style.display = "none";
+}
+
+
+function showSaving() {
+    document.getElementById("SavingOverlay").style.display = "flex";
+}
+
+function hideSaving() {
+    document.getElementById("SavingOverlay").style.display = "none";
+}
+
+
 </script>
 
 <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
@@ -2264,6 +2337,59 @@ function getColorMap(data) {
     </div>
 </div>
 
+<div id="loadingOverlay" style="
+    display:none;
+    position:fixed;
+    inset:0;
+    background:rgba(255,255,255,0.85);
+    z-index:99999;
+    justify-content:center;
+    align-items:center;
+    flex-direction:column;
+">
+    <div style="
+        font-size:60px;
+        animation: spin 1.2s linear infinite;
+    ">
+        ⏳
+    </div>
+
+    <div style="
+        margin-top:15px;
+        font-size:18px;
+        font-weight:900;
+        color:#1e40af;
+    ">
+        데이터 불러오는 중...
+    </div>
+</div>
+
+<div id="SavingOverlay" style="
+    display:none;
+    position:fixed;
+    inset:0;
+    background:rgba(255,255,255,0.85);
+    z-index:99999;
+    justify-content:center;
+    align-items:center;
+    flex-direction:column;
+">
+    <div style="
+        font-size:60px;
+        animation: spin 1.2s linear infinite;
+    ">
+        ⏳
+    </div>
+
+    <div style="
+        margin-top:15px;
+        font-size:18px;
+        font-weight:900;
+        color:#1e40af;
+    ">
+        구글시트 저장 중...
+    </div>
+</div>
 
 
 </body>
