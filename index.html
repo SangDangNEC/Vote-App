@@ -338,7 +338,7 @@ button:disabled {
     <option value="용암2동">용암2동</option>
 </select>
 
-        <button id="changeAdminRoleBtn" onclick="changeRole()" style="margin-left:auto;"> 🔐 사용자 변경 </button>
+        <button id="changeAdminRoleBtn" onclick="changeRole()" style="margin-left:auto; "> 🔐 사용자 변경 </button>
 
 </div>
 
@@ -733,9 +733,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
     if ( localStorage.getItem("user_role") === "input") { 	document.getElementById("changeRoleBtn").style.display = "none";     } 
     else if ( localStorage.getItem("user_role") === "viewer") { 	document.getElementById("changeRoleBtn").style.display = "none";     }
-    else {  	document.getElementById("changeRoleBtn").style.display = "";     } 
+    //else {  	document.getElementById("changeRoleBtn").style.display = "";     } 
 
-	
+    const savedFileName = localStorage.getItem('selectedExcelFileName');
+    if (savedFileName) {
+        document.getElementById('excelFileName').innerText = `마지막 선택 파일: ${savedFileName}`;
+    }
 
     renderCards();
 
@@ -792,10 +795,12 @@ function applySavedRole() {
 
             document.getElementById("adminBtn").style.display = "none";
 	document.getElementById("goMainBtn").style.display = "";
+	document.getElementById("changeRoleBtn").style.display = "none";
 
     } else if (role === "viewer") {
 
 	document.getElementById("goMainBtn").style.display = "none";
+	document.getElementById("changeRoleBtn").style.display = "none";
         goAdmin();
 
     } else if (role === "admin") {
@@ -1022,13 +1027,6 @@ document.getElementById('excelFile').addEventListener('change', function() {
     }
 });
 
-// 페이지 로드 시 저장된 파일 이름 표시
-document.addEventListener('DOMContentLoaded', function() {
-    const savedFileName = localStorage.getItem('selectedExcelFileName');
-    if (savedFileName) {
-        document.getElementById('excelFileName').innerText = `마지막 선택 파일: ${savedFileName}`;
-    }
-});
 
 function saveToGoogle() {
 
@@ -2391,6 +2389,7 @@ function selectRole() {
            document.getElementById("adminBtn").style.display = "none";
 	
 	document.getElementById("goMainBtn").style.display = "";
+	document.getElementById("changeRoleBtn").style.display = "none";
 
         return;
     }
@@ -2401,6 +2400,7 @@ function selectRole() {
         document.getElementById("roleSelectScreen").style.display = "none";
 	document.getElementById("changeRoleBtn").disabled = true;
 	document.getElementById("goMainBtn").style.display = "none";
+	document.getElementById("changeRoleBtn").style.display = "none";
         goAdmin();
 
         return;
