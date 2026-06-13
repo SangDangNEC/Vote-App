@@ -145,6 +145,25 @@ button:disabled {
 </head>
 <body>
 
+<!-- 시작 권한 선택 -->
+<div id="roleSelectScreen" style=" position:fixed; left:0; top:0; width:100%; height:100%; background:white; z-index:99999; display:flex; justify-content:center; align-items:center; ">
+
+    <div style="width:90%; max-width:400px;">
+
+        <h2 style="text-align:center;">사용자 구분 선택</h2>
+
+        <select id="userRole" style="   width:100%;  padding:12px;   margin-bottom:15px;  font-size:16px; ">
+            <option value="input">입력용(투표관리관)</option>
+            <option value="viewer">조회용(읍면동간사서기)</option>
+            <option value="admin">개발자용(위원회)</option>
+        </select>
+
+        <button onclick="selectRole()" style="width:100%; background:#2563eb;  color:white; padding:14px; font-weight:900; border:none;  border-radius:10px;  ">  확인    </button>
+
+    </div>
+
+</div>
+
 
 <div id="mainScreen">
 
@@ -182,6 +201,7 @@ button:disabled {
 
     <div id="preview" style="margin-top:8px; font-weight:bold;"></div>
 
+        <button id="changeRoleBtn" onclick="changeRole()" style="margin-left:auto;"> 🔐 사용자 변경 </button>
 
 </div>
 
@@ -278,10 +298,10 @@ button:disabled {
         <button class="btn-copy" onclick="copyAll()" style="display:none;">   📋 전체 결과 복사 </button>
 
 	<!-- 투표수 조회  -->
-<!--        <button onclick="goAdmin()"         style="        background:#2563eb;         color:white;         border:none;        border-radius:8px;        font-weight:900;">         📊 전체 투표수    </button>  -->
-
+       <button id="adminBtn" onclick="goAdmin()"         style="        background:#2563eb;         color:white;         border:none;        border-radius:8px;        font-weight:900;">         📊 전체 투표수    </button>
 
         <button class="btn-reset" onclick="resetAll()" >🔄 초기화</button>
+
     </div>
     <button id="reportBtn" onclick="toggleReport()"     style="width:100%; background:#0ea5e9; color:white; padding:14px 10px; border:none; border-radius:10px; margin-bottom:8px;">    📊 투표록 2면 작성자료 열기</button>
     <div id="reportArea" style="display:none; margin-top:1px;"></div>
@@ -299,9 +319,9 @@ button:disabled {
     <h1>🔒 전체 투표수 조회</h1>
 
 <div style="display:flex; gap:82px; align-items:center;">
-    <button onclick="goMain()">← 돌아가기</button>
+    <button id="goMainBtn" onclick="goMain()">← 돌아가기</button>
 
-<select id="adminAreaFilter" onchange="loadAdminData()">
+<select id="adminAreaFilter" onchange="saveAdminArea(); loadAdminData();">
     <option value="전체">전체</option>
     <option value="낭성면">낭성면</option>
     <option value="미원면">미원면</option>
@@ -318,6 +338,7 @@ button:disabled {
     <option value="용암2동">용암2동</option>
 </select>
 
+        <button id="changeAdminRoleBtn" onclick="changeRole()" style="margin-left:auto;"> 🔐 사용자 변경 </button>
 
 </div>
 
@@ -629,17 +650,22 @@ const electionDisplayMap = {
         document.body.removeChild(textArea);
     }
 
-    function resetAll() {
+function resetAll() {
         if(confirm("모든 데이터를 초기화하시겠습니까?")) {
             try { localStorage.removeItem('votecalc_data'); } catch(e) {}
             clearChanged();
             location.reload();
+
+	document.getElementById("changeRoleBtn").disabled = false; 
+
 	localStorage.removeItem("selection_lock");
  	document.getElementById('sheetSelect').disabled = false;
 	document.getElementById('pollType').disabled = false;
 	document.getElementById('driveLink').readOnly = false;
+	
+	localStorage.removeItem("role_locked");
         }
-    }
+}
 
 
 
@@ -705,6 +731,13 @@ document.addEventListener('DOMContentLoaded', function() {
     loadBoxInfo(); 
     applyLockState();
 
+    applySavedRole(); 
+    if (localStorage.getItem("role_locked") === "Y") {
+         document.getElementById("changeRoleBtn").disabled = true;
+    }
+
+
+
 	// 🔥 뒤로가기 방지 로직 추가
     history.pushState(null, null, location.href);
 
@@ -723,6 +756,50 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
 });
+
+function changeRole() {
+
+    if (!confirm("사용자를 변경하시겠습니까?")) return;
+
+    localStorage.removeItem("user_role");
+    location.reload();
+}
+
+
+function applySavedRole() {
+
+    const role = localStorage.getItem("user_role");
+
+    if (!role) return;
+
+    document.getElementById("roleSelectScreen").style.display = "none";
+
+    if (role === "input") {
+
+            document.getElementById("adminBtn").style.display = "none";
+	document.getElementById("goMainBtn").style.display = "";
+
+    } else if (role === "viewer") {
+
+	document.getElementById("goMainBtn").style.display = "none";
+        goAdmin();
+
+    } else if (role === "admin") {
+
+        const pw = prompt("개발자 비밀번호를 입력하세요");
+
+        if (pw === "1390") {
+	document.getElementById("goMainBtn").style.display = "";
+	
+            return;
+        }
+	document.getElementById("goMainBtn").style.display = "";
+
+        localStorage.removeItem("user_role");
+        location.reload();
+    }
+}
+
 
 function initPrevState() {
     prevArea = document.getElementById('sheetSelect').value;
@@ -1866,11 +1943,16 @@ function confirmSelection() {
     localStorage.setItem("selected_poll", poll.value);
     localStorage.setItem("drive_link", link.value);
     localStorage.setItem("selection_lock", JSON.stringify(data));
+   
+    localStorage.setItem("role_locked", "Y");
+    document.getElementById("changeRoleBtn").disabled = true; 
 
     loadFromGoogle();
 
     alert("현재 읍면동 / 투표소 / 파일링크가 확정되었습니다 👍");
 }
+
+
 function applyLockState() {
     const lock = localStorage.getItem("selection_lock");
 
@@ -1899,19 +1981,31 @@ function applyLockState() {
 
 function goAdmin() {
 
+	const role = localStorage.getItem("user_role");
 
     document.getElementById("mainScreen").style.display = "none";
     document.getElementById("adminScreen").style.display = "block";
 
     document.getElementById("topControls").style.display = "none";
 
+    if (role === "admin") {
+        document.getElementById("changeAdminRoleBtn").style.display = "none";
+    } else 
+    {
+       document.getElementById("changeAdminRoleBtn").style.display = "";
+    }
 
+    const savedAdminArea = localStorage.getItem("adminAreaFilter");
+    if (savedAdminArea) {
+        document.getElementById("adminAreaFilter").value = savedAdminArea;
+    }
 
     loadAdminData();
 
     loadPollingDetail();
     
     startAutoRefresh(); 
+
 }
 
 
@@ -2247,6 +2341,62 @@ function hideSaving() {
     document.getElementById("SavingOverlay").style.display = "none";
 }
 
+function selectRole() {
+
+    const role = document.getElementById("userRole").value;
+
+    // 역할 저장
+    localStorage.setItem("user_role", role);
+
+    // 개발자용
+    if (role === "admin") {
+
+        const pw = prompt("비밀번호를 입력하세요");
+
+        if (pw !== "1390") {
+            localStorage.removeItem("user_role");
+            alert("비밀번호가 틀렸습니다.");
+            return;
+        }
+
+	// document.getElementById("changeRoleBtn").disabled = true;
+
+        document.getElementById("roleSelectScreen").style.display = "none";
+	document.getElementById("goMainBtn").style.display = "";
+	document.getElementById("changeRoleBtn").style.display = "";
+        return;
+    }
+
+    // 입력용
+    if (role === "input") {
+
+        document.getElementById("roleSelectScreen").style.display = "none";
+
+	// document.getElementById("changeRoleBtn").disabled = true;
+
+           document.getElementById("adminBtn").style.display = "none";
+	
+	document.getElementById("goMainBtn").style.display = "";
+
+        return;
+    }
+
+    // 조회용
+    if (role === "viewer") {
+
+        document.getElementById("roleSelectScreen").style.display = "none";
+	document.getElementById("changeRoleBtn").disabled = true;
+	document.getElementById("goMainBtn").style.display = "none";
+        goAdmin();
+
+        return;
+    }
+}
+
+function saveAdminArea() {
+    const area = document.getElementById("adminAreaFilter").value;
+    localStorage.setItem("adminAreaFilter", area);
+}
 
 </script>
 
