@@ -723,6 +723,20 @@ function updatePreview() {
 
 document.addEventListener('DOMContentLoaded', function() {
 
+
+     document.getElementById("roleSelectScreen").style.display = "none";
+    // 사용하고자 하는 용도에 따라 주석표시( // )를 해제 하면됩니다.
+    //   현재 기본상태는 입력용(투표관리관) 으로 되어 있는 상태입니다.
+    	localStorage.setItem("user_role", "input");	// 입력용(투표관리관)
+    //	localStorage.setItem("user_role", "viewer");	// 조회용(읍면동 간사서기)
+    //	localStorage.setItem("user_role", "admin");	// 관리자용(위원회)
+
+    if ( localStorage.getItem("user_role") === "input") { 	document.getElementById("changeRoleBtn").style.display = "none";     } 
+    else if ( localStorage.getItem("user_role") === "viewer") { 	document.getElementById("changeRoleBtn").style.display = "none";     }
+    else {  	document.getElementById("changeRoleBtn").style.display = "";     } 
+
+	
+
     renderCards();
 
     loadSelection();
