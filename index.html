@@ -240,7 +240,7 @@ button:disabled {
         확정
     </button>
 
-<button onclick="loadFromGoogle()" 
+<button id="loadBaseInfoBtn" onclick="loadFromGoogle()" 
     style="flex:2.3; margin-top:6px; width:100%; padding:13px 10px; background:#6366f1; color:white;  border:none; border-radius:10px;margin-bottom: 8px;">
     📥 기본 정보 불러오기
 </button>
@@ -294,7 +294,7 @@ button:disabled {
 </div>
 
     <div class="btn-row">
-        <button class="btn-save" onclick="saveToGoogle()"  >☁️ 구글시트 저장</button>
+        <button id="saveBtn" class="btn-save" onclick="saveToGoogle()"  >☁️ 구글시트 저장</button>
         <button class="btn-copy" onclick="copyAll()" style="display:none;">   📋 전체 결과 복사 </button>
 
 	<!-- 투표수 조회  -->
@@ -654,7 +654,8 @@ function resetAll() {
         if(confirm("모든 데이터를 초기화하시겠습니까?")) {
             try { localStorage.removeItem('votecalc_data'); } catch(e) {}
             clearChanged();
-            location.reload();
+
+
 
 	document.getElementById("changeRoleBtn").disabled = false; 
 
@@ -664,6 +665,17 @@ function resetAll() {
 	document.getElementById('driveLink').readOnly = false;
 	
 	localStorage.removeItem("role_locked");
+
+	//20260614
+	localStorage.removeItem("saveState");
+	localStorage.removeItem("buttons_enabled");
+
+	// 버튼 비활성화
+	document.getElementById("loadBaseInfoBtn").disabled = true;     // 기본정보 불러오기
+	document.getElementById("saveBtn").disabled = true;     // 구글시트 저장
+	document.getElementById("reportBtn").disabled = true;   // 투표록2면 작성자료 열기
+
+            location.reload();
         }
 }
 
@@ -723,7 +735,6 @@ function updatePreview() {
 
 document.addEventListener('DOMContentLoaded', function() {
 
-
      document.getElementById("roleSelectScreen").style.display = "none";
     // 사용하고자 하는 용도에 따라 주석표시( // )를 해제 하면됩니다.
     //   현재 기본상태는 입력용(투표관리관) 으로 되어 있는 상태입니다.
@@ -739,6 +750,17 @@ document.addEventListener('DOMContentLoaded', function() {
     if (savedFileName) {
         document.getElementById('excelFileName').innerText = `마지막 선택 파일: ${savedFileName}`;
     }
+
+	// 처음에는 비활성화 20260614
+	document.getElementById("loadBaseInfoBtn").disabled = true;
+	document.getElementById("saveBtn").disabled = true;
+	document.getElementById("reportBtn").disabled = true;
+	// 저장 상태 복원 20260614
+	if (localStorage.getItem("saveState") === "saved") {
+	    document.getElementById("saveBtn").disabled = true;
+	    document.getElementById("reportBtn").disabled = false;
+  	    document.getElementById("loadBaseInfoBtn").disabled = false;
+	}
 
     renderCards();
 
@@ -1136,6 +1158,9 @@ elections.forEach((_, i) => {
 
 	hideSaving();
 
+	setSavedState();    //20260614
+	localStorage.setItem("saveState", "saved");    //20260614
+
     alert("응답: " + res);
 })
 .catch(err => {
@@ -1217,7 +1242,7 @@ function findRowByPollAndElection(sheet, pollName, electionName) {
 
 function loadFromGoogle() {
 
-showLoading();
+    showLoading();
 
     const driveLink = document.getElementById('driveLink').value;
     const fileId = extractFileId(driveLink);
@@ -1327,6 +1352,15 @@ document.getElementById('dmg_' + i).value = count;
 	saveData();
 
         hideLoading();
+
+	// 20260604
+	document.getElementById("saveBtn").disabled = false;     //false에서 true로 변경
+	document.getElementById("reportBtn").disabled = false;
+	document.getElementById("loadBaseInfoBtn").disabled = false;     // 기본정보 불러오기
+	localStorage.setItem("saveState", "saved");
+	localStorage.setItem("buttons_enabled", "Y");
+
+    setSavedState();  //20260614
 
         alert("✅ 기본정보 불러오기 완료");
 
@@ -1517,6 +1551,13 @@ function checkSelectionChanged() {
 function markChanged() {
     isDataChanged = true;
     document.getElementById("saveWarning").style.display = "block";
+
+    // 20260614 추가
+    document.getElementById("saveBtn").disabled = false;
+    document.getElementById("reportBtn").disabled = true;
+
+    //localStorage.removeItem("saveState");
+    
 }
 
 function clearChanged() {
@@ -1961,6 +2002,15 @@ function confirmSelection() {
 
     loadFromGoogle();
 
+    // 버튼 활성화 20260614
+    document.getElementById("saveBtn").disabled = true;     //false 에서 true로 변경
+    document.getElementById("reportBtn").disabled = false;
+    localStorage.setItem("saveState", "saved");
+
+    // 상태 저장 20260614
+    localStorage.setItem("buttons_enabled", "Y");
+
+    setSavedState();  //20260614
     alert("현재 읍면동 / 투표소 / 파일링크가 확정되었습니다 👍");
 }
 
@@ -2410,6 +2460,20 @@ function selectRole() {
 function saveAdminArea() {
     const area = document.getElementById("adminAreaFilter").value;
     localStorage.setItem("adminAreaFilter", area);
+}
+
+function setDirtyState() {
+    document.getElementById("saveBtn").disabled = false;
+    document.getElementById("reportBtn").disabled = true;
+
+    //localStorage.setItem("saveState", "dirty");
+}
+
+function setSavedState() {
+    document.getElementById("saveBtn").disabled = true;
+    document.getElementById("reportBtn").disabled = false;
+
+    localStorage.setItem("saveState", "saved");
 }
 
 </script>
