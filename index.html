@@ -316,13 +316,13 @@ button:disabled {
 
 
 <div id="adminScreen" style="display:none;">
-    <h1>🔒 전체 투표수 조회</h1>
+    <h1>🔒 투표수 조회</h1>
 
 <div style="display:flex; gap:82px; align-items:center;">
     <button id="goMainBtn" onclick="goMain()">← 돌아가기</button>
 
 <select id="adminAreaFilter" onchange="saveAdminArea(); loadAdminData();">
-    <option value="전체">전체</option>
+    <option value="읍면동 선택">읍면동 선택</option>
     <option value="낭성면">낭성면</option>
     <option value="미원면">미원면</option>
     <option value="가덕면">가덕면</option>
@@ -346,14 +346,14 @@ button:disabled {
 <div style="margin-top:10px; display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
 
 
-    <label style="font-weight:900;">⏱️ 갱신간격</label>
+    <label style="font-weight:900; display:none;">⏱️ 갱신간격</label>
 
     <input type="number" id="refreshInterval"
         min="10" max="60" value="30"
         onchange="updateRefreshInterval()"
-        style="width:70px; padding:6px; border:1px solid #ccc; border-radius:6px; text-align:center;">
+        style="width:70px; padding:6px; border:1px solid #ccc; border-radius:6px; text-align:center;  display:none;">
 
-    <span style="font-weight:700;">분</span>
+    <span style="font-weight:700;  display:none; ">분</span>
 
     <button onclick="loadAdminData()" 
         style="margin-left:auto; padding:10px;
@@ -380,22 +380,22 @@ button:disabled {
 
 let refreshTimer = null;
 
-function startAutoRefresh() {
-    const sec = Number(document.getElementById("refreshInterval").value) || 5;
+//function startAutoRefresh() {
+//    const sec = Number(document.getElementById("refreshInterval").value) || 5;
 
-    if (refreshTimer) clearInterval(refreshTimer);
+//    if (refreshTimer) clearInterval(refreshTimer);
 
-    refreshTimer = setInterval(() => {
-        loadAdminData();
-    }, sec * 60 * 1000);
-}
+//    refreshTimer = setInterval(() => {
+//        loadAdminData();
+//    }, sec * 60 * 1000);
+//}
 
-function stopAutoRefresh() {
-    if (refreshTimer) {
-        clearInterval(refreshTimer);
-        refreshTimer = null;
-    }
-}
+//function stopAutoRefresh() {
+//    if (refreshTimer) {
+//        clearInterval(refreshTimer);
+//        refreshTimer = null;
+//    }
+//}
 
 let originalData = {};   //변경된 값만 저장
 
@@ -413,7 +413,7 @@ let prevPoll = "";
 
 const DEFAULT_DRIVE_LINK ="https://docs.google.com/spreadsheets/d/18c0QpyMACXqr47b-WWDdhFSsUtogin_F2suIBREoxsU/edit?usp=sharing";
 
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwk6g3lXmrAAs93ZCx2nBsexw0mGiP0kDpx7gO3S8Y7bt0Wr47ZYF_JfLS5_Pr17zTnDA/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwCD40TA5jN3CvkUoUgFDsjs8OXZnhUoiFk99sW9ba6F9XPtUdbykHO6OYmx5JO3M1UnQ/exec";
 
 const pollOptionsByArea = {
     "낭성면": ["투표소"],
@@ -736,11 +736,12 @@ function updatePreview() {
 document.addEventListener('DOMContentLoaded', function() {
 
      document.getElementById("roleSelectScreen").style.display = "none";
-    // 사용하고자 하는 용도에 따라 주석표시( // )를 해제 하면됩니다.
-    //   현재 기본상태는 입력용(투표관리관) 으로 되어 있는 상태입니다.
+//	사용하고자 하는 용도에 따라 주석표시( // )를 해제 하면됩니다.
+//	현재 기본상태는 입력용(투표관리관) 으로 되어 있는 상태입니다.
+//	사용자 권한 설정
     	localStorage.setItem("user_role", "input");	// 입력용(투표관리관)
-    //	localStorage.setItem("user_role", "viewer");	// 조회용(읍면동 간사서기)
-    //	localStorage.setItem("user_role", "admin");	// 관리자용(위원회)
+//	localStorage.setItem("user_role", "viewer");	// 조회용(읍면동 간사서기)
+//	localStorage.setItem("user_role", "admin");	// 관리자용(위원회)
 
     if ( localStorage.getItem("user_role") === "input") { 	document.getElementById("changeRoleBtn").style.display = "none";     } 
     else if ( localStorage.getItem("user_role") === "viewer") { 	document.getElementById("changeRoleBtn").style.display = "none";     }
@@ -1255,8 +1256,8 @@ function loadFromGoogle() {
 
     const pollName = getPollName();
     
-    clearPhotos();    
-    clearPhotoInput(); 
+    // clearPhotos();    
+    // clearPhotoInput(); 
 
     fetch(`${SCRIPT_URL}?fileId=${encodeURIComponent(fileId)}&pollName=${encodeURIComponent(pollName)}`)
     .then(res => res.json())
@@ -1277,7 +1278,8 @@ function loadFromGoogle() {
             dmg: item.dmg || "",
             damageNos: item.damageNos || "",
             doubleOut: item.doubleOut || "",
-            dupSerial: item.dupSerial || ""
+            dupSerial: item.dupSerial || "",
+            inputTime: item.inputTime || ""
 	};
 	// 여기까지 변경된 값만 저장
 
@@ -2062,6 +2064,9 @@ function goAdmin() {
         document.getElementById("adminAreaFilter").value = savedAdminArea;
     }
 
+    document.getElementById("changeAdminRoleBtn").style.display = "none";
+
+
     loadAdminData();
 
     loadPollingDetail();
@@ -2094,6 +2099,19 @@ document.getElementById("topControls").style.display = "block";
 
 function loadAdminData() {
 
+
+    const selectedArea =
+        document.getElementById("adminAreaFilter")?.value || "읍면동 선택";
+
+    // 🔴 읍면동 선택 시 조회 금지
+    if (selectedArea === "읍면동 선택") {
+	document.getElementById("adminTable").innerHTML = "";
+        document.getElementById("pollingDetailArea").innerHTML = "";
+        alert("읍면동을 선택하세요.");
+        return;
+    }
+
+
     const driveLink = document.getElementById('driveLink').value;
     const fileId = extractFileId(driveLink);
 
@@ -2119,9 +2137,9 @@ function loadAdminData() {
     .then(([adminData, detailData]) => {
 
         // 🔴 읍면동 필터
-        const selectedArea = document.getElementById("adminAreaFilter")?.value || "전체";
+        const selectedArea = document.getElementById("adminAreaFilter")?.value || "읍면동 선택";
 
-        if (selectedArea !== "전체") {
+        if (selectedArea !== "읍면동 선택") {
             adminData = adminData.filter(d => {
                 const text = JSON.stringify(d);
                 return text.includes(selectedArea);
@@ -2227,12 +2245,12 @@ function loadPollingDetail() {
 
   const selectedArea = document.getElementById("adminAreaFilter")?.value || "전체";
 
-if (selectedArea !== "전체") {
-    data = data.filter(d => {
-        const text = JSON.stringify(d);
-        return text.includes(selectedArea);
-    });
-}
+  if (selectedArea !== "전체") {
+      data = data.filter(d => {
+          const text = JSON.stringify(d);
+          return text.includes(selectedArea);
+      });
+  }
 
 
 
@@ -2240,10 +2258,10 @@ if (selectedArea !== "전체") {
     });
 }
 
-function updateRefreshInterval() {
-    stopAutoRefresh();
-    startAutoRefresh();
-}
+//function updateRefreshInterval() {
+//    stopAutoRefresh();
+//    startAutoRefresh();
+//}
 
 function renderPollingDetail(data) {
 
@@ -2283,7 +2301,7 @@ function renderPollingDetail(data) {
                 <td>${row.type}</td>
    	   <td>${formatNumber(row.val1)}</td>
 	   <td>${formatNumber(row.val2)}</td>
-                <td style="    font-size:12px;    color:${getTimeColor(row.time)};">    ${formatTime(row.time)}</td>
+                <td style="    font-size:12px;    color:${getTimeColor(row.inputTime)};">    ${formatTime(row.inputTime)}</td>
             </tr>
             `;
         });
@@ -2342,6 +2360,7 @@ function getTimeColor(t) {
 function formatNumber(n) {
     if (n === null || n === undefined || n === "") return "-";
     return Number(n).toLocaleString("ko-KR");
+
 }
 
 function formatTime(t) {
@@ -2353,6 +2372,8 @@ function formatTime(t) {
         minute: "2-digit"
     });
 }
+
+
 
 function getDistrictName(name) {
     if (!name) return "기타";
