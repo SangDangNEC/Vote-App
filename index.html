@@ -377,6 +377,7 @@ button:disabled {
 
 <script>
 
+let damageChanged = false;
 
 let refreshTimer = null;
 
@@ -411,9 +412,9 @@ let prevDriveLink = "";
 let prevArea = "";
 let prevPoll = "";
 
-const DEFAULT_DRIVE_LINK ="https://docs.google.com/spreadsheets/d/18c0QpyMACXqr47b-WWDdhFSsUtogin_F2suIBREoxsU/edit?usp=sharing";
+const DEFAULT_DRIVE_LINK ="https://docs.google.com/spreadsheets/d/1CvZAF2gjV6m5EJlHC4kyJNYkI99ZGuM2DwZNxGh4E-8/edit?usp=sharing";
 
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwCD40TA5jN3CvkUoUgFDsjs8OXZnhUoiFk99sW9ba6F9XPtUdbykHO6OYmx5JO3M1UnQ/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzmLy1OiuKle8fvoxbw9KrJ-W8Q6GDN42LztFpTXt5uNu8BwkqXeeT4o15lBYr0eSH4/exec";
 
 const pollOptionsByArea = {
     "낭성면": ["투표소"],
@@ -440,6 +441,8 @@ const electionDisplayMap = {
       "도비례": "비례대표충청북도의원",
       "시비례": "비례대표청주시의원"
 };
+
+const ELECTION_COUNT = elections.length;
 
     // 선거 데이터 정의
     const elections = [
@@ -742,6 +745,7 @@ document.addEventListener('DOMContentLoaded', function() {
     	localStorage.setItem("user_role", "input");	// 입력용(투표관리관)
 //	localStorage.setItem("user_role", "viewer");	// 조회용(읍면동 간사서기)
 //	localStorage.setItem("user_role", "admin");	// 관리자용(위원회)
+// 다 주석처리하면 관리자용(위원회)로 실행됨
 
     if ( localStorage.getItem("user_role") === "input") { 	document.getElementById("changeRoleBtn").style.display = "none";     } 
     else if ( localStorage.getItem("user_role") === "viewer") { 	document.getElementById("changeRoleBtn").style.display = "none";     }
@@ -802,6 +806,7 @@ function changeRole() {
     if (!confirm("사용자를 변경하시겠습니까?")) return;
 
     localStorage.removeItem("user_role");
+    sessionStorage.removeItem("admin_verified");
     location.reload();
 }
 
@@ -828,9 +833,18 @@ function applySavedRole() {
 
     } else if (role === "admin") {
 
+	 const verified = sessionStorage.getItem("admin_verified");
+	if (verified === "true") {
+
+	        document.getElementById("goMainBtn").style.display = "";
+	        document.getElementById("changeRoleBtn").style.display = "";
+	        return;
+	    }
+
         const pw = prompt("개발자 비밀번호를 입력하세요");
 
         if (pw === "1390") {
+	sessionStorage.setItem("admin_verified", "true");
 	document.getElementById("goMainBtn").style.display = "";
 	
             return;
@@ -838,6 +852,7 @@ function applySavedRole() {
 	document.getElementById("goMainBtn").style.display = "";
 
         localStorage.removeItem("user_role");
+        sessionStorage.removeItem("admin_verified");
         location.reload();
     }
 }
@@ -1091,18 +1106,6 @@ function saveToGoogle() {
 	changedIndex: []   //변경된 값만 저장
     };
 
-    // 👉 선거 값 수집
-//변경된 값만 저장으로 삭제    elections.forEach((_, i) => {
-//변경된 값만 저장으로 삭제        data.start.push(Number(document.getElementById('curr_' + i).value || 0));
-//변경된 값만 저장으로 삭제        data.noBalsong.push(Number(document.getElementById('NoBalsong_' + i).value || 0));
-//변경된 값만 저장으로 삭제        data.geulJung.push(Number(document.getElementById('GeulJung_' + i).value || 0));
-//변경된 값만 저장으로 삭제        data.giveBack.push(Number(document.getElementById('GiveBack_' + i).value || 0));
-//변경된 값만 저장으로 삭제        data.dmg.push(Number(document.getElementById('dmg_' + i).value || 0));
-//변경된 값만 저장으로 삭제        data.damageNos.push(damageData[i] || "");
-//변경된 값만 저장으로 삭제        data.returnKorea.push(Number(document.getElementById('ReturnKorea_' + i).value || 0));
-//변경된 값만 저장으로 삭제        data.doubleOut.push(Number(document.getElementById('DoubleOut_' + i).value || 0));
-//변경된 값만 저장으로 삭제        data.dupSerial.push(Number(document.getElementById('dupSerial_' + i).value || 0));
-//변경된 값만 저장으로 삭제  });
 
 // ⭐ 여기부터 변경된 값만 저장
 elections.forEach((_, i) => {
@@ -1436,7 +1439,7 @@ function loadReport() {
         html += `<table border="1" style="width:100%; font-size:12px; margin-bottom:5px;">
         <tr>
         <th>선거명</th><th>명부(사전제외)</th><th>명부</th>
-        <th>미발송</th><th>결정서</th><th>봉투반납</th><th>계</th>
+        <th>미발송</th><th>결정서</th><th>봉투반납</th><th>귀국투표</th><th>계</th>
         </tr>`;
 
         data.forEach(d => {
@@ -1448,6 +1451,7 @@ function loadReport() {
             <td style="text-align:right">${Number(d.noBalsong || 0).toLocaleString()}</td>
             <td style="text-align:right">${Number(d.geulJung || 0).toLocaleString()}</td>
             <td style="text-align:right">${Number(d.giveBack || 0).toLocaleString()}</td>
+            <td style="text-align:right">${Number(d.returnKorea || 0).toLocaleString()}</td>
             <td style="text-align:right">${Number(sum).toLocaleString()}</td>
             </tr>`;
         });
@@ -1700,6 +1704,8 @@ function clearPhotoInput() {
 function openDamageModal(i) {
     currentDamageIndex = i;
 
+    damageChanged = false;
+
     const listBox = document.getElementById("damageList");
     listBox.innerHTML = "";
 
@@ -1724,10 +1730,15 @@ function openDamageModal(i) {
 
     document.getElementById("newDamageInput").value = "";
     document.getElementById("damageModal").style.display = "flex";
+
+    damageChanged = false;
+    updateSaveButtonState();
 }
 
 function removeDamageInput(btn) {
-    btn.parentElement.remove();
+    btn.parentElement.remove(); 
+    damageChanged = true;
+    updateSaveButtonState();
 }
 
 function closeDamageModal() {
@@ -1746,6 +1757,9 @@ function closeDamageModal() {
     document.querySelectorAll("#damageModal .input-error").forEach(el => {
         el.classList.remove("input-error");
     });
+
+    damageChanged = false;
+    updateSaveButtonState();
 }
 
 function saveDamageNumbers() {
@@ -1808,6 +1822,9 @@ function saveDamageNumbers() {
     markChanged();
 
     closeDamageModal();
+
+    damageChanged = false;
+    updateSaveButtonState();
 }
 
 
@@ -1847,7 +1864,7 @@ function addDamageInput() {
     newItem.innerHTML = `
         <input type="text" value="${val}" 
             style="flex:1; padding:10px; border:1px solid #ccc; border-radius:6px;"
-            oninput="this.classList.remove('input-error'); validateDamageInput(this)">
+            oninput="this.classList.remove('input-error'); validateDamageInput(this); damageChanged = true; updateSaveButtonState();">
         <button onclick="removeDamageInput(this)" 
             style="background:#dc2626;color:white;">삭제</button>
     `;
@@ -1856,6 +1873,9 @@ function addDamageInput() {
 
     input.value = "";
     input.focus();
+
+    damageChanged = true;
+    updateSaveButtonState();
 }
 
 function addDamageRange() {
@@ -1887,7 +1907,7 @@ function addDamageRange() {
     newItem.innerHTML = `
         <input type="text" value="${val}" 
             style="flex:1; padding:10px; border:1px solid #ccc; border-radius:6px;"
-            oninput="this.classList.remove('input-error'); validateDamageInput(this)">
+            oninput="this.classList.remove('input-error'); validateDamageInput(this); damageChanged = true; updateSaveButtonState();">
         <button onclick="removeDamageInput(this)" 
             style="background:#dc2626;color:white;">삭제</button>
     `;
@@ -1896,6 +1916,9 @@ function addDamageRange() {
 
     start.value = "";
     end.value = "";
+
+    damageChanged = true;
+    updateSaveButtonState();
 }
 
 
@@ -1960,6 +1983,14 @@ function validateDamageInput(inputEl) {
     return true;
 }
 
+function updateSaveButtonState() {
+    const btn = document.querySelector("#damageModal button[onclick='saveDamageNumbers()']");
+    if (!btn) return;
+
+    btn.disabled = !damageChanged;
+    btn.style.opacity = damageChanged ? "1" : "0.5";
+}
+
 function confirmSelection() {
     const btn = document.getElementById('confirmBtn');
 
@@ -2013,6 +2044,9 @@ function confirmSelection() {
     localStorage.setItem("buttons_enabled", "Y");
 
     setSavedState();  //20260614
+
+    updateReportButtonText(false);
+
     alert("현재 읍면동 / 투표소 / 파일링크가 확정되었습니다 👍");
 }
 
@@ -2077,8 +2111,6 @@ function goAdmin() {
 
 
 function goMain() {
-
-     stopAutoRefresh()
 
     document.getElementById("mainScreen").style.display = "block";
     document.getElementById("adminScreen").style.display = "none";
@@ -2301,7 +2333,9 @@ function renderPollingDetail(data) {
                 <td>${row.type}</td>
    	   <td>${formatNumber(row.val1)}</td>
 	   <td>${formatNumber(row.val2)}</td>
-                <td style="    font-size:12px;    color:${getTimeColor(row.inputTime)};">    ${formatTime(row.inputTime)}</td>
+               <td style="    font-size:12px;    color:${getTimeColor(row.inputTime)};">    ${formatTime(row.inputTime)}</td>
+
+
             </tr>
             `;
         });
@@ -2364,13 +2398,17 @@ function formatNumber(n) {
 }
 
 function formatTime(t) {
-    if (!t) return "-";
 
-    const date = new Date(t);
-    return date.toLocaleTimeString("ko-KR", {
-        hour: "2-digit",
-        minute: "2-digit"
-    });
+      return t || "-";
+
+//    if (!t) return "-";
+
+//    const date = new Date(t);
+
+//    return date.toLocaleTimeString("ko-KR", {
+//        hour: "2-digit",
+//        minute: "2-digit"
+//    });
 }
 
 
@@ -2441,6 +2479,8 @@ function selectRole() {
             alert("비밀번호가 틀렸습니다.");
             return;
         }
+	
+	    sessionStorage.setItem("admin_verified", "true");
 
 	// document.getElementById("changeRoleBtn").disabled = true;
 
