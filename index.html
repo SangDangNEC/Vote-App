@@ -414,7 +414,7 @@ let prevPoll = "";
 
 const DEFAULT_DRIVE_LINK ="https://docs.google.com/spreadsheets/d/1CvZAF2gjV6m5EJlHC4kyJNYkI99ZGuM2DwZNxGh4E-8/edit?usp=sharing";
 
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzmLy1OiuKle8fvoxbw9KrJ-W8Q6GDN42LztFpTXt5uNu8BwkqXeeT4o15lBYr0eSH4/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxHWrqywfrfYwFRVOCOSbRQDl2nBT20vhqMelbK7v9ek69nlmb6LapzdgEaD-8cfd4i/exec";
 
 const pollOptionsByArea = {
     "낭성면": ["투표소"],
@@ -1091,7 +1091,7 @@ function saveToGoogle() {
     const data = {
         fileId: fileId,
         pollName: pollName,
-        start: [],
+        curr: [],
         noBalsong: [],
         geulJung: [],
         giveBack: [],
@@ -1109,7 +1109,7 @@ function saveToGoogle() {
 elections.forEach((_, i) => {
 
     const curr = {
-        start: document.getElementById('curr_' + i).value || 0,
+        curr: document.getElementById('curr_' + i).value || 0,
         noBalsong: document.getElementById('NoBalsong_' + i).value || 0,
         geulJung: document.getElementById('GeulJung_' + i).value || 0,
         giveBack: document.getElementById('GiveBack_' + i).value || 0,
@@ -1134,7 +1134,7 @@ elections.forEach((_, i) => {
     if (changed) {
         data.changedIndex.push(i);
 
-        data.start[i] = curr.start;
+        data.curr[i] = curr.curr;
         data.noBalsong[i] = curr.noBalsong;
         data.geulJung[i] = curr.geulJung;
         data.giveBack[i] = curr.giveBack;
