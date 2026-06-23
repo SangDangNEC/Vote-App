@@ -145,25 +145,6 @@ button:disabled {
 </head>
 <body>
 
-<!-- 시작 권한 선택 -->
-<div id="roleSelectScreen" style=" position:fixed; left:0; top:0; width:100%; height:100%; background:white; z-index:99999; display:flex; justify-content:center; align-items:center; ">
-
-    <div style="width:90%; max-width:400px;">
-
-        <h2 style="text-align:center;">사용자 구분 선택</h2>
-
-        <select id="userRole" style="   width:100%;  padding:12px;   margin-bottom:15px;  font-size:16px; ">
-            <option value="input">입력용(투표관리관)</option>
-            <option value="viewer">조회용(읍면동간사서기)</option>
-            <option value="admin">개발자용(위원회)</option>
-        </select>
-
-        <button onclick="selectRole()" style="width:100%; background:#2563eb;  color:white; padding:14px; font-weight:900; border:none;  border-radius:10px;  ">  확인    </button>
-
-    </div>
-
-</div>
-
 
 <div id="mainScreen">
 
@@ -194,14 +175,9 @@ button:disabled {
 
     <!-- 투표구 선택 -->
     <select id="pollType">
-
     </select>
 
-
-
     <div id="preview" style="margin-top:8px; font-weight:bold;"></div>
-
-        <button id="changeRoleBtn" onclick="changeRole()" style="margin-left:auto;"> 🔐 사용자 변경 </button>
 
 </div>
 
@@ -257,22 +233,6 @@ button:disabled {
 
 </div>
 
-<!-- style="display:none;" 버튼 숨기기 처리 -->
-<!-- 📷 사진 업로드 -->  
-<div class="photo-row">
-    <input type="file" id="photoInput" accept="image/*" multiple  >
-    <button onclick="uploadPhoto()"  style="display:none;"   >📤 사진업로드</button>
-</div>
-
-<!-- 🔍 사진 보기 -->
-<button onclick="viewPhotos()" style="  display:none;  width:100%; margin-top:8px; background:#0ea5e9; color:white; padding:12px; border:none; border-radius:10px;">
-    📷 사진보기
-</button>
-<div id="photoArea" style="margin-top:10px;"></div> 
- 
-
-
-
 <div id="app"></div>
 
 
@@ -297,9 +257,6 @@ button:disabled {
         <button id="saveBtn" class="btn-save" onclick="saveToGoogle()"  >☁️ 구글시트 저장</button>
         <button class="btn-copy" onclick="copyAll()" style="display:none;">   📋 전체 결과 복사 </button>
 
-	<!-- 투표수 조회  -->
-       <button id="adminBtn" onclick="goAdmin()"         style="        background:#2563eb;         color:white;         border:none;        border-radius:8px;        font-weight:900;">         📊 전체 투표수    </button>
-
         <button class="btn-reset" onclick="resetAll()" >🔄 초기화</button>
 
     </div>
@@ -312,94 +269,13 @@ button:disabled {
 </div>
 
 
-<!-- 관리자 화면 (처음엔 숨김) -->
-
-
-<div id="adminScreen" style="display:none;">
-    <h1>🔒 투표수 조회</h1>
-
-<div style="display:flex; gap:82px; align-items:center;">
-    <button id="goMainBtn" onclick="goMain()">← 돌아가기</button>
-
-<select id="adminAreaFilter" onchange="saveAdminArea(); loadAdminData();">
-    <option value="읍면동 선택">읍면동 선택</option>
-    <option value="낭성면">낭성면</option>
-    <option value="미원면">미원면</option>
-    <option value="가덕면">가덕면</option>
-    <option value="남일면">남일면</option>
-    <option value="문의면">문의면</option>
-    <option value="중앙동">중앙동</option>
-    <option value="성안동">성안동</option>
-    <option value="탑대성동">탑대성동</option>
-    <option value="영운동">영운동</option>
-    <option value="금천동">금천동</option>
-    <option value="용담명암산성동">용담명암산성동</option>
-    <option value="용암1동">용암1동</option>
-    <option value="용암2동">용암2동</option>
-</select>
-
-        <button id="changeAdminRoleBtn" onclick="changeRole()" style="margin-left:auto; "> 🔐 사용자 변경 </button>
-
-</div>
-
-
-<div style="margin-top:10px; display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
-
-
-    <label style="font-weight:900; display:none;">⏱️ 갱신간격</label>
-
-    <input type="number" id="refreshInterval"
-        min="10" max="60" value="30"
-        onchange="updateRefreshInterval()"
-        style="width:70px; padding:6px; border:1px solid #ccc; border-radius:6px; text-align:center;  display:none;">
-
-    <span style="font-weight:700;  display:none; ">분</span>
-
-    <button onclick="loadAdminData()" 
-        style="margin-left:auto; padding:10px;
-        background:#2563eb;
-        color:white;
-        border:none;
-        border-radius:8px;
-        font-weight:900;">
-        📊 투표수 데이터 조회
-    </button>
-
-</div>
-
-
-    <div id="adminTable" style="margin-top:20px;"></div>
-
-    <div id="pollingDetailArea" style="margin-top:20px;"></div>
-
-</div>
-
-
 <script>
 
 let damageChanged = false;
 
 let refreshTimer = null;
 
-//function startAutoRefresh() {
-//    const sec = Number(document.getElementById("refreshInterval").value) || 5;
-
-//    if (refreshTimer) clearInterval(refreshTimer);
-
-//    refreshTimer = setInterval(() => {
-//        loadAdminData();
-//    }, sec * 60 * 1000);
-//}
-
-//function stopAutoRefresh() {
-//    if (refreshTimer) {
-//        clearInterval(refreshTimer);
-//        refreshTimer = null;
-//    }
-//}
-
 let originalData = {};   //변경된 값만 저장
-
 
 let isDataChanged = false;
 
@@ -414,7 +290,7 @@ let prevPoll = "";
 
 const DEFAULT_DRIVE_LINK ="https://docs.google.com/spreadsheets/d/1CvZAF2gjV6m5EJlHC4kyJNYkI99ZGuM2DwZNxGh4E-8/edit?usp=sharing";
 
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxHWrqywfrfYwFRVOCOSbRQDl2nBT20vhqMelbK7v9ek69nlmb6LapzdgEaD-8cfd4i/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzf4IR_CQYa8OL79csRz9b4gYjqrRCJy_RkoB2oV0W3YdZn477DX9c82lpQlbPScl83/exec";
 
 const pollOptionsByArea = {
     "낭성면": ["투표소"],
@@ -486,9 +362,6 @@ const electionDisplayMap = {
     <div class="big-input-group">        <label>중복교부</label>  <input type="number" inputmode="numeric" id="DoubleOut_${index}" placeholder="0" oninput="calc(${index}); markChanged(); enforceNonNegative(this)">    </div>
     <div class="big-input-group">         <label>오훼손 매수</label><input type="number" inputmode="numeric" id="dmg_${index}" onfocus="openDamageModal(${index})"  placeholder="0"  class="no-gray" readonly    onfocus="if(this.value=='0'||this.value=='')this.value='';"    oninput="calc(${index}); markChanged(); enforceNonNegative(this)"> </div>
 </div>
-
-
-
 
                     <div class="result-bar">
                         <div class="res-item"><span class="res-label">수령매수</span><span class="res-val" id="total_${index}" style="color:#475569">0</span></div>
@@ -656,10 +529,6 @@ function resetAll() {
             try { localStorage.removeItem('votecalc_data'); } catch(e) {}
             clearChanged();
 
-
-
-	document.getElementById("changeRoleBtn").disabled = false; 
-
 	localStorage.removeItem("selection_lock");
  	document.getElementById('sheetSelect').disabled = false;
 	document.getElementById('pollType').disabled = false;
@@ -681,47 +550,6 @@ function resetAll() {
 }
 
 
-
-
-function downloadXLSX() {
-    const data = [];
-
-    // 헤더
-    data.push(["선거명", "수령매수", "교부매수", "잔여매수"]);
-
-    elections.forEach((name, i) => {
-        const total = document.getElementById('total_' + i).innerText.replace(/,/g, '');
-        const issued = document.getElementById('issued_' + i).innerText.replace(/,/g, '');
-        const remain = document.getElementById('remain_' + i).innerText.replace(/,/g, '');
-
-        if (total !== "0") {
-            data.push([name, Number(total), Number(issued), Number(remain)]);
-        }
-    });
-
-    // 워크시트 생성
-    const ws = XLSX.utils.aoa_to_sheet(data);
-
-    // 컬럼 너비 설정
-    ws['!cols'] = [
-        { wch: 20 },
-        { wch: 15 },
-        { wch: 15 },
-        { wch: 15 }
-    ];
-
-    // 워크북 생성
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "교부현황");
-
-    // 파일명 (날짜 포함)
-    const now = new Date();
-    const fileName = `투표용지_교부현황_${now.getFullYear()}-${now.getMonth()+1}-${now.getDate()}.xlsx`;
-
-    // 다운로드
-    XLSX.writeFile(wb, fileName);
-}
-
 // ✅ 투표구명 생성
 function getPollName() {
     const area = document.getElementById('sheetSelect').value;
@@ -735,19 +563,6 @@ function updatePreview() {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-
-     document.getElementById("roleSelectScreen").style.display = "none";
-//	사용하고자 하는 용도에 따라 주석표시( // )를 해제 하면됩니다.
-//	현재 기본상태는 입력용(투표관리관) 으로 되어 있는 상태입니다.
-//	사용자 권한 설정
-    	localStorage.setItem("user_role", "input");	// 입력용(투표관리관)
-//	localStorage.setItem("user_role", "viewer");	// 조회용(읍면동 간사서기)
-//	localStorage.setItem("user_role", "admin");	// 관리자용(위원회)
-// 다 주석처리하면 관리자용(위원회)로 실행됨
-
-    if ( localStorage.getItem("user_role") === "input") { 	document.getElementById("changeRoleBtn").style.display = "none";     } 
-    else if ( localStorage.getItem("user_role") === "viewer") { 	document.getElementById("changeRoleBtn").style.display = "none";     }
-    //else {  	document.getElementById("changeRoleBtn").style.display = "";     } 
 
     const savedFileName = localStorage.getItem('selectedExcelFileName');
     if (savedFileName) {
@@ -773,9 +588,9 @@ document.addEventListener('DOMContentLoaded', function() {
     loadBoxInfo(); 
     applyLockState();
 
-    applySavedRole(); 
+
     if (localStorage.getItem("role_locked") === "Y") {
-         document.getElementById("changeRoleBtn").disabled = true;
+
     }
 
 
@@ -799,132 +614,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
 });
 
-function changeRole() {
 
-    if (!confirm("사용자를 변경하시겠습니까?")) return;
-
-    localStorage.removeItem("user_role");
-    sessionStorage.removeItem("admin_verified");
-    location.reload();
-}
-
-
-function applySavedRole() {
-
-    const role = localStorage.getItem("user_role");
-
-    if (!role) return;
-
-    document.getElementById("roleSelectScreen").style.display = "none";
-
-    if (role === "input") {
-
-            document.getElementById("adminBtn").style.display = "none";
-	document.getElementById("goMainBtn").style.display = "";
-	document.getElementById("changeRoleBtn").style.display = "none";
-
-    } else if (role === "viewer") {
-
-	document.getElementById("goMainBtn").style.display = "none";
-	document.getElementById("changeRoleBtn").style.display = "none";
-        goAdmin();
-
-    } else if (role === "admin") {
-
-	 const verified = sessionStorage.getItem("admin_verified");
-	if (verified === "true") {
-
-	        document.getElementById("goMainBtn").style.display = "";
-	        document.getElementById("changeRoleBtn").style.display = "";
-	        return;
-	    }
-
-        const pw = prompt("개발자 비밀번호를 입력하세요");
-
-        if (pw === "1390") {
-	sessionStorage.setItem("admin_verified", "true");
-	document.getElementById("goMainBtn").style.display = "";
-	
-            return;
-        }
-	document.getElementById("goMainBtn").style.display = "";
-
-        localStorage.removeItem("user_role");
-        sessionStorage.removeItem("admin_verified");
-        location.reload();
-    }
-}
 
 
 function initPrevState() {
     prevArea = document.getElementById('sheetSelect').value;
     prevPoll = document.getElementById('pollType').value;
     prevDriveLink = document.getElementById('driveLink').value;
-}
-
-function findRowByPollName(ws, pollName) {
-    const range = XLSX.utils.decode_range(ws['!ref']);
-
-    for (let R = range.s.r; R <= range.e.r; ++R) {
-        const cellAddress = XLSX.utils.encode_cell({ r: R, c: 0 }); // A열
-        const cell = ws[cellAddress];
-
-        if (cell && cell.v === pollName) {
-            return R + 1; // 엑셀은 1부터 시작
-        }
-    }
-    return null;
-}
-
-function downloadTemplateWithMapping() {
-    const fileInput = document.getElementById('excelFile');
-    const file = fileInput.files[0];
-
-    const sheetName = document.getElementById('sheetSelect').value;
-    //const pollName = document.getElementById('pollName').value;
-    const pollName = getPollName();
-
-    if (!file || !pollName) {
-        alert("파일과 투표구명을 입력하세요");
-        return;
-    }
-
-    const reader = new FileReader();
-
-    reader.onload = function(e) {
-        const data = new Uint8Array(e.target.result);
-        const wb = XLSX.read(data, { type: 'array' });
-
-        const ws = wb.Sheets[sheetName];
-        if (!ws) {
-            alert("시트가 없습니다");
-            return;
-        }
-
-        // 👉 행 찾기
-        const row = findRowByPollName(ws, pollName);
-
-        if (!row) {
-            alert("투표구명을 찾을 수 없습니다");
-            return;
-        }
-
-        // 👉 값 가져오기
-        elections.forEach((name, i) => {
-            const total = Number(document.getElementById('total_' + i).innerText.replace(/,/g, ''));
-            const issued = Number(document.getElementById('issued_' + i).innerText.replace(/,/g, ''));
-            const remain = Number(document.getElementById('remain_' + i).innerText.replace(/,/g, ''));
-
-            // 예시: 열 배치 (원하는대로 수정 가능)
-            XLSX.utils.sheet_add_aoa(ws, [[total]], { origin: `B${row}` });
-            XLSX.utils.sheet_add_aoa(ws, [[issued]], { origin: `C${row}` });
-            XLSX.utils.sheet_add_aoa(ws, [[remain]], { origin: `D${row}` });
-        });
-
-        XLSX.writeFile(wb, "완성_보고서.xlsx");
-    };
-
-    reader.readAsArrayBuffer(file);
 }
 
 
@@ -1008,8 +704,6 @@ if (lock) {
 }
 
 
-
-
 document.getElementById('sheetSelect').onchange = function() {
     const oldArea = prevArea;
     const oldPoll = prevPoll;
@@ -1022,9 +716,6 @@ document.getElementById('sheetSelect').onchange = function() {
 
     updateReportButtonText(false);
 
-    clearPhotos();    
-    clearPhotoInput(); 
-    isPhotoVisible = false;
 };
 
 document.getElementById('pollType').onchange = function() {
@@ -1041,15 +732,14 @@ document.getElementById('pollType').onchange = function() {
     }
 
     prevPoll = newPoll; // ⭐ 마지막에 갱신
-    clearPhotos();
-    clearPhotoInput();
-    isPhotoVisible = false;
+
 };
 
 document.getElementById('driveLink').addEventListener('input', function() {
     saveSelection();
     checkSelectionChanged();
 });
+
 
 // 파일 선택 시 실행
 document.getElementById('excelFile').addEventListener('change', function() {
@@ -1066,16 +756,12 @@ document.getElementById('excelFile').addEventListener('change', function() {
 
 function saveToGoogle() {
 
-
 	showSaving();
 
  setTimeout(() => {
 
    saveData();
    clearChanged();
-
-
-
    
     const driveLink = document.getElementById('driveLink').value;
     const fileId = extractFileId(driveLink);
@@ -1176,55 +862,11 @@ elections.forEach((_, i) => {
 
 }
 
-
-
 function extractFileId(url) {
     const match = url.match(/\/d\/([a-zA-Z0-9-_]+)/);
     return match ? match[1] : null;
 }
 
-function mapHtmlToExcel(ws, pollName) {
-    // 1. 투표구명 찾기
-    const range = XLSX.utils.decode_range(ws['!ref']);
-    let startRow = null;
-
-    for (let R = range.s.r; R <= range.e.r; ++R) {
-        const cell = ws[XLSX.utils.encode_cell({ r: R, c: 0 })]; // A열
-        if (cell && cell.v === pollName) {
-            startRow = R;
-            break;
-        }
-    }
-    if (startRow === null) return alert("투표구명을 찾을 수 없음");
-
-    // 2. 선거명 매핑
-    const excelElections = ["교육감","도지사","청주시장","도의원","시의원","도비례","시비례"];
-    elections.forEach((htmlName, i) => {
-
-
-        const total = Number(document.getElementById('total_' + i).innerText.replace(/,/g,''));
-        const issued = Number(document.getElementById('issued_' + i).innerText.replace(/,/g,''));
-        const remain = Number(document.getElementById('remain_' + i).innerText.replace(/,/g,''));
-        
-        // 엑셀 열 (예시: 수령=K, 교부=L, 잔여=M)
-        XLSX.utils.sheet_add_aoa(ws, [[total]], { origin: `K${row+1}` }); // K열=수령매수
-        XLSX.utils.sheet_add_aoa(ws, [[issued]], { origin: `L${row+1}` }); // L열=교부매수
-        XLSX.utils.sheet_add_aoa(ws, [[remain]], { origin: `M${row+1}` }); // M열=잔여매수
-
-        // HTML 입력값: 거소미발송, 결정서지참, 거소봉투반납, 귀국투표, 이중교부
-        const NoBalsong = Number(document.getElementById('NoBalsong_' + i).value || 0);
-        const GeulJung = Number(document.getElementById('GeulJung_' + i).value || 0);
-        const GiveBack = Number(document.getElementById('GiveBack_' + i).value || 0);
-        const ReturnKorea = Number(document.getElementById('ReturnKorea_' + i).value || 0);
-        const DoubleOut = Number(document.getElementById('DoubleOut_' + i).value || 0);
-
-        XLSX.utils.sheet_add_aoa(ws, [[NoBalsong]], { origin: `O${row+1}` });
-        XLSX.utils.sheet_add_aoa(ws, [[GeulJung]], { origin: `P${row+1}` });
-        XLSX.utils.sheet_add_aoa(ws, [[GiveBack]], { origin: `Q${row+1}` });
-        XLSX.utils.sheet_add_aoa(ws, [[ReturnKorea]], { origin: `R${row+1}` });
-        XLSX.utils.sheet_add_aoa(ws, [[DoubleOut]], { origin: `S${row+1}` });
-    });
-}
 
 // ✅ [추가] 투표구 + 선거명으로 정확한 행 찾기
 function findRowByPollAndElection(sheet, pollName, electionName) {
@@ -1257,8 +899,6 @@ function loadFromGoogle() {
 
     const pollName = getPollName();
     
-    // clearPhotos();    
-    // clearPhotoInput(); 
 
     fetch(`${SCRIPT_URL}?fileId=${encodeURIComponent(fileId)}&pollName=${encodeURIComponent(pollName)}`)
     .then(res => res.json())
@@ -1272,6 +912,7 @@ function loadFromGoogle() {
 	// 여기부터 변경된 값만 저장
 	originalData[i] = {
             start: item.start || "",
+            curr: item.curr || "",
             noBalsong: item.noBalsong || "",
             geulJung: item.geulJung || "",
             giveBack: item.giveBack || "",
@@ -1297,33 +938,28 @@ function loadFromGoogle() {
             // document.getElementById('dmg_' + i).value = item.dmg || "";
 	damageData[i] = item.damageNos || "";
 
+       const list = (item.damageNos || "")
+           .split('/')
+           .map(v => v.trim())
+           .filter(v => v);
 
-const list = (item.damageNos || "")
-    .split('/')
-    .map(v => v.trim())
-    .filter(v => v);
+       let count = 0;
 
-let count = 0;
+       list.forEach(val => {
+           if (val.includes("~")) {
+               const nums = val.replace("No. ", "").split("~");
+               const start = Number(nums[0]);
+               const end = Number(nums[1]);
 
-list.forEach(val => {
-    if (val.includes("~")) {
-        const nums = val.replace("No. ", "").split("~");
-        const start = Number(nums[0]);
-        const end = Number(nums[1]);
+               if (start && end) {
+                   count += (end - start + 1);
+               }
+           } else {
+               count += 1;
+           }
+       });
 
-        if (start && end) {
-            count += (end - start + 1);
-        }
-    } else {
-        count += 1;
-    }
-});
-
-document.getElementById('dmg_' + i).value = count;
-
-
-
-
+     document.getElementById('dmg_' + i).value = count;
 
     document.getElementById('NoBalsong_' + i).value = item.noBalsong || "";
     document.getElementById('GeulJung_' + i).value = item.geulJung || "";
@@ -1385,7 +1021,6 @@ document.getElementById('dmg_' + i).value = count;
     document.getElementById("changeNotice").style.display = "none";
    clearChanged();
 }
-
 
 
 function toggleReport() {
@@ -1586,118 +1221,6 @@ function validateCurrRange(i) {
 }
 
 
-// 여기부터 사진 업로드
-function uploadPhoto() {
-    const fileInput = document.getElementById('photoInput');
-    const files = fileInput.files;
-
-    if (!files.length) {
-        alert("파일을 선택하세요");
-        return;
-    }
-
-    const area = document.getElementById('sheetSelect').value;
-    const poll = document.getElementById('pollType').value;
-
-    let uploadedCount = 0;
-    let existsCount = 0;
-
-    Array.from(files).forEach(file => {
-
-        const fileName = area + poll + "_" + file.name;
-        const reader = new FileReader();
-
-        reader.onload = function(e) {
-            const base64 = e.target.result.split(',')[1];
-
-            fetch(SCRIPT_URL, {
-                method: "POST",
-                body: JSON.stringify({
-                    type: "uploadPhoto",
-                    fileName: fileName,
-                    mimeType: file.type,
-                    data: base64
-                })
-            })
-            .then(res => res.text())
-            .then(res => {
-                if (res === "이미 업로드된 파일입니다") {
-                    existsCount++;
-                } else {
-                    uploadedCount++;
-                }
-
-                // 👉 마지막 파일 처리 후 알림
-                if (uploadedCount + existsCount === files.length) {
-                    alert(`업로드 완료 👍 (${uploadedCount}개 성공 / ${existsCount}개 중복)`);
-		fileInput.value = "";
-                }
-            })
-            .catch(err => {
-                alert("❌ 실패: " + err);
-            });
-        };
-
-        reader.readAsDataURL(file);
-    });
-}
-// 여기까지 사진 업로드
-
-//여기부터 사진 보기
-function viewPhotos() {
-    const box = document.getElementById('photoArea');
-    const btn = document.querySelector('button[onclick="viewPhotos()"]');
-
-    // 👉 이미 열려있으면 닫기
-    if (isPhotoVisible) {
-        box.innerHTML = "";
-        isPhotoVisible = false;
-        btn.innerText = "📷 사진보기";
-        return;
-    }
-
-    // 👉 처음 클릭이면 불러오기
-    const area = document.getElementById('sheetSelect').value;
-    const poll = document.getElementById('pollType').value;
-
-    fetch(`${SCRIPT_URL}?type=getPhotos&keyword=${area + poll}`)
-    .then(res => res.json())
-    .then(list => {
-
-        box.innerHTML = "";
-
-        list.forEach(url => {
-            box.innerHTML += `<img src="${url}" style="width:100%; margin-bottom:10px; border-radius:10px;">`;
-        });
-
-        if (list.length === 0) {
-            box.innerHTML = `
-                <div style="text-align:center; font-weight:900; color:#64748b; padding:10px;">
-                    📷 ${area} ${poll} - 사진 없음
-                </div>
-            `;
-        }
-
-        // 👉 상태 변경
-        isPhotoVisible = true;
-        btn.innerText = "📷 사진닫기";
-    });
-}
-//여기까지 사진 보기
-
-//여기부터 사진 초기화
-function clearPhotos() {
-    const box = document.getElementById('photoArea');
-    box.innerHTML = "";
-}
-//여기까지 사진 초기화
-
-function clearPhotoInput() {
-    const photoInput = document.getElementById('photoInput');
-    if (photoInput) {
-        photoInput.value = ""; // ⭐ 핵심
-    }
-}
 
 function openDamageModal(i) {
     currentDamageIndex = i;
@@ -2029,7 +1552,7 @@ function confirmSelection() {
     localStorage.setItem("selection_lock", JSON.stringify(data));
    
     localStorage.setItem("role_locked", "Y");
-    document.getElementById("changeRoleBtn").disabled = true; 
+
 
     loadFromGoogle();
 
@@ -2075,43 +1598,10 @@ function applyLockState() {
 }
 
 
-function goAdmin() {
-
-	const role = localStorage.getItem("user_role");
-
-    document.getElementById("mainScreen").style.display = "none";
-    document.getElementById("adminScreen").style.display = "block";
-
-    document.getElementById("topControls").style.display = "none";
-
-    if (role === "admin") {
-        document.getElementById("changeAdminRoleBtn").style.display = "none";
-    } else 
-    {
-       document.getElementById("changeAdminRoleBtn").style.display = "";
-    }
-
-    const savedAdminArea = localStorage.getItem("adminAreaFilter");
-    if (savedAdminArea) {
-        document.getElementById("adminAreaFilter").value = savedAdminArea;
-    }
-
-    document.getElementById("changeAdminRoleBtn").style.display = "none";
-
-
-    loadAdminData();
-
-    loadPollingDetail();
-    
-    startAutoRefresh(); 
-
-}
-
-
 function goMain() {
 
     document.getElementById("mainScreen").style.display = "block";
-    document.getElementById("adminScreen").style.display = "none";
+
 
 document.getElementById("topControls").style.display = "block";
 
@@ -2127,321 +1617,7 @@ document.getElementById("topControls").style.display = "block";
 }
 
 
-function loadAdminData() {
 
-
-    const selectedArea =
-        document.getElementById("adminAreaFilter")?.value || "읍면동 선택";
-
-    // 🔴 읍면동 선택 시 조회 금지
-    if (selectedArea === "읍면동 선택") {
-	document.getElementById("adminTable").innerHTML = "";
-        document.getElementById("pollingDetailArea").innerHTML = "";
-        alert("읍면동을 선택하세요.");
-        return;
-    }
-
-
-    const driveLink = document.getElementById('driveLink').value;
-    const fileId = extractFileId(driveLink);
-
-    if (!fileId) {
-        alert("❌ 파일 링크 확인");
-        return;
-    }
-
-	showLoading();
-
-    // 🔥 로딩 표시 (선택)
-    //document.getElementById("adminTable").innerHTML = "⏳ 조회 중...";
-    //document.getElementById("pollingDetailArea").innerHTML = "";
-
-    // ✅ 두 개 fetch 동시에 실행
-    const adminPromise = fetch(`${SCRIPT_URL}?type=adminSummary&fileId=${fileId}`)
-        .then(res => res.json());
-
-    const detailPromise = fetch(`${SCRIPT_URL}?type=pollingDetail&fileId=${fileId}`)
-        .then(res => res.json());
-
-    Promise.all([adminPromise, detailPromise])
-    .then(([adminData, detailData]) => {
-
-        // 🔴 읍면동 필터
-        const selectedArea = document.getElementById("adminAreaFilter")?.value || "읍면동 선택";
-
-        if (selectedArea !== "읍면동 선택") {
-            adminData = adminData.filter(d => {
-                const text = JSON.stringify(d);
-                return text.includes(selectedArea);
-            });
-
-            detailData = detailData.filter(d => {
-                const text = JSON.stringify(d);
-                return text.includes(selectedArea);
-            });
-        }
-
-        // =========================
-        // ✅ 1. adminSummary 그리기
-        // =========================
-        let html = "";
-
-        adminData.forEach(block => {
-
-            html += `
-            <h3 style="margin-top:20px; color:#1e40af;">
-                📍 ${block.district}
-            </h3>
-
-            <table border="1" style="width:100%; text-align:center; font-size:14px; margin-bottom:20px;">
-                <tr>
-                    <th>선거명</th>
-                    <th>선거인명부(사전거소제외)</th>
-                    <th>투표자수</th>
-                </tr>
-            `;
-
-            block.items.forEach(item => {
-                html += `
-                <tr>
-                    <td style="text-align:left;">
-                        ${item.election}
-                    </td>
-                    <td>${Number(item.j || 0).toLocaleString()}</td>
-                    <td>${Number(item.k || 0).toLocaleString()}</td>
-                </tr>
-                `;
-            });
-
-            html += `</table>`;
-        });
-
-        // =========================
-        // ✅ 2. pollingDetail 그리기
-        // =========================
-        renderPollingDetail(detailData);
-
-        // =========================
-        // ✅ 3. 모든 작업 끝난 후 시간 생성
-        // =========================
-        const now = new Date();
-        const timeStr = now.toLocaleString("ko-KR");
-
-        // =========================
-        // ✅ 4. 메시지 맨 앞에 추가
-        // =========================
-        html = `
-        <div style="
-            margin-bottom:10px;
-            padding:10px;
-            background:#f1f5f9;
-            border-radius:8px;
-            text-align:center;
-            font-weight:800;
-        ">
-            ⏱️ ${timeStr} ✔️ 투표수를 조회했습니다.
-        </div>
-        ` + html;
-
-        // =========================
-        // ✅ 5. 마지막에 출력
-        // =========================
-        document.getElementById("adminTable").innerHTML = html;
-
-	hideLoading();
-    })
-
-
-
-    .catch(err => {
-	hideLoading();
-        alert("❌ 불러오기 실패: " + err);
-    });
-}
-
-
-function loadPollingDetail() {
-
-    const driveLink = document.getElementById('driveLink').value;
-    const fileId = extractFileId(driveLink);
- 
-    if (!fileId) return;
-
-    fetch(`${SCRIPT_URL}?type=pollingDetail&fileId=${fileId}`)
-    .then(res => res.json())
-    .then(data => {
-   
-
-
-  const selectedArea = document.getElementById("adminAreaFilter")?.value || "전체";
-
-  if (selectedArea !== "전체") {
-      data = data.filter(d => {
-          const text = JSON.stringify(d);
-          return text.includes(selectedArea);
-      });
-  }
-
-
-
-        renderPollingDetail(data);
-    });
-}
-
-//function updateRefreshInterval() {
-//    stopAutoRefresh();
-//    startAutoRefresh();
-//}
-
-function renderPollingDetail(data) {
-
-    const colorMap = getColorMap(data);
-
-    let html = "";
-
-    data.forEach(poll => {
-
-        const district = getDistrictName(poll.name);
-        const color = colorMap[district];
-
-        html += `
-        <div style="margin-bottom:20px; border:1px solid #ddd; border-radius:10px; overflow:hidden;">
-            
-            <div style="
-                background:${color};
-                color:#fff;
-                padding:10px;
-                font-weight:900;
-            ">
-                ${poll.name}
-            </div>
-
-            <table style="width:100%; border-collapse:collapse; text-align:center;">
-                <tr style="background:#f3f4f6; font-weight:900;">
-                    <td>구분</td>
-                    <td>선거인명부(사전거소제외)</td>
-                    <td>투표자수</td>
-                    <td>입력시간</td>
-                </tr>
-        `;
-
-        poll.data.forEach(row => {
-            html += `
-            <tr>
-                <td>${row.type}</td>
-   	   <td>${formatNumber(row.val1)}</td>
-	   <td>${formatNumber(row.val2)}</td>
-               <td style="    font-size:12px;    color:${getTimeColor(row.inputTime)};">    ${formatTime(row.inputTime)}</td>
-
-
-            </tr>
-            `;
-        });
-
-        html += `</table></div>`;
-    });
-
-    document.getElementById("pollingDetailArea").innerHTML = html;
-}
-
-function getTimeColor(t) {
-	
-    console.log("t:", t);
-
-    const now = new Date();
-
-    // 👉 06:30 이전은 체크 안함
-    if (now.getHours() === 6 && now.getMinutes() < 30) {
-        return "#000";
-    }
-
-    // 👉 기준 마감 시간 계산
-    let baseHour = now.getHours();
-    if (now.getMinutes() < 30) baseHour -= 1;
-
-    const deadline = new Date(now);
-    deadline.setHours(baseHour, 30, 0, 0);
-
-    // 👉 입력 없음
-    if (!t) return "red";
-
-    // 🔥 핵심: 시/분만 추출
-    const d = new Date(t);
-    const h = d.getHours();
-    const m = d.getMinutes();
-
-    // 🔥 오늘 날짜로 재생성
-    const inputTime = new Date(now);
-    inputTime.setHours(h, m, 0, 0);
-
-     
-   // 🔥 18시 이후 추가 규칙 보궐선거면 여기가 20 으로 바뀌어야 될것 같음. 
-   if (now.getHours() >= 18) {
-
-       const cutoff = new Date(now);
-       cutoff.setHours(18, 0, 0, 0);
-
-       return inputTime >= cutoff ? "#000" : "red";
-   }
-
-    // 👉 비교
-    return inputTime >= deadline ? "#000" : "red";
-}
-
-
-function formatNumber(n) {
-    if (n === null || n === undefined || n === "") return "-";
-    return Number(n).toLocaleString("ko-KR");
-
-}
-
-function formatTime(t) {
-
-      return t || "-";
-
-//    if (!t) return "-";
-
-//    const date = new Date(t);
-
-//    return date.toLocaleTimeString("ko-KR", {
-//        hour: "2-digit",
-//        minute: "2-digit"
-//    });
-}
-
-
-
-function getDistrictName(name) {
-    if (!name) return "기타";
-
-    // "미원면제1투" → "미원면"
-    const match = name.match(/(.+?[읍면동])/);
-
-    return match ? match[1] : name;
-}
-
-function getColorMap(data) {
-
-    const colors = [
-        "#2563eb", "#16a34a", "#dc2626",
-        "#9333ea", "#ea580c", "#0891b2",
-        "#4f46e5", "#059669"
-    ];
-
-    const map = {};
-    let index = 0;
-
-    data.forEach(poll => {
-        const district = getDistrictName(poll.name);
-
-        if (!map[district]) {
-            map[district] = colors[index % colors.length];
-            index++;
-        }
-    });
-
-    return map;
-}
 
 function showLoading() {
     document.getElementById("loadingOverlay").style.display = "flex";
@@ -2460,72 +1636,12 @@ function hideSaving() {
     document.getElementById("SavingOverlay").style.display = "none";
 }
 
-function selectRole() {
 
-    const role = document.getElementById("userRole").value;
 
-    // 역할 저장
-    localStorage.setItem("user_role", role);
-
-    // 개발자용
-    if (role === "admin") {
-
-        const pw = prompt("비밀번호를 입력하세요");
-
-        if (pw !== "1390") {
-            localStorage.removeItem("user_role");
-            alert("비밀번호가 틀렸습니다.");
-            return;
-        }
-	
-	    sessionStorage.setItem("admin_verified", "true");
-
-	// document.getElementById("changeRoleBtn").disabled = true;
-
-        document.getElementById("roleSelectScreen").style.display = "none";
-	document.getElementById("goMainBtn").style.display = "";
-	document.getElementById("changeRoleBtn").style.display = "";
-        return;
-    }
-
-    // 입력용
-    if (role === "input") {
-
-        document.getElementById("roleSelectScreen").style.display = "none";
-
-	// document.getElementById("changeRoleBtn").disabled = true;
-
-           document.getElementById("adminBtn").style.display = "none";
-	
-	document.getElementById("goMainBtn").style.display = "";
-	document.getElementById("changeRoleBtn").style.display = "none";
-
-        return;
-    }
-
-    // 조회용
-    if (role === "viewer") {
-
-        document.getElementById("roleSelectScreen").style.display = "none";
-	document.getElementById("changeRoleBtn").disabled = true;
-	document.getElementById("goMainBtn").style.display = "none";
-	document.getElementById("changeRoleBtn").style.display = "none";
-        goAdmin();
-
-        return;
-    }
-}
-
-function saveAdminArea() {
-    const area = document.getElementById("adminAreaFilter").value;
-    localStorage.setItem("adminAreaFilter", area);
-}
 
 function setDirtyState() {
     document.getElementById("saveBtn").disabled = false;
     document.getElementById("reportBtn").disabled = true;
-
-    //localStorage.setItem("saveState", "dirty");
 }
 
 function setSavedState() {
