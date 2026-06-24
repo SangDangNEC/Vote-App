@@ -183,11 +183,12 @@ button:disabled {
 
 
 <!-- ✅ 파일 & 링크 영역 -->
-<div class="card">
-    <b>🔗 구글드라이브 파일 링크</b><br>
+<div class="card"  >
+    <b style="display:none;">🔗 구글드라이브 파일 링크</b><br>
     <input type="text" id="driveLink" 
       placeholder="여기를 클릭한 후 구글드라이브 파일 링크를 붙여넣기 하세요" 
-      style="width:100%;
+      style="width:100%; 
+        display:none;
         box-sizing: border-box;
         padding:10px;
         border:2px solid #1e40af;
@@ -288,9 +289,31 @@ let prevDriveLink = "";
 let prevArea = "";
 let prevPoll = "";
 
-const DEFAULT_DRIVE_LINK ="https://docs.google.com/spreadsheets/d/1CvZAF2gjV6m5EJlHC4kyJNYkI99ZGuM2DwZNxGh4E-8/edit?usp=sharing";
+// 파일 입출력 부하를 줄이기 위해 동일한 입력파일을 5개 만들어서 읍면동 별로 10개 정도 투표구에서 1개의 파일을 접속하도록 함
+const AREA_FILE_MAP = {
+    "낭성면": "https://docs.google.com/spreadsheets/d/1DBYk-d8y9okwN6QdJthgY3tzxZDBMAtqoDs8d5L-eS8/edit?usp=sharing",
+    "미원면": "https://docs.google.com/spreadsheets/d/1DBYk-d8y9okwN6QdJthgY3tzxZDBMAtqoDs8d5L-eS8/edit?usp=sharing",
+    "가덕면": "https://docs.google.com/spreadsheets/d/1DBYk-d8y9okwN6QdJthgY3tzxZDBMAtqoDs8d5L-eS8/edit?usp=sharing",
+    "남일면": "https://docs.google.com/spreadsheets/d/1DBYk-d8y9okwN6QdJthgY3tzxZDBMAtqoDs8d5L-eS8/edit?usp=sharing",
+    "문의면": "https://docs.google.com/spreadsheets/d/1DBYk-d8y9okwN6QdJthgY3tzxZDBMAtqoDs8d5L-eS8/edit?usp=sharing",
+
+    "중앙동": "https://docs.google.com/spreadsheets/d/176_gYVTcV8zdBLv2AO4I0YNXypeDGNiBPF9plBlAnlg/edit?usp=sharing",
+    "성안동": "https://docs.google.com/spreadsheets/d/176_gYVTcV8zdBLv2AO4I0YNXypeDGNiBPF9plBlAnlg/edit?usp=sharing",
+    "탑대성동": "https://docs.google.com/spreadsheets/d/176_gYVTcV8zdBLv2AO4I0YNXypeDGNiBPF9plBlAnlg/edit?usp=sharing",
+    "영운동": "https://docs.google.com/spreadsheets/d/176_gYVTcV8zdBLv2AO4I0YNXypeDGNiBPF9plBlAnlg/edit?usp=sharing",
+
+    "금천동": "https://docs.google.com/spreadsheets/d/1SJPsHKk-e3p-nFIwfSdHk2qgoBG_aEo5dCnqTukMkr8/edit?usp=sharing",
+    "용담명암산성동": "https://docs.google.com/spreadsheets/d/1SJPsHKk-e3p-nFIwfSdHk2qgoBG_aEo5dCnqTukMkr8/edit?usp=sharing",
+
+    "용암1동": "https://docs.google.com/spreadsheets/d/1uWaQBBi8ayTDWqNslkkRKt0EzLA_FcgdgxZZoAwRUj8/edit?usp=sharing",
+
+    "용암2동": "https://docs.google.com/spreadsheets/d/1b2nMJdZWZjqoVGGLQbztLqXfdaMfdtUWr2nRqTWFrrk/edit?usp=sharing"
+};
 
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzf4IR_CQYa8OL79csRz9b4gYjqrRCJy_RkoB2oV0W3YdZn477DX9c82lpQlbPScl83/exec";
+
+
+
 
 const pollOptionsByArea = {
     "낭성면": ["투표소"],
@@ -300,12 +323,12 @@ const pollOptionsByArea = {
     "문의면": ["제1투", "제2투"],
     "중앙동": ["제1투", "제2투"],
     "성안동": ["제1투", "제2투"],
-    "영운동": ["제1투", "제2투", "제3투"],
     "탑대성동": ["제1투", "제2투", "제3투"],
-    "용담명암산성동": ["제1투", "제2투", "제3투"],
+    "영운동": ["제1투", "제2투", "제3투"],
     "금천동": ["제1투", "제2투", "제3투", "제4투", "제5투", "제6투", "제7투"],
-    "용암2동": ["제1투", "제2투", "제3투", "제4투", "제5투", "제6투", "제7투", "제8투", "제9투"],
+    "용담명암산성동": ["제1투", "제2투", "제3투"],
     "용암1동": ["제1투", "제2투", "제3투", "제4투", "제5투", "제6투", "제7투", "제8투", "제9투", "제10투", "제11투", "제12투"],
+    "용암2동": ["제1투", "제2투", "제3투", "제4투", "제5투", "제6투", "제7투", "제8투", "제9투"]
 };
 
 const electionDisplayMap = {
@@ -460,9 +483,10 @@ const electionDisplayMap = {
             
             });
 
-	data['driveLink'] = document.getElementById('driveLink').value;
-    
-             localStorage.setItem('votecalc_data', JSON.stringify(data));
+//	data['driveLink'] = document.getElementById('driveLink').value;
+   
+         localStorage.setItem('votecalc_data', JSON.stringify(data));
+
             // alert("현재 데이터가 저장되었습니다.");
         } catch (e) {
             alert("아이폰 보안 설정으로 인해 저장이 차단되었습니다. 사파리 설정을 확인해주세요.");
@@ -532,7 +556,7 @@ function resetAll() {
 	localStorage.removeItem("selection_lock");
  	document.getElementById('sheetSelect').disabled = false;
 	document.getElementById('pollType').disabled = false;
-	document.getElementById('driveLink').readOnly = false;
+//	document.getElementById('driveLink').readOnly = false;
 	
 	localStorage.removeItem("role_locked");
 
@@ -561,6 +585,8 @@ function getPollName() {
 function updatePreview() {
     document.getElementById('preview').innerText = getPollName();
 }
+
+
 
 document.addEventListener('DOMContentLoaded', function() {
 
@@ -620,7 +646,7 @@ document.addEventListener('DOMContentLoaded', function() {
 function initPrevState() {
     prevArea = document.getElementById('sheetSelect').value;
     prevPoll = document.getElementById('pollType').value;
-    prevDriveLink = document.getElementById('driveLink').value;
+//    prevDriveLink = document.getElementById('driveLink').value;
 }
 
 
@@ -645,13 +671,13 @@ function updatePollOptions() {
 function saveSelection() {
     const area = document.getElementById('sheetSelect').value;
     const poll = document.getElementById('pollType').value;
-    const link = document.getElementById('driveLink').value;
+//    const link = document.getElementById('driveLink').value;
 
     localStorage.setItem('selected_area', area);
     localStorage.setItem('selected_poll', poll);
-    localStorage.setItem('drive_link', link);
+//    localStorage.setItem('drive_link', link);
 
-    alert("선택이 저장되었습니다 👍");
+//    alert("선택이 저장되었습니다 👍");
 }
 
 function loadSelection() {
@@ -680,11 +706,7 @@ function loadSelection() {
         }, 0);
     }
 
-   if (savedLink) {
-         document.getElementById('driveLink').value = DEFAULT_DRIVE_LINK;
-      } else {
-          document.getElementById('driveLink').value = DEFAULT_DRIVE_LINK;
-      }
+
 const lock = localStorage.getItem("selection_lock");
 
 if (lock) {
@@ -692,11 +714,11 @@ if (lock) {
 
     document.getElementById('sheetSelect').value = data.area;
     document.getElementById('pollType').value = data.poll;
-    document.getElementById('driveLink').value = data.link;
+//    document.getElementById('driveLink').value = data.link;
 
     document.getElementById('sheetSelect').disabled = true;
     document.getElementById('pollType').disabled = true;
-    document.getElementById('driveLink').readOnly = true;
+//    document.getElementById('driveLink').readOnly = true;
 }
 
 
@@ -763,8 +785,10 @@ function saveToGoogle() {
    saveData();
    clearChanged();
    
-    const driveLink = document.getElementById('driveLink').value;
-    const fileId = extractFileId(driveLink);
+    // const driveLink = document.getElementById('driveLink').value;
+    // const fileId = extractFileId(driveLink);
+     
+    const fileId = getCurrentFileId();
 
     if (!fileId) {
 	hideSaving();
@@ -862,11 +886,6 @@ elections.forEach((_, i) => {
 
 }
 
-function extractFileId(url) {
-    const match = url.match(/\/d\/([a-zA-Z0-9-_]+)/);
-    return match ? match[1] : null;
-}
-
 
 // ✅ [추가] 투표구 + 선거명으로 정확한 행 찾기
 function findRowByPollAndElection(sheet, pollName, electionName) {
@@ -886,10 +905,14 @@ function findRowByPollAndElection(sheet, pollName, electionName) {
 
 function loadFromGoogle() {
 
+
+
+
     showLoading();
 
-    const driveLink = document.getElementById('driveLink').value;
-    const fileId = extractFileId(driveLink);
+    //const driveLink = document.getElementById('driveLink').value;
+    //const fileId = extractFileId(driveLink);
+    const fileId = getCurrentFileId();
 
     if (!fileId) {
         hideLoading();
@@ -1038,8 +1061,10 @@ function toggleReport() {
 
 function loadReport() {
 
-    const driveLink = document.getElementById('driveLink').value;
-    const fileId = extractFileId(driveLink);
+    //const driveLink = document.getElementById('driveLink').value;
+    //const fileId = extractFileId(driveLink);
+    const fileId = getCurrentFileId();
+
     const pollName = getPollName();
 
 	showLoading();
@@ -1163,11 +1188,11 @@ function loadBoxInfo() {
 function checkSelectionChanged() {
     const currentArea = document.getElementById('sheetSelect').value;
     const currentPoll = document.getElementById('pollType').value;
-    const currentLink = document.getElementById('driveLink').value;
+//    const currentLink = document.getElementById('driveLink').value;
 
     const areaChanged = currentArea !== prevArea;
     const pollChanged = currentPoll !== prevPoll;
-    const linkChanged = currentLink !== prevDriveLink;
+//    const linkChanged = currentLink !== prevDriveLink;
 
     if ((areaChanged || pollChanged) && prevArea && prevPoll) {
         document.getElementById("changeNotice").innerText =
@@ -1184,7 +1209,7 @@ function checkSelectionChanged() {
     // ⭐ 핵심: 무조건 최신값으로 갱신
     prevArea = currentArea;
     prevPoll = currentPoll;
-    prevDriveLink = currentLink;
+//    prevDriveLink = currentLink;
 }
 
 function markChanged() {
@@ -1221,6 +1246,20 @@ function validateCurrRange(i) {
 }
 
 
+function extractFileId(url) {
+    const match = url.match(/\/d\/([a-zA-Z0-9-_]+)/);
+    return match ? match[1] : null;
+}
+
+
+function getCurrentFileId() {
+
+    const area =        document.getElementById('sheetSelect').value;
+
+    const driveLink =        AREA_FILE_MAP[area];
+
+    return extractFileId(driveLink);
+}
 
 function openDamageModal(i) {
     currentDamageIndex = i;
@@ -1525,30 +1564,30 @@ function confirmSelection() {
     
     const area = document.getElementById('sheetSelect');
     const poll = document.getElementById('pollType');
-    const link = document.getElementById('driveLink');
+//    const link = document.getElementById('driveLink');
 
-    link.readOnly = true;
-    link.style.background = "#f1f5f9";
-    link.style.color = "#64748b";
-    link.style.border = "2px solid #cbd5e1";
-    link.style.cursor = "not-allowed";
+//    link.readOnly = true;
+//    link.style.background = "#f1f5f9";
+//    link.style.color = "#64748b";
+//    link.style.border = "2px solid #cbd5e1";
+//    link.style.cursor = "not-allowed";
 
     // 1️⃣ 잠금
     area.disabled = true;
     poll.disabled = true;
-    link.readOnly = true;
+//    link.readOnly = true;
 
     // 2️⃣ 저장
     const data = {
         area: area.value,
         poll: poll.value,
-        link: link.value,
+//        link: link.value,
         locked: true
     };
 
     localStorage.setItem("selected_area", area.value);
     localStorage.setItem("selected_poll", poll.value);
-    localStorage.setItem("drive_link", link.value);
+//    localStorage.setItem("drive_link", link.value);
     localStorage.setItem("selection_lock", JSON.stringify(data));
    
     localStorage.setItem("role_locked", "Y");
@@ -1568,7 +1607,7 @@ function confirmSelection() {
 
     updateReportButtonText(false);
 
-    alert("현재 읍면동 / 투표소 / 파일링크가 확정되었습니다 👍");
+    //alert("현재 읍면동 / 투표소 / 파일링크가 확정되었습니다 👍");
 }
 
 
@@ -1581,17 +1620,17 @@ function applyLockState() {
 
     const area = document.getElementById('sheetSelect');
     const poll = document.getElementById('pollType');
-    const link = document.getElementById('driveLink');
+//    const link = document.getElementById('driveLink');
     const btn = document.getElementById('confirmBtn');
 
     // 🔒 다시 잠금 적용
     area.value = data.area;
     poll.value = data.poll;
-    link.value = data.link;
+//    link.value = data.link;
 
     area.disabled = true;
     poll.disabled = true;
-    link.readOnly = true;
+//    link.readOnly = true;
 
     btn.disabled = true;
     btn.innerText = "확정됨";
