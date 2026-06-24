@@ -157,7 +157,7 @@ button:disabled {
 <div style="padding: 4px 10px;display:flex; gap:8px; align-items:center;">
     
     <!-- 읍면동 선택 -->
-    <select id="sheetSelect">
+    <select id="sheetSelect" style="height: 45px; font-size:16px">
         <option value="낭성면">낭성면</option>
         <option value="미원면">미원면</option>
         <option value="가덕면">가덕면</option>
@@ -174,10 +174,12 @@ button:disabled {
     </select>
 
     <!-- 투표구 선택 -->
-    <select id="pollType">
+    <select id="pollType" style="height: 45px; font-size:16px">
     </select>
 
     <div id="preview" style="margin-top:8px; font-weight:bold;"></div>
+
+    <div id="serverStatus"      style="font-weight:bold;margin-top:5px;"> 상태 확인중...  </div>
 
 </div>
 
@@ -551,6 +553,8 @@ const electionDisplayMap = {
 function resetAll() {
         if(confirm("모든 데이터를 초기화하시겠습니까?")) {
             try { localStorage.removeItem('votecalc_data'); } catch(e) {}
+
+
             clearChanged();
 
 	localStorage.removeItem("selection_lock");
@@ -570,6 +574,8 @@ function resetAll() {
 	document.getElementById("reportBtn").disabled = true;   // 투표록2면 작성자료 열기
 
             location.reload();
+
+
         }
 }
 
@@ -589,6 +595,8 @@ function updatePreview() {
 
 
 document.addEventListener('DOMContentLoaded', function() {
+    
+     updateServerStatusUI();
 
     const savedFileName = localStorage.getItem('selectedExcelFileName');
     if (savedFileName) {
@@ -867,7 +875,7 @@ elections.forEach((_, i) => {
 
 .then(res => res.text())
 .then(res => {
-
+	markOnline();
 	hideSaving();
 
 	setSavedState();    //20260614
@@ -877,6 +885,7 @@ elections.forEach((_, i) => {
 })
 .catch(err => {
 
+        markOffline();
 	hideSaving();
 
     alert("❌ 저장 실패: " + err);
@@ -927,6 +936,7 @@ function loadFromGoogle() {
     .then(res => res.json())
     .then(data => {
 
+        markOnline();
 	originalData = {}; //변경된 값만 저장
 
         // 👉 핵심: 배열 그대로 처리
@@ -1028,7 +1038,7 @@ function loadFromGoogle() {
 
     })
     .catch(err => {
-	
+	markOffline();
 	hideLoading();
 
         const notice = document.getElementById("changeNotice");
@@ -1072,7 +1082,7 @@ function loadReport() {
     fetch(`${SCRIPT_URL}?fileId=${fileId}&pollName=${pollName}`)
     .then(res => res.json())
     .then(data => {
-
+        markOnline();
         let html = "<h3 style='margin:0;'>📊 투표록 2면 작성자료</h3>";
 
         // ✅ ⭐ 투표함관리번호 먼저 만들기
@@ -1153,6 +1163,7 @@ function loadReport() {
 
     })
     .catch(err => {
+        markOffline();
 	hideLoading();
         alert("❌ 불러오기 실패: " + err);
     });
@@ -1689,6 +1700,60 @@ function setSavedState() {
 
     localStorage.setItem("saveState", "saved");
 }
+
+// ==========================
+// 서버 상태 관리
+// ==========================
+
+function markOnline() {
+
+    localStorage.setItem(
+        "serverStatus",
+        JSON.stringify({
+            state: "online",
+            time: new Date().toISOString()
+        })
+    );
+
+    updateServerStatusUI();
+}
+
+function markOffline() {
+
+    localStorage.setItem(
+        "serverStatus",
+        JSON.stringify({
+            state: "offline",
+            time: new Date().toISOString()
+        })
+    );
+
+    updateServerStatusUI();
+}
+
+
+
+function updateServerStatusUI() {
+
+    const el = document.getElementById("serverStatus");
+    if (!el) return;
+
+    const saved = JSON.parse(
+        localStorage.getItem("serverStatus") || "{}"
+    );
+
+    if (saved.state === "online") {
+
+        const time = saved.time             ? new Date(saved.time).toLocaleTimeString("ko-KR", {           hour12: false,           hour: "2-digit",           minute: "2-digit",       })     : "";
+
+        el.innerHTML =             "🟢 온라인 상태 (" + time + ")";         el.style.color = "green";
+
+    } else {
+
+        el.innerHTML =             "🔴 오프라인 상태";         el.style.color = "red";
+    }
+}
+
 
 </script>
 
