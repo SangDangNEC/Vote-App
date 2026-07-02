@@ -910,8 +910,8 @@ document.addEventListener('DOMContentLoaded', function() {
 	   document.getElementById("loadBaseInfoBtn").disabled = !isConfirmed;     // 기본정보 불러오기 
 	   document.getElementById("reportBtn").disabled = !isConfirmed;     // 투표록 2면 작성자료 열기 버튼
 	
-	alert("서버상태 = " + isServerOnline );
 	   document.getElementById("loadBaseInfoBtn").disabled = !isServerOnline ;      // 기본정보 불러오기 버튼
+	   document.getElementById("loadBaseInfoBtn").disabled = !isConfirmed ;      // 초기화시 기본정보 불러오기 버튼
 
 	    requestAnimationFrame(() => {
 	        loadSelection();
@@ -1435,7 +1435,7 @@ function loadFromGoogle() {
             setSavedState();  //20260614
 	markSynced();
 
-        alert("✅ 기본정보 불러오기 완료");
+//      alert("✅ 기본정보 불러오기 완료");
 
     })
     .catch(err => {
