@@ -282,6 +282,9 @@ let excelBaseData =     JSON.parse(localStorage.getItem("excelBaseData") || "{}"
 let isExceLoaded = false;
 let isConfirmed = false;
 
+let isInitialed = true;   // 초기화 버튼 눌렀는지 확인
+let isServerOnline = false;  //서버상태 확인
+
 let damageChanged = false;
 
 let refreshTimer = null;
@@ -303,6 +306,8 @@ let prevDriveLink = "";
 let prevArea = "";
 let prevPoll = "";
 
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzf4IR_CQYa8OL79csRz9b4gYjqrRCJy_RkoB2oV0W3YdZn477DX9c82lpQlbPScl83/exec";
+
 // 파일 입출력 부하를 줄이기 위해 동일한 입력파일을 5개 만들어서 읍면동 별로 10개 정도 투표구에서 1개의 파일을 접속하도록 함
 const AREA_FILE_MAP = {
     "낭성면": "https://docs.google.com/spreadsheets/d/1DBYk-d8y9okwN6QdJthgY3tzxZDBMAtqoDs8d5L-eS8/edit?usp=sharing",
@@ -323,8 +328,6 @@ const AREA_FILE_MAP = {
 
     "용암2동": "https://docs.google.com/spreadsheets/d/1b2nMJdZWZjqoVGGLQbztLqXfdaMfdtUWr2nRqTWFrrk/edit?usp=sharing"
 };
-
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzf4IR_CQYa8OL79csRz9b4gYjqrRCJy_RkoB2oV0W3YdZn477DX9c82lpQlbPScl83/exec";
 
 
 
@@ -419,6 +422,26 @@ function renderCards() {
         loadSavedData(); // 카드 생성 후 데이터 로드
 
 	console.log("생성된 카드 수:", document.querySelectorAll(".election-card").length);
+
+}
+
+function setElectionDisabled(disabled) {
+
+    const prefixes = [
+        "curr_",
+        "dupSerial_",
+        "NoBalsong_",
+        "GeulJung_",
+        "GiveBack_",
+        "DoubleOut_",
+        "dmg_"
+    ];
+
+    prefixes.forEach(prefix => {
+        document.querySelectorAll(`input[id^="${prefix}"]`).forEach(input => {
+            input.disabled = disabled;
+        });
+    });
 
 }
 
@@ -710,7 +733,7 @@ function markSynced() {
         }
     }
 
-    function loadSavedData() {
+function loadSavedData() {
         try {
             const saved = localStorage.getItem('votecalc_data');
             if (saved) {
@@ -741,7 +764,7 @@ function markSynced() {
         }
     }
 
-    function copyAll() {
+function copyAll() {
         let resultText = `[제9회 전국동시지방선거 투표용지 교부상황]\n전주시완산구선거관리위원회\n${new Date().toLocaleString()}\n\n`;
         elections.forEach((name, i) => {
             const t = document.getElementById('total_' + i).innerText;
@@ -783,6 +806,9 @@ function resetAll() {
 	localStorage.removeItem("saveState");
 	localStorage.removeItem("buttons_enabled");
 
+
+	isInitialed = true;  //초기화 버튼 눌렀을때 
+
 	// 버튼 비활성화
 	document.getElementById("loadBaseInfoBtn").disabled = true;     // 기본정보 불러오기
 	document.getElementById("saveBtn").disabled = true;     // 데이터 저장
@@ -794,13 +820,13 @@ function resetAll() {
 	localStorage.removeItem("selectedExcelFileName");
 	
 	isConfirmed = false;
+	localStorage.removeItem("isConfirmed");
+
 	isExceLoaded = false;
 
 	updateExcelButtonState();
 
-            location.reload();
-
-
+        location.reload();
         }
 }
 
@@ -820,6 +846,8 @@ function updatePreview() {
 
 
 document.addEventListener('DOMContentLoaded', function() {
+
+	isConfirmed = (localStorage.getItem("isConfirmed") === "Y");
 
     const oldVersion = localStorage.getItem("APP_VERSION");
     if (oldVersion !== APP_VERSION) {
@@ -870,12 +898,20 @@ document.addEventListener('DOMContentLoaded', function() {
 
 	requestAnimationFrame(() => {
 	    renderCards();
+
 	    loadSelection();
 	    //updatePollOptions();
 	    //updatePreview();
 	    loadBoxInfo();
 	    applyLockState();
 	    fillStartEndFromExcel();
+
+	    setElectionDisabled( !isConfirmed );           //여기에 입력해야 되나?
+	   document.getElementById("loadBaseInfoBtn").disabled = !isConfirmed;     // 기본정보 불러오기 
+	   document.getElementById("reportBtn").disabled = !isConfirmed;     // 투표록 2면 작성자료 열기 버튼
+	
+	alert("서버상태 = " + isServerOnline );
+	   document.getElementById("loadBaseInfoBtn").disabled = !isServerOnline ;      // 기본정보 불러오기 버튼
 
 	    requestAnimationFrame(() => {
 	        loadSelection();
@@ -890,6 +926,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
 	const pending =    localStorage.getItem("pendingUpload") === "true";
 	updateSyncState(pending);
+
+        //if( !isConfirmed ) {
+   	//   alert("리로드isConfirmed 초기화 : " +!isConfirmed );
+	//   document.getElementById("reportBtn").disabled = true;     // 투표록 2면 작성자료 열기 버튼
+	//	setElectionInputsDisabled(false);   // 확정안되면 입력 불가
+       //}
 
 
 	// 🔥 뒤로가기 방지 로직 추가
@@ -1086,7 +1128,7 @@ function updateExcelButtonState() {
 	//document.getElementById("reportBtn").disabled = false;     // 투표록 2면 버튼
 
 	if( isConfirmed ) {
-	    alert(" 엑셀파일 있는 상태 + 확정버튼 : 비활성화 isConfirmed : ");
+	
 		document.getElementById("reportBtn").disabled = false;     // 투표록 2면 버튼
 	}
 	else{
@@ -1102,8 +1144,12 @@ function updateExcelButtonState() {
     }
 
 
-    
+    if( isInitialed ) {
+
+	document.getElementById("loadBaseInfoBtn").disabled = true;     // 기본정보 불러오기
+    }
   
+    document.getElementById("loadBaseInfoBtn").disabled = !isServerOnline ;      // 기본정보 불러오기 버튼
     document.getElementById("resetBtn").disabled = !hasExcel;
 //    document.getElementById("reportBtn").disabled = !hasExcel;
 
@@ -2103,6 +2149,8 @@ function confirmSelection() {
     loadFromGoogle();
 
     isConfirmed = true;
+   localStorage.setItem("isConfirmed", "Y");
+
     // 버튼 활성화 20260614
     document.getElementById("saveBtn").disabled = true;     //false 에서 true로 변경
     document.getElementById("reportBtn").disabled = false;
@@ -2110,10 +2158,15 @@ function confirmSelection() {
 
     // 상태 저장 20260614
     localStorage.setItem("buttons_enabled", "Y");
+   
+   isInitialed = false;
+
 
     setSavedState();  //20260614
 
     updateReportButtonText(false);
+
+    setElectionDisabled(false);
 
     //alert("현재 읍면동 / 투표소 / 파일링크가 확정되었습니다 👍");
 }
@@ -2211,6 +2264,7 @@ function setSavedState() {
 
 function markOnline() {
 
+    isServerOnline = true;
     localStorage.setItem(
         "serverStatus",
         JSON.stringify({
@@ -2224,6 +2278,7 @@ function markOnline() {
 
 function markOffline() {
 
+    isServerOnline = false;
     localStorage.setItem(
         "serverStatus",
         JSON.stringify({
@@ -2251,11 +2306,14 @@ function updateServerStatusUI() {
         const time = saved.time             ? new Date(saved.time).toLocaleTimeString("ko-KR", {           hour12: false,           hour: "2-digit",           minute: "2-digit",       })     : "";
 
         el.innerHTML =             "🟢 온라인 상태 (" + time + ")";         el.style.color = "green";
-
+	 isServerOnline = true;
     } else {
 
         el.innerHTML =             "🔴 오프라인 상태";         el.style.color = "red";
+	 isServerOnline = false;
     }
+
+
 }
 
 
