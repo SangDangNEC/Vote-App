@@ -284,6 +284,7 @@ let isConfirmed = false;
 
 let isInitialed = true;   // 초기화 버튼 눌렀는지 확인
 let isServerOnline = false;  //서버상태 확인
+let isOnlineSaveState = false;  // 온라인 저장상태 확인
 
 let damageChanged = false;
 
@@ -306,7 +307,7 @@ let prevDriveLink = "";
 let prevArea = "";
 let prevPoll = "";
 
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzf4IR_CQYa8OL79csRz9b4gYjqrRCJy_RkoB2oV0W3YdZn477DX9c82lpQlbPScl83/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyJNtnVxXQdTwOsrsfcndxOpq9J1RPVoqS5ifPw_Di0PS89nK-8nvKdZEfAjMrIXOQr/exec";
 
 // 파일 입출력 부하를 줄이기 위해 동일한 입력파일을 5개 만들어서 읍면동 별로 10개 정도 투표구에서 1개의 파일을 접속하도록 함
 const AREA_FILE_MAP = {
@@ -823,6 +824,7 @@ function resetAll() {
 	localStorage.removeItem("isConfirmed");
 
 	isExceLoaded = false;
+	isOnlineSaveState = false;
 
 	updateExcelButtonState();
 
@@ -912,6 +914,13 @@ document.addEventListener('DOMContentLoaded', function() {
 	
 	   document.getElementById("loadBaseInfoBtn").disabled = !isServerOnline ;      // 기본정보 불러오기 버튼
 	   document.getElementById("loadBaseInfoBtn").disabled = !isConfirmed ;      // 초기화시 기본정보 불러오기 버튼
+
+	  //alert("온라인상태 " + isServerOnline + "확정상태 " + isConfirmed + "저장상태" + isSaved);
+          // alert("온라인상태 " + isServerOnline);
+          // alert("확정상태 " + isConfirmed);
+          // alert("확정상태 " + isOnlineSaveState);
+
+	   document.getElementById("loadBaseInfoBtn").disabled = !(isServerOnline && isConfirmed && isSaved);
 
 	    requestAnimationFrame(() => {
 	        loadSelection();
@@ -1257,12 +1266,19 @@ function saveToGoogle() {
 	hideSaving();
 	if (res.startsWith("❌")) {
 	        markOffline();
+
+	        isOnlineSaveState = falsee;  
+	        localStorage.setItem("isOnlineSaveState", "false");
+
 	       // alert(res);
 	            notice.innerText = "📴 오프라인 모드 : 현재 입력값으로 작성자료를 생성합니다.";
             	notice.style.display = "block";
 	        return;
 	 }
 	markOnline();
+
+	isOnlineSaveState = true;  
+	localStorage.setItem("isOnlineSaveState", "true");
 
 	 clearChanged();
 
@@ -1278,6 +1294,9 @@ function saveToGoogle() {
 	hideSaving();
             notice.innerText = "📴 오프라인 모드 : 현재 입력값으로 작성자료를 생성합니다.";
             notice.style.display = "block";
+
+	    isOnlineSaveState = falsee;  
+	    localStorage.setItem("isOnlineSaveState", "false");
 
       //  alert("❌ 저장 실패: " + err);
     });
