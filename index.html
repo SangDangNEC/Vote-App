@@ -1,6 +1,10 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
+
+<script src="https://www.gstatic.com/firebasejs/12.0.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore-compat.js"></script>
+
     <link rel="manifest" href="manifest.json">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -49,7 +53,7 @@
 
         footer { text-align: center; padding: 10px 0 10px 0; color: #94a3b8; font-size: 0.75rem; line-height: 1.6; }
 
-        .footer-btns { position: sticky; bottom: 0; display: flex; flex-direction: column; gap: 8px; background: rgba(244, 244, 245, 0.95); padding: 15px 10px; z-index: 1000; border-top: 1px solid #e2e8f0; padding-bottom: calc(15px + env(safe-area-inset-bottom)); }
+        .footer-btns { position: sticky; bottom: 0; display: flex; flex-direction: column; gap: 8px; background: rgba(244, 244, 245, 0.95); padding: 15px 10px; z-index: 1000; border-top: 1px solid #e2e8f0; padding-bottom: Input_calc(15px + env(safe-area-inset-bottom)); }
     /*    .btn-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }  */
 	.btn-row {    display: flex;    flex-wrap: nowrap;       gap: 8px;     overflow-x: auto;       align-items: center;  }
 
@@ -65,6 +69,7 @@ input[readonly]:not(.no-gray) {
     cursor: not-allowed;
 }
 
+select:disabled,
 button:disabled {
     background: #cbd5e1 !important;
     color: #64748b !important;
@@ -146,18 +151,18 @@ button:disabled {
 <body>
 
 
-<div id="mainScreen">
+<div id="Input_mainScreen">
 
 <header>
     <h1>🗳️ 투표용지 교부매수 계산기</h1>
 </header>
 
-<div id="topControls">
+<div id="Input_topControls">
 
 <div style="padding: 4px 10px;display:flex; gap:8px; align-items:center;">
     
     <!-- 읍면동 선택 -->
-    <select id="sheetSelect" style="height: 45px; font-size:16px">
+    <select id="Input_sheetSelect" style="height: 45px; font-size:16px">
         <option value="낭성면">낭성면</option>
         <option value="미원면">미원면</option>
         <option value="가덕면">가덕면</option>
@@ -174,23 +179,22 @@ button:disabled {
     </select>
 
     <!-- 투표구 선택 -->
-    <select id="pollType" style="height: 45px; font-size:16px">
+    <select id="Input_pollType" style="height: 45px; font-size:16px">
     </select>
 
-    <div id="preview" style="margin-top:8px; font-weight:bold;"></div>
+    <div id="Input_preview" style="margin-top:8px; font-weight:bold;"></div>
 
-    <div id="serverStatus"      style="font-weight:bold;margin-top:5px;"> 상태 확인중...  </div>
+    <div id="Input_serverStatus"      style="font-weight:bold;margin-top:5px;"> 상태 확인중...  </div>
 
 </div>
 
-<input type="file"         id="excelFile"         accept=".xlsx,.xls"         style="display:none;"  onchange="loadExcelBaseInfo(event);">
-
-<button id="loadExcelBtn"         onclick="document.getElementById('excelFile').click();">     📂 엑셀파일 불러오기 </button>
+<input type="file"         id="Input_excelFile"         accept=".xlsx,.xls"         style="display:none;"  onchange="Input_loadExcelBaseInfo(event);">
+<button id="Input_loadExcelBtn"         onclick="document.getElementById('Input_excelFile').click();">     📂 엑셀파일 불러오기 </button>
 
 <!-- ✅ 파일 & 링크 영역 -->
 <div class="card"  >
     <b style="display:none;">🔗 구글드라이브 파일 링크</b><br>
-    <input type="text" id="driveLink" 
+    <input type="text" id="Input_driveLink" 
       placeholder="여기를 클릭한 후 구글드라이브 파일 링크를 붙여넣기 하세요" 
       style="width:100%; 
         display:none;
@@ -202,7 +206,7 @@ button:disabled {
        margin-bottom: 8px;
     ">
 
-<div id="changeNotice" style="
+<div id="Input_changeNotice" style="
     display:none;
     margin-top:8px;
     padding:10px;
@@ -217,18 +221,18 @@ button:disabled {
    
 <div style="display:flex; gap:8px; align-items:center; margin-top:6px;">
  
-    <button onclick="confirmSelection()" id="confirmBtn"
+    <button onclick="Input_confirmSelection()" id="Input_confirmBtn"
         style="flex:0.8; padding:13px 10px; background:#10b981; color:white; border:none; border-radius:8px; font-weight:900;">
         확정
     </button>
 
-<button id="loadBaseInfoBtn" onclick="loadFromGoogle()" 
+<button id="Input_loadBaseInfoBtn" onclick="Input_loadFromDB()" 
     style="flex:2.3; margin-top:6px; width:100%; padding:13px 10px; background:#6366f1; color:white;  border:none; border-radius:10px;margin-bottom: 8px;">
     📥 기본 정보 불러오기
 </button>
 </div>
 
-<div id="boxInfo" style="
+<div id="Input_boxInfo" style="
     margin-top:8px;
     font-weight:bold;
     color:#1e40af;
@@ -239,7 +243,7 @@ button:disabled {
 
 </div>
 
-<div id="app"></div>
+<div id="Input_app"></div>
 
 
 <footer>
@@ -249,7 +253,7 @@ button:disabled {
 
 <div class="footer-btns">
 
-<div id="saveWarning" style="
+<div id="Input_saveWarning" style="
     display:none;
     text-align:center;
     font-weight:900;
@@ -260,14 +264,14 @@ button:disabled {
 </div>
 
     <div class="btn-row">
-        <button id="saveBtn" class="btn-save" onclick="saveToGoogle()"  >☁️ 데이터 저장</button>
-        <button class="btn-copy" onclick="copyAll()" style="display:none;">   📋 전체 결과 복사 </button>
+        <button id="Input_saveBtn" class="btn-save" onclick="Input_saveToDB()"  >☁️ 데이터 저장</button>
+        <button class="btn-copy" onclick="Input_copyAll()" style="display:none;">   📋 전체 결과 복사 </button>
 
-        <button id="resetBtn" class="btn-reset" onclick="resetAll()" >🔄 초기화</button>
+        <button id="Input_resetBtn" class="btn-reset" onclick="Input_resetAll()" >🔄 초기화</button>
 
     </div>
-    <button id="reportBtn" onclick="toggleReport()"     style="width:100%; background:#0ea5e9; color:white; padding:14px 10px; border:none; border-radius:10px; margin-bottom:8px;">    📊 투표록 2면 작성자료 열기</button>
-    <div id="reportArea" style="display:none; margin-top:1px;"></div>
+    <button id="Input_reportBtn" onclick="Input_toggleReport()"     style="width:100%; background:#0ea5e9; color:white; padding:14px 10px; border:none; border-radius:10px; margin-bottom:8px;">    📊 투표록 2면 작성자료 열기</button>
+    <div id="Input_reportArea" style="display:none; margin-top:1px;"></div>
 </div>
 
 </div>
@@ -277,63 +281,151 @@ button:disabled {
 
 <script>
 
-let excelBaseData =     JSON.parse(localStorage.getItem("excelBaseData") || "{}");
-
-let isExceLoaded = false;
-let isConfirmed = false;
-
-let GooSheetInput_isInitialed = true;   // 초기화 버튼 눌렀는지 확인
-let GooSheetInput_isServerOnline = false;  //서버상태 확인
-let isOnlineSaveState = false;  // 온라인 저장상태 확인
-
-let damageChanged = false;
-
-let refreshTimer = null;
-
-let originalData = {};   //변경된 값만 저장
-
-let offlineBaseData = {};
-
-let isDataChanged = false;
-
-let isPhotoVisible = false;
-
-const APP_VERSION = "Ver.101";
-
-let currentDamageIndex = null;  // 현재 훼손번호인덱스
-let damageData = {}; // 선거별 훼손번호 저장
-
-let prevDriveLink = "";
-let prevArea = "";
-let prevPoll = "";
-
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyJNtnVxXQdTwOsrsfcndxOpq9J1RPVoqS5ifPw_Di0PS89nK-8nvKdZEfAjMrIXOQr/exec";
-
-// 파일 입출력 부하를 줄이기 위해 동일한 입력파일을 5개 만들어서 읍면동 별로 10개 정도 투표구에서 1개의 파일을 접속하도록 함
-const AREA_FILE_MAP = {
-    "낭성면": "https://docs.google.com/spreadsheets/d/1DBYk-d8y9okwN6QdJthgY3tzxZDBMAtqoDs8d5L-eS8/edit?usp=sharing",
-    "미원면": "https://docs.google.com/spreadsheets/d/1DBYk-d8y9okwN6QdJthgY3tzxZDBMAtqoDs8d5L-eS8/edit?usp=sharing",
-    "가덕면": "https://docs.google.com/spreadsheets/d/1DBYk-d8y9okwN6QdJthgY3tzxZDBMAtqoDs8d5L-eS8/edit?usp=sharing",
-    "남일면": "https://docs.google.com/spreadsheets/d/1DBYk-d8y9okwN6QdJthgY3tzxZDBMAtqoDs8d5L-eS8/edit?usp=sharing",
-    "문의면": "https://docs.google.com/spreadsheets/d/1DBYk-d8y9okwN6QdJthgY3tzxZDBMAtqoDs8d5L-eS8/edit?usp=sharing",
-
-    "중앙동": "https://docs.google.com/spreadsheets/d/176_gYVTcV8zdBLv2AO4I0YNXypeDGNiBPF9plBlAnlg/edit?usp=sharing",
-    "성안동": "https://docs.google.com/spreadsheets/d/176_gYVTcV8zdBLv2AO4I0YNXypeDGNiBPF9plBlAnlg/edit?usp=sharing",
-    "탑대성동": "https://docs.google.com/spreadsheets/d/176_gYVTcV8zdBLv2AO4I0YNXypeDGNiBPF9plBlAnlg/edit?usp=sharing",
-    "영운동": "https://docs.google.com/spreadsheets/d/176_gYVTcV8zdBLv2AO4I0YNXypeDGNiBPF9plBlAnlg/edit?usp=sharing",
-
-    "금천동": "https://docs.google.com/spreadsheets/d/1SJPsHKk-e3p-nFIwfSdHk2qgoBG_aEo5dCnqTukMkr8/edit?usp=sharing",
-    "용담명암산성동": "https://docs.google.com/spreadsheets/d/1SJPsHKk-e3p-nFIwfSdHk2qgoBG_aEo5dCnqTukMkr8/edit?usp=sharing",
-
-    "용암1동": "https://docs.google.com/spreadsheets/d/1uWaQBBi8ayTDWqNslkkRKt0EzLA_FcgdgxZZoAwRUj8/edit?usp=sharing",
-
-    "용암2동": "https://docs.google.com/spreadsheets/d/1b2nMJdZWZjqoVGGLQbztLqXfdaMfdtUWr2nRqTWFrrk/edit?usp=sharing"
+const Input_firebaseConfig1 = {
+  apiKey: "AIzaSyBgQy40qEH4usGL8QGhNazMsRkAnPhJp1A",
+  authDomain: "sangdangnec.firebaseapp.com",
+  projectId: "sangdangnec",
+  storageBucket: "sangdangnec.firebasestorage.app",
+  messagingSenderId: "1028025835857",
+  appId: "1:1028025835857:web:6d681969f1758827547370"
 };
 
+firebase.initializeApp(Input_firebaseConfig1);
+
+const Input_db1 = firebase.firestore();
+
+const INPUT_AREA_FIRESTORE_MAP = {
+    "낭성면": Input_db1,
+    "미원면": Input_db1,
+    "가덕면": Input_db1,
+    "남일면": Input_db1,
+    "문의면": Input_db1,
+
+    "중앙동": Input_db1,
+    "성안동": Input_db1,
+    "탑대성동": Input_db1,
+    "영운동": Input_db1,
+
+    "금천동": Input_db1,
+    "용담명암산성동": Input_db1,
+
+    "용암1동": Input_db1,
+    "용암2동": Input_db1
+};
+
+function Input_getCurrentDB() {
+    const area = document.getElementById("Input_sheetSelect").value;
+    return INPUT_AREA_FIRESTORE_MAP[area];
+}
+
+let Input_unsubscribeFirestore = null;
+let Input_hasRemoteUpdate = false;
+
+let Input_sessionId = sessionStorage.getItem("Input_sessionId");
+if (!Input_sessionId) {
+    Input_sessionId =        Math.random().toString(36).substring(2) +        Date.now().toString(36);
+    sessionStorage.setItem("Input_sessionId", Input_sessionId);
+}
+
+function Input_startFirestoreListener() {
+
+    // 기존 감시 종료
+    if (Input_unsubscribeFirestore) {
+        Input_unsubscribeFirestore();
+    }
+
+    const currentDB = Input_getCurrentDB();
+
+    const election = Input_getCurrentElection();
+    const pollName = Input_getPollName();
+
+    const docRef = currentDB
+        .collection("polls")
+        .doc(election)
+        .collection("voting")
+        .doc(pollName);
+
+    let firstSnapshot = true;
+
+    Input_unsubscribeFirestore = docRef.onSnapshot(function (snap) {
+
+        if (!snap.exists) return;
+
+        // 처음 한 번은 현재 데이터 읽기이므로 무시
+        if (firstSnapshot) {
+            firstSnapshot = false;
+            return;
+        }
+
+	 // ★ 내가 저장한 것은 무시
+	    if (snap.data().updatedBy === Input_sessionId) {
+	        return;
+	    }
+
+        Input_hasRemoteUpdate = true;
+        localStorage.setItem("Input_remoteUpdateNotice", "Y");
+
+        Input_showRemoteNotice();
+
+    });
+}
+
+function Input_showRemoteNotice() {
+    const notice = document.getElementById("Input_changeNotice");
+
+    notice.innerHTML =
+        '📢 다른 사용자가 새로운 데이터를 저장하였습니다. <br> 새로 불러오면 현재 작성중인 데이터는 사라집니다. ' +
+        '<button id="Input_reloadFirestoreBtn">새로 불러오기</button>';
+
+    notice.style.display = "block";
+
+    document.getElementById("Input_reloadFirestoreBtn").onclick = function () {
+        Input_hasRemoteUpdate = false;
+        localStorage.removeItem("Input_remoteUpdateNotice");
+        Input_loadFromDB();
+    };
+}
 
 
+function Input_restoreNotice() {
+    const saved = localStorage.getItem("Input_remoteUpdateNotice");
 
-const pollOptionsByArea = {
+    if (saved === "Y") {
+        Input_showRemoteNotice();
+    }
+}
+
+let Input_excelBaseData =     JSON.parse(localStorage.getItem("Input_excelBaseData") || "{}");
+
+let Input_isExceLoaded = false;
+let Input_isConfirmed = false;
+
+let Input_isInitialed = true;   // 초기화 버튼 눌렀는지 확인
+let Input_isServerOnline = false;  //서버상태 확인
+let Input_isOnlineSaveState = false;  // 온라인 저장상태 확인
+
+let Input_damageChanged = false;
+
+let Input_refreshTimer = null;
+
+let Input_originalData = {};   //변경된 값만 저장
+
+let Input_offlineBaseData = {};
+
+let Input_isDataChanged = false;
+
+const INPUT_APP_VERSION = "Ver.126_INPUT";
+
+let Input_currentDamageIndex = null;  // 현재 훼손번호인덱스
+let Input_damageData = {}; // 선거별 훼손번호 저장
+
+let prevInput_driveLink = "";
+let Input_prevArea = "";
+let Input_prevPoll = "";
+
+const Input_electionName= "제9회전국동시지방선거";
+
+const Input_pollOptionsByArea = {
     "낭성면": ["투표소"],
     "미원면": ["제1투", "제2투", "제3투"],
     "가덕면": ["제1투", "제2투"],
@@ -349,42 +441,33 @@ const pollOptionsByArea = {
     "용암2동": ["제1투", "제2투", "제3투", "제4투", "제5투", "제6투", "제7투", "제8투", "제9투"]
 };
 
-const electionDisplayMap = {
-       "교육감": "충청북도교육감",
-       "도지사": "충청북도지사",
-    "청주시장": "청주시장",
-      "도의원": "충청북도의원",
-      "시의원": "청주시의원",
-      "도비례": "비례대표충청북도의원",
-      "시비례": "비례대표청주시의원"
-};
 
     // 선거 데이터 정의
-    const elections = [
-        "교육감선거", "도지사선거",  "시장선거",
-        "도의원선거(지역)", "시의원선거(지역)",
-        "도의원선거(비례)", "시의원선거(비례)"
+    const Input_elections = [
+        "충청북도교육감선거", "충청북도지사선거",  "청주시장선거",
+        "충청북도의원선거", "청주시의원선거",
+        "비례대표충청북도의원선거", "비례대표청주시의원선거"
     ];
 
 // 1. 카드 렌더링 함수 (보안 충돌 방지를 위해 즉시 실행)
-function renderCards() {
+function Input_renderCards() {
 
-        const app = document.getElementById('app');
+        const app = document.getElementById('Input_app');
         if(!app) return;
 
         let html = '';
-        elections.forEach((name, index) => {
+        Input_elections.forEach((name, index) => {
             html += `
                 <div class="election-card theme-${index}">
                     <div class="election-name">
                         <span>${name}</span>
-                        <span style="font-size:0.85rem; font-weight:600; color:#94a3b8;">${index+1} / ${elections.length} </span>
+                        <span style="font-size:0.85rem; font-weight:600; color:#94a3b8;">${index+1} / ${Input_elections.length} </span>
                     </div>
                     <div class="input-grid">
-                        <div class="input-group big-input"><label>수령 첫번호</label><input type="number" inputmode="numeric" id="start_${index}" oninput="calc(${index}); markChanged();" readonly></div>
-                        <div class="input-group big-input"><label>수령 끝번호</label><input type="number" inputmode="numeric" id="end_${index}" oninput="calc(${index}); markChanged();" readonly></div>
-                        <div class="input-group big-input"><label>잔여 첫번호</label><input type="number" inputmode="numeric" id="curr_${index}" onchange="checkEndLimit(${index})" oninput="calc(${index}); markChanged(); this.classList.remove('input-error');"></div>
-                        <div class="input-group big-input">    <label>일련번호중복매수</label>    <input type="number" inputmode="numeric"        id="dupSerial_${index}"        placeholder="0"        oninput="calc(${index}); markChanged(); enforceNonNegative(this)"></div>
+                        <div class="input-group big-input"><label>수령 첫번호</label><input type="number" inputmode="numeric" id="Input_start_${index}" oninput="Input_calc(${index}); Input_markChanged();" readonly></div>
+                        <div class="input-group big-input"><label>수령 끝번호</label><input type="number" inputmode="numeric" id="Input_end_${index}" oninput="Input_calc(${index}); Input_markChanged();" readonly></div>
+                        <div class="input-group big-input"><label>잔여 첫번호</label><input type="number" inputmode="numeric" id="Input_curr_${index}" onchange="Input_checkEndLimit(${index})" oninput="Input_calc(${index}); Input_markChanged(); this.classList.remove('input-error');"></div>
+                        <div class="input-group big-input">    <label>일련번호중복매수</label>    <input type="number" inputmode="numeric"        id="Input_dupSerial_${index}"        placeholder="0"        oninput="Input_calc(${index}); Input_markChanged(); Input_enforceNonNegative(this)"></div>
                         </div>
 
 
@@ -392,43 +475,43 @@ function renderCards() {
 
 
 <div class="big-input-container">
-    <div class="big-input-group">         <label>거소미발송</label> <input type="number" inputmode="numeric" id="NoBalsong_${index}" placeholder="0" oninput="calc(${index}); markChanged(); enforceNonNegative(this)">    </div>
-    <div class="big-input-group">        <label>결정서지참</label>  <input type="number" inputmode="numeric" id="GeulJung_${index}" placeholder="0" oninput="calc(${index}); markChanged(); enforceNonNegative(this)">    </div>
+    <div class="big-input-group">         <label>거소미발송</label> <input type="number" inputmode="numeric" id="Input_NoBalsong_${index}" placeholder="0" oninput="Input_calc(${index}); Input_markChanged(); Input_enforceNonNegative(this)">    </div>
+    <div class="big-input-group">        <label>결정서지참</label>  <input type="number" inputmode="numeric" id="Input_GeulJung_${index}" placeholder="0" oninput="Input_calc(${index}); Input_markChanged(); Input_enforceNonNegative(this)">    </div>
 </div>
 
 <div class="big-input-container">
-    <div class="big-input-group">        <label>거소봉투반납</label>        <input type="number"  inputmode="numeric" id="GiveBack_${index}" placeholder="0" oninput="calc(${index}); markChanged(); enforceNonNegative(this)">    </div>
-    <div class="big-input-group">         <label>귀국투표</label> <input type="number" inputmode="numeric" id="ReturnKorea_${index}" placeholder="0" oninput="calc(${index}); markChanged(); enforceNonNegative(this)" readonly>    </div>
+    <div class="big-input-group">        <label>거소봉투반납</label>        <input type="number"  inputmode="numeric" id="Input_GiveBack_${index}" placeholder="0" oninput="Input_calc(${index}); Input_markChanged(); Input_enforceNonNegative(this)">    </div>
+    <div class="big-input-group">         <label>귀국투표</label> <input type="number" inputmode="numeric" id="Input_ReturnKorea_${index}" placeholder="0" oninput="Input_calc(${index}); Input_markChanged(); Input_enforceNonNegative(this)" readonly>    </div>
 </div>
 <div class="big-input-container">
-    <div class="big-input-group">        <label>중복교부</label>  <input type="number" inputmode="numeric" id="DoubleOut_${index}" placeholder="0" oninput="calc(${index}); markChanged(); enforceNonNegative(this)">    </div>
-    <div class="big-input-group">         <label>오훼손 매수</label><input type="number" inputmode="numeric" id="dmg_${index}" onfocus="openDamageModal(${index})"  placeholder="0"  class="no-gray" readonly    onfocus="if(this.value=='0'||this.value=='')this.value='';"    oninput="calc(${index}); markChanged(); enforceNonNegative(this)"> </div>
+    <div class="big-input-group">        <label>중복교부</label>  <input type="number" inputmode="numeric" id="Input_DoubleOut_${index}" placeholder="0" oninput="Input_calc(${index}); Input_markChanged(); Input_enforceNonNegative(this)">    </div>
+    <div class="big-input-group">         <label>오훼손 매수</label><input type="number" inputmode="numeric" id="Input_dmg_${index}" onfocus="Input_openDamageModal(${index})"  placeholder="0"  class="no-gray" readonly    onfocus="if(this.value=='0'||this.value=='')this.value='';"    oninput="Input_calc(${index}); Input_markChanged(); Input_enforceNonNegative(this)"> </div>
 </div>
 
                     <div class="result-bar">
-                        <div class="res-item"><span class="res-label">수령매수</span><span class="res-val" id="total_${index}" style="color:#475569">0</span></div>
-                        <div class="res-item"><span class="res-label">교부매수</span><span class="res-val highlight" id="issued_${index}">0</span></div>
-                        <div class="res-item"><span class="res-label">잔여매수</span><span class="res-val" id="remain_${index}" style="color:#1e40af">0</span></div>
+                        <div class="res-item"><span class="res-label">수령매수</span><span class="res-val" id="Input_total_${index}" style="color:#475569">0</span></div>
+                        <div class="res-item"><span class="res-label">교부매수</span><span class="res-val highlight" id="Input_issued_${index}">0</span></div>
+                        <div class="res-item"><span class="res-label">잔여매수</span><span class="res-val" id="Input_remain_${index}" style="color:#1e40af">0</span></div>
                     </div>
                 </div>
             `;
         });
 
         app.innerHTML = html;
-
-        loadSavedData(); // 카드 생성 후 데이터 로드
+        
+        Input_loadSavedData(); // 카드 생성 후 데이터 로드
 }
 
-function setElectionDisabled(disabled) {
+function Input_setElectionDisabled(disabled) {
 
     const prefixes = [
-        "curr_",
-        "dupSerial_",
-        "NoBalsong_",
-        "GeulJung_",
-        "GiveBack_",
-        "DoubleOut_",
-        "dmg_"
+        "Input_curr_",
+        "Input_dupSerial_",
+        "Input_NoBalsong_",
+        "Input_GeulJung_",
+        "Input_GiveBack_",
+        "Input_DoubleOut_",
+        "Input_dmg_"
     ];
 
     prefixes.forEach(prefix => {
@@ -439,26 +522,41 @@ function setElectionDisabled(disabled) {
 
 }
 
-async function loadExcelBaseInfo(e) {
+async function Input_tryLoadFromFirestore() {
+    const election = Input_getCurrentElection();
+    const pollName = Input_getPollName();
+    try{
+        const data = await Input_loadFromFirestore(election, pollName);
+        return {            success:true,            data:data        };
+    }catch(err){
+        return {            success:false,            data:null        };
+    }
+}
+
+async function Input_loadExcelBaseInfo(e) {
 
     const file = e.target.files[0];
     if (!file) return;
 
-    if (document.getElementById("sheetSelect").value &&        document.getElementById("pollType").value) {
-            loadofflineBaseCurrData();
-            const success = await loadFromGoogle();
-           if (success) {
-		    isExceLoaded = true;
-		    localStorage.setItem("excelLoaded", "true");
-		    //updateExcelButtonState();
-		    document.getElementById("loadBaseInfoBtn").disabled = true;     // 기본정보 불러오기
-		    document.getElementById("reportBtn").disabled = true;
-		    document.getElementById("confirmBtn").disabled = false;
-		    document.getElementById("resetBtn").disabled = false;
-		    document.getElementById("loadExcelBtn").disabled = true;
-                  return;   // ✅ 구글 성공 → 여기서 끝
-           }
-     }
+    const result = await Input_tryLoadFromFirestore();
+    if(result.success){
+        setInput_excelBaseDataFromDB(result.data, Input_getPollName());
+        await Input_loadFromDB(result.data);
+
+        Input_isExceLoaded = true;
+        localStorage.setItem("Input_excelLoaded", "true");
+        document.getElementById("Input_loadBaseInfoBtn").disabled = true;
+        document.getElementById("Input_reportBtn").disabled = true;
+        document.getElementById("Input_loadExcelBtn").disabled = true;
+
+        document.getElementById("Input_confirmBtn").disabled = false;   // 확정버튼
+        document.getElementById("Input_resetBtn").disabled = false;
+
+         const isSaved = localStorage.getItem("Input_saveState") === "saved";
+
+        document.getElementById("Input_loadBaseInfoBtn").disabled = !(Input_isServerOnline && Input_isConfirmed && isSaved);
+        return;
+    }
 
     const buffer = await file.arrayBuffer();
 
@@ -467,29 +565,31 @@ async function loadExcelBaseInfo(e) {
     const sheet = workbook.Sheets["내용입력"];
 
     if (!sheet) {
-	excelBaseData = {};
+	Input_excelBaseData = {};
 
-	    localStorage.removeItem("excelBaseData");
-	    localStorage.removeItem("selectedExcelFileName");
-	    localStorage.removeItem("excelLoaded");
-	    updateExcelButtonState();
+	    localStorage.removeItem("Input_excelBaseData");
+	    localStorage.removeItem("Input_excelLoaded");
+	    Input_updateExcelButtonState();
 
         alert("내용입력 시트를 찾을 수 없습니다.");
         return;
     }
 
-    const rows = XLSX.utils.sheet_to_json(sheet, {        header: 1,        defval: ""    });
+    const rows = XLSX.utils.sheet_to_json(sheet, {
+        header: 1,
+        defval: ""
+    });
 
-    excelBaseData = {};
+    Input_excelBaseData = {};
 
     let currentPoll = "";
+    let currentBoxNo = "";
 
     for (let r = 3; r < rows.length; r++) {
 
         // 병합셀 처리
-        if (rows[r][0]) {
-            currentPoll = rows[r][0];
-        }
+        if (rows[r][0]) {            currentPoll = rows[r][0];         }	//A열
+        if (rows[r][1]) {            currentBoxNo = rows[r][1];         }	//B열
 
         const pollName = currentPoll;
 
@@ -497,92 +597,90 @@ async function loadExcelBaseInfo(e) {
 
         const voterCount = rows[r][3];   // D
         const startNo    = rows[r][13];  // N
-        const currNo    = rows[r][14];  // O
+        const currNo      = rows[r][14];  // O
         const endNo      = rows[r][15];  // P
 
-        if (!excelBaseData[pollName]) {
-            excelBaseData[pollName] = [];
-        }
 
-        excelBaseData[pollName].push({
+        if (!Input_excelBaseData[pollName]) {             Input_excelBaseData[pollName] = [];         }
+
+        Input_excelBaseData[pollName].push({
             voterCount,
             startNo,
-	    currNo,
-            endNo
+  	    currNo,
+            endNo,
+	    boxNo: currentBoxNo
         });
+
     }
 
-     if (Object.keys(excelBaseData).length === 0) {
-        localStorage.removeItem("excelBaseData");
-        localStorage.removeItem("selectedExcelFileName");
-        localStorage.removeItem("excelLoaded");
+     if (Object.keys(Input_excelBaseData).length === 0) {
+        localStorage.removeItem("Input_excelBaseData");
+        localStorage.removeItem("Input_excelLoaded");
 
-        updateExcelButtonState();
+        Input_updateExcelButtonState();
         alert("엑셀에서 기준정보를 찾지 못했습니다.");
         return;
     }
 
-    localStorage.setItem(        "excelBaseData",        JSON.stringify(excelBaseData)    );
+    localStorage.setItem(        "Input_excelBaseData",        JSON.stringify(Input_excelBaseData)    );
 
-        document.getElementById("changeNotice").innerText =  "⚠️ 기초자료 로딩 완료";
-        document.getElementById("changeNotice").style.display = "block";
+        document.getElementById("Input_changeNotice").innerText =            "⚠️ 기초자료 로딩 완료";
+        document.getElementById("Input_changeNotice").style.display = "block";
 
 
-    isExceLoaded = true;
-    localStorage.setItem("excelLoaded", "true");
-    document.getElementById("loadBaseInfoBtn").disabled = true;
-    updateExcelButtonState();
+    Input_isExceLoaded = true;
+    localStorage.setItem("Input_excelLoaded", "true");
 
-    loadofflineBaseData();
-    loadofflineBaseCurrData();
-
-    document.getElementById("loadBaseInfoBtn").disabled = true;     // 기본정보 불러오기
-    document.getElementById("reportBtn").disabled = true;
+    document.getElementById("Input_loadBaseInfoBtn").disabled = true;
+    Input_updateExcelButtonState();
+    loadInput_offlineBaseData();
+    document.getElementById("Input_loadBaseInfoBtn").disabled = true;     // 기본정보 불러오기
+    document.getElementById("Input_reportBtn").disabled = true;
 
 }
 
-function loadofflineBaseCurrData() {
+function loadInput_offlineBaseData_Initial() {
 
-    const list = excelBaseData[getPollName()];
+    Input_offlineBaseData = {};
+
+    const list = Input_excelBaseData[Input_getPollName()];
     if (!list) return;
 
     list.forEach((item, i) => {
 
-        const currEl = document.getElementById("curr_" + i);
-
-        if (currEl) {            currEl.value = item.currNo || "";       }
-        calc(i);     
-    });
-
-    saveData();   // localStorage에도 저장
-}
-
-function loadofflineBaseData() {
-
-    offlineBaseData = {};
-    const list = excelBaseData[getPollName()];
-    if (!list) return;
-
-    list.forEach((item, i) => {
-        offlineBaseData [i] = {
+        Input_offlineBaseData [i] = {
             start: item.startNo || "",
             end: item.endNo || ""
         };
-	const startEl = document.getElementById("start_" + i);
-        const endEl   = document.getElementById("end_" + i);
-
-        if (startEl) startEl.value = item.startNo || "";
-        if (endEl)   endEl.value   = item.endNo || "";
 
     });
 
 }
 
-function loadOfflineBaseInfo() {
+function loadInput_offlineBaseData() {
 
-    const pollName = getPollName();
+    const poll = Input_getPollName();
+    const list = Input_excelBaseData[poll];
+    Input_offlineBaseData = {};
 
-    const data = excelBaseData[pollName];
+    if (!list) return;
+
+    list.forEach((item, i) => {
+        Input_offlineBaseData[i] = {
+            start: item.startNo || "",
+	    curr: item.currNo ||  "",
+            end: item.endNo || "",
+            boxNo: item.boxNo || ""
+        };
+    });
+}
+
+
+function Input_loadOfflineBaseInfo() {
+
+    const pollName = Input_getPollName();
+
+    const data = Input_excelBaseData[pollName];
 
     if (!data) {
         alert("저장된 오프라인 기본정보가 없습니다.");
@@ -590,76 +688,72 @@ function loadOfflineBaseInfo() {
     }
 
 
-    elections.forEach((name, i) => {
+    Input_elections.forEach((name, i) => {
 
-        const item = data[i];
+        const item = data[name];
 
         if (!item) return;
 
-        document.getElementById('start_' + i).value =            item.startNo || "";
-	document.getElementById('curr_' + i).value =        item.currNo || "";
-        document.getElementById('end_' + i).value =            item.endNo || "";
-        document.getElementById('total_' + i).innerText =            Number(item.voterCount || 0).toLocaleString();
+        document.getElementById('Input_start_' + i).value =            item.startNo || "";
 
-        calc(i);
+        document.getElementById('Input_end_' + i).value =            item.endNo || "";
+
+        document.getElementById('Input_total_' + i).innerText =            Number(item.voterCount || 0).toLocaleString();
+
+        Input_calc(i);
     });
 
     alert("📂 오프라인 기본정보 적용 완료");
 }
 
-function fillStartEndFromExcel() {
-    const list = excelBaseData[getPollName()];
+function Input_fillStartEndFromExcel() {
+    const list = Input_excelBaseData[Input_getPollName()];
     if (!list) return;
 
     list.forEach((item, i) => {
-        const startEl = document.getElementById("start_" + i);
-
-        const endEl   = document.getElementById("end_" + i);
+        const startEl = document.getElementById("Input_start_" + i);
+        const currEl  = document.getElementById("Input_curr_" + i);
+        const endEl   = document.getElementById("Input_end_" + i);
 
         // 비어 있을 때만 엑셀값 입력
         if (startEl && !startEl.value) {	            startEl.value = item.startNo || "";	        }
-
+        if (currEl && !currEl.value) {            currEl.value = item.currNo || "";        }
         if (endEl && !endEl.value) {            endEl.value = item.endNo || "";	        }
-        calc(i);
+        Input_calc(i);
     });
 }
 
-function updateSyncState(isPending) {
+function Input_updateSyncState(isPending) {
 
     // 상태 저장
-    localStorage.setItem("pendingUpload", isPending ? "true" : "false");
+    localStorage.setItem("Input_pendingUpload", isPending ? "true" : "false");
 
     // 기본정보 불러오기 버튼
-    const btn = document.getElementById("loadBaseInfoBtn");
+    const btn = document.getElementById("Input_loadBaseInfoBtn");
 
     if (btn) {
 
         btn.disabled = isPending;
 
-        if (isPending) {
-            btn.innerText = "기본정보 불러오기 (저장 필요)";
-        } else {
-            btn.innerText = "기본정보 불러오기";
-        }
+        if (isPending) {            btn.innerText = "기본정보 불러오기 (저장 필요)";        }
+	else {            btn.innerText = "기본정보 불러오기";        }
 
     }
 
 }
 
-function markDirty() {
-    updateSyncState(true);
+function Input_markDirty() {
+    Input_updateSyncState(true);
 }
 
-function markSynced() {
-    updateSyncState(false);
+function Input_markSynced() {
+    Input_updateSyncState(false);
 }
 
-
-
-    function checkEndLimit(i) {
-    const startEl = document.getElementById('start_' + i);
-    const endEl = document.getElementById('end_' + i);
-    const currEl = document.getElementById('curr_' + i);
+function Input_checkEndLimit(i) {
+    const startEl = document.getElementById('Input_start_' + i);
+    const endEl = document.getElementById('Input_end_' + i);
+    const currEl = document.getElementById('Input_curr_' + i);
 
     const start = parseInt(startEl.value) || 0;
     const end = parseInt(endEl.value) || 0;
@@ -674,7 +768,7 @@ function markSynced() {
 
         currEl.classList.add("input-error");
         currEl.value = "";
-        calc(i);
+        Input_calc(i);
         return;
     }
 
@@ -684,93 +778,98 @@ function markSynced() {
 
         currEl.classList.add("input-error");
         currEl.value = "";
-        calc(i);
+        Input_calc(i);
         return;
     }
 }
 
-    function calc(i) {
-        const start = parseInt(document.getElementById('start_' + i).value) || 0;
-        const end = parseInt(document.getElementById('end_' + i).value) || 0;
-        const curr = parseInt(document.getElementById('curr_' + i).value) || 0;
-        const dmg = parseInt(document.getElementById('dmg_' + i).value) || 0;
-        const dupSerial = parseInt(    document.getElementById('dupSerial_' + i).value) || 0;
 
-        const NoBalsong= parseInt(document.getElementById('NoBalsong_' + i).value) || 0;
-        const GeulJung= parseInt(document.getElementById('GeulJung_' + i).value) || 0;
-        const GiveBack= parseInt(document.getElementById('GiveBack_' + i).value) || 0;
+function Input_calc(i) {
+        const start = parseInt(document.getElementById('Input_start_' + i).value) || 0;
+        const end = parseInt(document.getElementById('Input_end_' + i).value) || 0;
+        const curr = parseInt(document.getElementById('Input_curr_' + i).value) || 0;
+        const dmg = parseInt(document.getElementById('Input_dmg_' + i).value) || 0;
+        const dupSerial = parseInt(    document.getElementById('Input_dupSerial_' + i).value) || 0;
 
-        const ReturnKorea= parseInt(document.getElementById('ReturnKorea_' + i).value) || 0;
-        const DoubleOut= parseInt(document.getElementById('DoubleOut_' + i).value) || 0;
+        const NoBalsong= parseInt(document.getElementById('Input_NoBalsong_' + i).value) || 0;
+        const GeulJung= parseInt(document.getElementById('Input_GeulJung_' + i).value) || 0;
+        const GiveBack= parseInt(document.getElementById('Input_GiveBack_' + i).value) || 0;
+
+        const ReturnKorea= parseInt(document.getElementById('Input_ReturnKorea_' + i).value) || 0;
+        const DoubleOut= parseInt(document.getElementById('Input_DoubleOut_' + i).value) || 0;
 
         if (start > 0 && end > 0) {
 
 	const total = (start > 0 && end > 0) ? (end - start + 1  + dupSerial ) :  dupSerial;
-	    document.getElementById('total_' + i).innerText = total.toLocaleString();
+	    document.getElementById('Input_total_' + i).innerText = total.toLocaleString();
 
 	    if (curr > 0) {
 	        const remain = (end - curr + 1) + dmg;
 	        const issued = total - remain;
 
-	        document.getElementById('issued_' + i).innerText = (issued < 0 ? 0 : issued).toLocaleString();
-	        document.getElementById('remain_' + i).innerText = (remain < 0 ? 0 : remain).toLocaleString();
+	        document.getElementById('Input_issued_' + i).innerText = (issued < 0 ? 0 : issued).toLocaleString();
+	        document.getElementById('Input_remain_' + i).innerText = (remain < 0 ? 0 : remain).toLocaleString();
 	    }
         }
     }
 
-    function saveData() {
+function Input_saveData() {
+
+console.trace("Input_saveData 호출");
+
         try {
             const data = {};
-            elections.forEach((_, i) => {
-                data['start_' + i] = document.getElementById('start_' + i).value;
-                data['end_' + i] = document.getElementById('end_' + i).value;
-                data['curr_' + i] = document.getElementById('curr_' + i).value;
-                data['dmg_' + i] = document.getElementById('dmg_' + i).value;
-	   data['damageNos_' + i] = damageData[i] || "";
+            Input_elections.forEach((_, i) => {
+                data['Input_start_' + i] = document.getElementById('Input_start_' + i).value;
+                data['Input_end_' + i] = document.getElementById('Input_end_' + i).value;
+                data['Input_curr_' + i] = document.getElementById('Input_curr_' + i).value;
+                data['Input_dmg_' + i] = document.getElementById('Input_dmg_' + i).value;
+		data['damageNos_' + i] = Input_damageData[i] || "";
 
-	data['NoBalsong_' + i] = document.getElementById('NoBalsong_' + i).value;
-	data['GeulJung_' + i] = document.getElementById('GeulJung_' + i).value;
-	data['GiveBack_' + i] = document.getElementById('GiveBack_' + i).value;
+		data['Input_NoBalsong_' + i] = document.getElementById('Input_NoBalsong_' + i).value;
+		data['Input_GeulJung_' + i] = document.getElementById('Input_GeulJung_' + i).value;
+		data['Input_GiveBack_' + i] = document.getElementById('Input_GiveBack_' + i).value;
 
-	data['ReturnKorea_' + i] = document.getElementById('ReturnKorea_' + i).value;
-	data['DoubleOut_' + i] = document.getElementById('DoubleOut_' + i).value;
-	data['dupSerial_' + i] = document.getElementById('dupSerial_' + i).value;
+		data['Input_ReturnKorea_' + i] = document.getElementById('Input_ReturnKorea_' + i).value;
+		data['Input_DoubleOut_' + i] = document.getElementById('Input_DoubleOut_' + i).value;
+		data['Input_dupSerial_' + i] = document.getElementById('Input_dupSerial_' + i).value;
             
             });
    
-         localStorage.setItem('votecalc_data', JSON.stringify(data));
+         localStorage.setItem('Input_votecalc_data', JSON.stringify(data));
 
-	clearChanged();
+	Input_clearChanged();
 
+            // alert("현재 데이터가 저장되었습니다.");
         } catch (e) {
             alert("아이폰 보안 설정으로 인해 저장이 차단되었습니다. 사파리 설정을 확인해주세요.");
         }
 }
 
-function loadSavedData() {
+function Input_loadSavedData() {
         try {
-            const saved = localStorage.getItem('votecalc_data');
+            const saved = localStorage.getItem('Input_votecalc_data');
             if (saved) {
                 const data = JSON.parse(saved);
-                elections.forEach((_, i) => {
-                    document.getElementById('start_' + i).value = data['start_' + i] || "";
-                    document.getElementById('end_' + i).value = data['end_' + i] || "";
-                    document.getElementById('curr_' + i).value = data['curr_' + i] || "";
-                    const dmgVal = data['dmg_' + i];
-                    document.getElementById('dmg_' + i).value = (dmgVal == "0" || dmgVal == "") ? "" : dmgVal;
+                Input_elections.forEach((_, i) => {
+                    document.getElementById('Input_start_' + i).value = data['Input_start_' + i] || "";
+                    document.getElementById('Input_end_' + i).value = data['Input_end_' + i] || "";
+                    document.getElementById('Input_curr_' + i).value = data['Input_curr_' + i] || "";
+                    const dmgVal = data['Input_dmg_' + i];
+                    document.getElementById('Input_dmg_' + i).value = (dmgVal == "0" || dmgVal == "") ? "" : dmgVal;
 
-		damageData[i] = data['damageNos_' + i] || "";
+		    Input_damageData[i] = data['damageNos_' + i] || "";
 
 
-	document.getElementById('NoBalsong_' + i).value = data['NoBalsong_' + i] || "";
-	document.getElementById('GeulJung_' + i).value = data['GeulJung_' + i] || "";
-	document.getElementById('GiveBack_' + i).value = data['GiveBack_' + i] || "";
+		    document.getElementById('Input_NoBalsong_' + i).value = data['Input_NoBalsong_' + i] || "";
+		    document.getElementById('Input_GeulJung_' + i).value = data['Input_GeulJung_' + i] || "";
+		    document.getElementById('Input_GiveBack_' + i).value = data['Input_GiveBack_' + i] || "";
 
-	document.getElementById('ReturnKorea_' + i).value = data['ReturnKorea_' + i] || "";
-	document.getElementById('DoubleOut_' + i).value = data['DoubleOut_' + i] || "";
-	document.getElementById('dupSerial_' + i).value = data['dupSerial_' + i] || "";
+		    document.getElementById('Input_ReturnKorea_' + i).value = data['Input_ReturnKorea_' + i] || "";
+		    document.getElementById('Input_DoubleOut_' + i).value = data['Input_DoubleOut_' + i] || "";
+		    document.getElementById('Input_dupSerial_' + i).value = data['Input_dupSerial_' + i] || "";
 
-                    calc(i);
+                    Input_calc(i);
                 });
             }
         } catch (e) {
@@ -778,12 +877,12 @@ function loadSavedData() {
         }
     }
 
-function copyAll() {
+function Input_copyAll() {
         let resultText = `[제9회 전국동시지방선거 투표용지 교부상황]\n전주시완산구선거관리위원회\n${new Date().toLocaleString()}\n\n`;
-        elections.forEach((name, i) => {
-            const t = document.getElementById('total_' + i).innerText;
-            const iso = document.getElementById('issued_' + i).innerText;
-            const r = document.getElementById('remain_' + i).innerText;
+        Input_elections.forEach((name, i) => {
+            const t = document.getElementById('Input_total_' + i).innerText;
+            const iso = document.getElementById('Input_issued_' + i).innerText;
+            const r = document.getElementById('Input_remain_' + i).innerText;
             if(t !== "0") resultText += `${name}: 수령${t}/교부${iso}/잔여${r}\n`;
         });
 
@@ -802,144 +901,161 @@ function copyAll() {
         document.body.removeChild(textArea);
 }
 
-function resetAll() {
+function Input_resetAll() {
         if(confirm("모든 데이터를 초기화하시겠습니까?")) {
-            try { localStorage.removeItem('votecalc_data'); } catch(e) {}
+            try { localStorage.removeItem('Input_votecalc_data'); } catch(e) {}
 
+            Input_clearChanged();
 
-            clearChanged();
-
-	localStorage.removeItem("selection_lock");
- 	document.getElementById('sheetSelect').disabled = false;
-	document.getElementById('pollType').disabled = false;
+	localStorage.removeItem("Input_selection_lock");
+ 	document.getElementById('Input_sheetSelect').disabled = false;
+	document.getElementById('Input_pollType').disabled = false;
 	
-	localStorage.removeItem("role_locked");
+	localStorage.removeItem("Input_role_locked");
 
 	//20260614
-	localStorage.removeItem("saveState");
-	localStorage.removeItem("buttons_enabled");
+	localStorage.removeItem("Input_saveState");
+	localStorage.removeItem("Input_buttons_enabled");
 
 
-	GooSheetInput_isInitialed = true;  //초기화 버튼 눌렀을때 
+	Input_isInitialed = true;  //초기화 버튼 눌렀을때 
 
 	// 버튼 비활성화
-	document.getElementById("loadBaseInfoBtn").disabled = true;     // 기본정보 불러오기
-	document.getElementById("saveBtn").disabled = true;     // 데이터 저장
-	document.getElementById("reportBtn").disabled = true;   // 투표록2면 작성자료 열기
-	document.getElementById("confirmBtn").disabled = true;   // 확정버튼
+	document.getElementById("Input_loadBaseInfoBtn").disabled = true;     // 기본정보 불러오기
+	document.getElementById("Input_saveBtn").disabled = true;     // 데이터 저장
+	document.getElementById("Input_reportBtn").disabled = true;   // 투표록2면 작성자료 열기
+	document.getElementById("Input_confirmBtn").disabled = true;   // 확정버튼
 
-	localStorage.removeItem("excelBaseData");
-	localStorage.removeItem("excelLoaded");
-	localStorage.removeItem("selectedExcelFileName");
+	localStorage.removeItem("Input_votecalc_data");
+	localStorage.removeItem("Input_excelBaseData");
+	localStorage.removeItem("Input_excelLoaded");
+	localStorage.removeItem("Input_box_info");
 	
-	isConfirmed = false;
-	localStorage.removeItem("isConfirmed");
+	Input_isConfirmed = false;
+	localStorage.removeItem("Input_isConfirmed");
 
-	isExceLoaded = false;
-	isOnlineSaveState = false;
+	Input_isExceLoaded = false;
+	Input_isOnlineSaveState = false;
 
-	updateExcelButtonState();
+	Input_updateExcelButtonState();
 
-        location.reload();
+        localStorage.setItem("Input_skipAutoLoad", "Y");
+	location.reload();
         }
 }
 
 
 // ✅ 투표구명 생성
-function getPollName() {
-    const area = document.getElementById('sheetSelect').value;
-    const type = document.getElementById('pollType').value;
+function Input_getPollName() {
+    const area = document.getElementById('Input_sheetSelect').value;
+    const type = document.getElementById('Input_pollType').value;
     return area + type;
 }
 
 // ✅ 미리보기 업데이트
-function updatePreview() {
-    document.getElementById('preview').innerText = getPollName();
+function updateInput_preview() {
+    document.getElementById('Input_preview').innerText = Input_getPollName();
 }
-
 
 
 document.addEventListener('DOMContentLoaded', function() {
 
-	isConfirmed = (localStorage.getItem("isConfirmed") === "Y");
+      const pollName = Input_getPollName();
+      const firstOpen = !sessionStorage.getItem("Input_box_info");
+      sessionStorage.setItem("Input_appOpened", "Y");
 
-    const oldVersion = localStorage.getItem("APP_VERSION");
-    if (oldVersion !== APP_VERSION) {
-        console.log("프로그램 버전 변경 → 엑셀 데이터 삭제");
-        localStorage.removeItem("excelBaseData");
-        localStorage.removeItem("excelLoaded");
-        localStorage.removeItem("selectedExcelFileName");
-        localStorage.setItem("APP_VERSION", APP_VERSION);
-        updateExcelButtonState();
-    }
+	Input_isConfirmed = (localStorage.getItem("Input_isConfirmed") === "Y");
 
-     updateServerStatusUI();
+          const oldVersion = localStorage.getItem("INPUT_APP_VERSION");
+          if (oldVersion !== INPUT_APP_VERSION) {
+              localStorage.removeItem("Input_excelBaseData");
+              localStorage.removeItem("Input_excelLoaded");
+              localStorage.setItem("INPUT_APP_VERSION", INPUT_APP_VERSION);
+              Input_updateExcelButtonState();
+          }
 
-     const savedExcel =     localStorage.getItem("excelBaseData");
+        updateInput_serverStatusUI();
 
-    if (savedExcel) {            excelBaseData = JSON.parse(savedExcel);      }
+        const savedExcel =     localStorage.getItem("Input_excelBaseData");
 
-    loadofflineBaseData();
+       if (savedExcel) {            Input_excelBaseData = JSON.parse(savedExcel);      }
 
-    const savedFileName = localStorage.getItem('selectedExcelFileName');
+       loadInput_offlineBaseData();
 
-    const fileNameEl = document.getElementById('excelFileName');
-
-     if (savedFileName && fileNameEl) {
-          fileNameEl.innerText = `마지막 선택 파일: ${savedFileName}`;
-    }
 
 	// 처음에는 비활성화 20260614
-	document.getElementById("saveBtn").disabled = true;
-	updateExcelButtonState();
+	document.getElementById("Input_saveBtn").disabled = true;
+	Input_updateExcelButtonState();
 	  
 
 	// 저장 상태 복원 20260614
-	if (localStorage.getItem("saveState") === "saved") {
-	    document.getElementById("saveBtn").disabled = true;
+	if (localStorage.getItem("Input_saveState") === "saved") {
+	    document.getElementById("Input_saveBtn").disabled = true;
 	}
 
 	requestAnimationFrame(() => {
-	    renderCards();
 
-	    loadSelection();
-	    loadBoxInfo();
-	    applyLockState();
-	    fillStartEndFromExcel();
+	    Input_renderCards();
+	    Input_loadSelection();
 
-	    setElectionDisabled( !isConfirmed );           //여기에 입력해야 되나?
-	   document.getElementById("loadBaseInfoBtn").disabled = !isConfirmed;     // 기본정보 불러오기 
-	   document.getElementById("reportBtn").disabled = !isConfirmed;     // 투표록 2면 작성자료 열기 버튼
+	    loadInput_boxInfo();
+	    Input_applyLockState();
+	    Input_fillStartEndFromExcel();
+
+	    Input_setElectionDisabled( !Input_isConfirmed );           //여기에 입력해야 되나?
+	   document.getElementById("Input_loadBaseInfoBtn").disabled = !Input_isConfirmed;     // 기본정보 불러오기 
+	   document.getElementById("Input_reportBtn").disabled = !Input_isConfirmed;     // 투표록 2면 작성자료 열기 버튼
 	
-	   document.getElementById("loadBaseInfoBtn").disabled = !GooSheetInput_isServerOnline ;      // 기본정보 불러오기 버튼
-	   document.getElementById("loadBaseInfoBtn").disabled = !isConfirmed ;      // 초기화시 기본정보 불러오기 버튼
+	   document.getElementById("Input_loadBaseInfoBtn").disabled = !Input_isServerOnline ;      // 기본정보 불러오기 버튼
+	   document.getElementById("Input_loadBaseInfoBtn").disabled = !Input_isConfirmed ;      // 초기화시 기본정보 불러오기 버튼
 
- 	  document.getElementById("loadBaseInfoBtn").disabled = !(GooSheetInput_isServerOnline && isConfirmed );
+          const isSaved = localStorage.getItem("Input_saveState") === "saved";
+	  document.getElementById("Input_loadBaseInfoBtn").disabled = !(Input_isServerOnline && Input_isConfirmed && isSaved);
 
 	    requestAnimationFrame(() => {
-	        loadSelection();
-	        applyLockState();
+
+
+	        Input_loadSelection();
+	        Input_applyLockState();
+
+		Input_startFirestoreListener();
+
+		console.log("firstOpen =", firstOpen);
+		console.log("sessionStorage box =", sessionStorage.getItem("Input_box_info"));
+
+		const btn = document.getElementById("Input_loadExcelBtn");
+		const isfileDisabled = btn.disabled;
+
+	       const skipAutoLoad =    localStorage.getItem("Input_skipAutoLoad") === "Y";
+	       if (skipAutoLoad) {    localStorage.removeItem("Input_skipAutoLoad");		} 
+	       else if (firstOpen) {
+		if ( isfileDisabled ) 	{	sessionStorage.setItem("Input_box_info", "Y");	Input_loadFromDB();	}
+	       }
+
 	    });
 	});
 
 
-    if (localStorage.getItem("role_locked") === "Y") {
+       if (localStorage.getItem("Input_role_locked") === "Y") {	    }
 
-    }
+	const pending =    localStorage.getItem("Input_pendingUpload") === "true";
+	Input_updateSyncState(pending);
 
-	const pending =    localStorage.getItem("pendingUpload") === "true";
-	updateSyncState(pending);
+	if (localStorage.getItem("Input_remoteUpdateNotice") === "Y") {	            Input_showRemoteNotice();	}
+
+	Input_restoreNotice();
+
 
 	// 🔥 뒤로가기 방지 로직 추가
-    history.pushState(null, null, location.href);
+        history.pushState(null, null, location.href);
 
-    let backPressedTime = 0;
+        let backPressedTime = 0;
 
-    window.addEventListener('popstate', function () {
+        window.addEventListener('popstate', function () {
         const now = new Date().getTime();
 
         if (now - backPressedTime < 2000) {
-            history.back();
+                 history.back();
         } else {
             alert("한 번 더 누르면 종료됩니다.");
             backPressedTime = now;
@@ -950,23 +1066,19 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 
-
-
-function initPrevState() {
-    prevArea = document.getElementById('sheetSelect').value;
-    prevPoll = document.getElementById('pollType').value;
-
+function Input_initPrevState() {
+    Input_prevArea = document.getElementById('Input_sheetSelect').value;
+    Input_prevPoll = document.getElementById('Input_pollType').value;
 }
 
-
-function updatePollOptions() {
-    const area = document.getElementById('sheetSelect').value;
-    const pollSelect = document.getElementById('pollType');
+function Input_updatePollOptions() {
+    const area = document.getElementById('Input_sheetSelect').value;
+    const pollSelect = document.getElementById('Input_pollType');
 
     // 기존 옵션 삭제
     pollSelect.innerHTML = "";
 
-    const options = pollOptionsByArea[area] || ["투표소"];
+    const options = Input_pollOptionsByArea[area] || ["투표소"];
 
     options.forEach(opt => {
         const option = document.createElement("option");
@@ -976,122 +1088,113 @@ function updatePollOptions() {
     });
 }
 
+function Input_saveSelection() {
+    const area = document.getElementById('Input_sheetSelect').value;
+    const poll = document.getElementById('Input_pollType').value;
 
-function saveSelection() {
-    const area = document.getElementById('sheetSelect').value;
-    const poll = document.getElementById('pollType').value;
+    localStorage.setItem('Input_selected_area', area);
+    localStorage.setItem('Input_selected_poll', poll);
 
-    localStorage.setItem('selected_area', area);
-    localStorage.setItem('selected_poll', poll);
 }
 
-function loadSelection() {
-    const savedArea = localStorage.getItem('selected_area');
-    const savedPoll = localStorage.getItem('selected_poll');
-    const savedLink = localStorage.getItem('drive_link');
+function Input_loadSelection() {
+    const savedArea = localStorage.getItem('Input_selected_area');
+    const savedPoll = localStorage.getItem('Input_selected_poll');
+    const savedLink = localStorage.getItem('Input_drive_link');
 
     if (savedArea) {
-        document.getElementById('sheetSelect').value = savedArea;
+        document.getElementById('Input_sheetSelect').value = savedArea;
     }
 
-        updatePollOptions();
+        Input_updatePollOptions();
 
        if (savedPoll) {
         setTimeout(() => {
-            document.getElementById('pollType').value = savedPoll;
-            updatePreview();
-	    loadofflineBaseData();
-	initPrevState();
-            updateReportButtonText(false); // ✅ 여기 추가 (핵심)
+            document.getElementById('Input_pollType').value = savedPoll;
+            updateInput_preview();
+	    loadInput_offlineBaseData();
+	    Input_initPrevState();
+            Input_updateReportButtonText(false); // ✅ 여기 추가 (핵심)
         }, 0);
     } else {
         // 👉 저장값 없을 때도 처리
         setTimeout(() => {
-            updatePreview();
-	    loadofflineBaseData();
-            updateReportButtonText(false);
+            updateInput_preview();
+	    loadInput_offlineBaseData();
+            Input_updateReportButtonText(false);
         }, 0);
     }
 
+    const lock = localStorage.getItem("Input_selection_lock");
 
-const lock = localStorage.getItem("selection_lock");
+    if (lock) {
+        const data = JSON.parse(lock);
 
-if (lock) {
-    const data = JSON.parse(lock);
+        document.getElementById('Input_sheetSelect').value = data.area;
+        document.getElementById('Input_pollType').value = data.poll;
 
-    document.getElementById('sheetSelect').value = data.area;
-    document.getElementById('pollType').value = data.poll;
-
-    document.getElementById('sheetSelect').disabled = true;
-    document.getElementById('pollType').disabled = true;
-
+        document.getElementById('Input_sheetSelect').disabled = true;
+        document.getElementById('Input_pollType').disabled = true;
+    }
+    updateInput_preview();
+    loadInput_offlineBaseData();
 }
 
 
-    updatePreview();
-    loadofflineBaseData();
-}
+document.getElementById('Input_sheetSelect').onchange = function() {
+    const oldArea = Input_prevArea;
+    const oldPoll = Input_prevPoll;
 
+    Input_updatePollOptions();
+    updateInput_preview();
+    loadInput_offlineBaseData();
+    Input_saveSelection();
 
-document.getElementById('sheetSelect').onchange = function() {
-    const oldArea = prevArea;
-    const oldPoll = prevPoll;
+    Input_checkSelectionChanged(); // 👉 여기 그대로 OK
 
-    updatePollOptions();
-    updatePreview();
-    loadofflineBaseData();
-    saveSelection();
-
-    checkSelectionChanged(); // 👉 여기 그대로 OK
-
-    updateReportButtonText(false);
+    Input_updateReportButtonText(false);
 
 };
 
-document.getElementById('pollType').onchange = function() {
-    const oldPoll = prevPoll;
+document.getElementById('Input_pollType').onchange = function() {
+    const oldPoll = Input_prevPoll;
     const newPoll = this.value;
 
-    updatePreview();
-    loadofflineBaseData();
-    saveSelection();
+    updateInput_preview();
+    loadInput_offlineBaseData();
+    Input_saveSelection();
 
     if (oldPoll && oldPoll !== newPoll) {
-        document.getElementById("changeNotice").innerText =
-            "⚠️ 투표소가 변경되었습니다. 기본정보를 다시 불러오세요";
-        document.getElementById("changeNotice").style.display = "block";
+        document.getElementById("Input_changeNotice").innerText =            "⚠️ 투표소가 변경되었습니다. 기본정보를 다시 불러오세요";
+        document.getElementById("Input_changeNotice").style.display = "block";
     }
 
-    prevPoll = newPoll; // ⭐ 마지막에 갱신
+    Input_prevPoll = newPoll; // ⭐ 마지막에 갱신
 
 };
 
-document.getElementById('driveLink').addEventListener('input', function() {
-    saveSelection();
-    checkSelectionChanged();
+document.getElementById('Input_driveLink').addEventListener('input', function() {
+    Input_saveSelection();
+    Input_checkSelectionChanged();
 });
 
 
 // 파일 선택 시 실행
-document.getElementById('excelFile').addEventListener('change', function() {
+document.getElementById('Input_excelFile').addEventListener('change', function() {
     const file = this.files[0];
     if (file) {
-        localStorage.setItem('selectedExcelFileName', file.name); // 이름 저장
-        document.getElementById('excelFileName').innerText = `선택된 파일: ${file.name}`;
-	document.getElementById("loadBaseInfoBtn").disabled = true;
-
+	document.getElementById("Input_loadBaseInfoBtn").disabled = true;
     } else {
-        localStorage.removeItem('selectedExcelFileName');
-        document.getElementById('excelFileName').innerText = '';
+
     }
 });
 
-function updateExcelButtonState() {
+function Input_updateExcelButtonState() {
 
     let hasExcel = false;
 
     try {
-        const saved = localStorage.getItem("excelBaseData");
+        const saved = localStorage.getItem("Input_excelBaseData");
 
         if (saved) {
             const data = JSON.parse(saved);
@@ -1102,302 +1205,349 @@ function updateExcelButtonState() {
     }
 
     // 엑셀파일 불러오기 버튼은 항상 가능
-    document.getElementById("loadExcelBtn").disabled = hasExcel;
-    document.getElementById("loadBaseInfoBtn").disabled = !hasExcel;
-    document.getElementById("confirmBtn").disabled = !hasExcel;
-    document.getElementById("reportBtn").disabled = false;
+    document.getElementById("Input_loadExcelBtn").disabled = hasExcel;
+    document.getElementById("Input_loadBaseInfoBtn").disabled = !hasExcel;
+    document.getElementById("Input_confirmBtn").disabled = !hasExcel;
+    document.getElementById("Input_reportBtn").disabled = false;
 
     if( hasExcel ) { 
     //엑셀파일 불러온 상태
-	document.getElementById("loadBaseInfoBtn").disabled = false;     // 기본정보 불러오기
-	if( isConfirmed ) {
+	document.getElementById("Input_loadBaseInfoBtn").disabled = false;     // 기본정보 불러오기
+	//document.getElementById("Input_reportBtn").disabled = false;     // 투표록 2면 버튼
+
+	if( Input_isConfirmed ) {
 	
-		document.getElementById("reportBtn").disabled = false;     // 투표록 2면 버튼
+		document.getElementById("Input_reportBtn").disabled = false;     // 투표록 2면 버튼
 	}
 	else{
-
 	}
     }
     else {
     //엑셀파일 불러오지 않은 상태
-	document.getElementById("loadBaseInfoBtn").disabled = true;     // 기본정보 불러오기
-	document.getElementById("reportBtn").disabled = true;     // 투표록 2면 버튼
+	document.getElementById("Input_loadBaseInfoBtn").disabled = true;     // 기본정보 불러오기
+	document.getElementById("Input_reportBtn").disabled = true;     // 투표록 2면 버튼
     }
 
-    if( GooSheetInput_isInitialed ) {
-	document.getElementById("loadBaseInfoBtn").disabled = true;     // 기본정보 불러오기
+
+    if( Input_isInitialed ) {
+	document.getElementById("Input_loadBaseInfoBtn").disabled = true;     // 기본정보 불러오기
     }
   
-    document.getElementById("loadBaseInfoBtn").disabled = !GooSheetInput_isServerOnline ;      // 기본정보 불러오기 버튼
-    document.getElementById("resetBtn").disabled = !hasExcel;
+    document.getElementById("Input_loadBaseInfoBtn").disabled = !Input_isServerOnline ;      // 기본정보 불러오기 버튼
+    document.getElementById("Input_resetBtn").disabled = !hasExcel;
+    document.getElementById("Input_resetBtn").disabled = false;
 
 }
 
+function setInput_excelBaseDataFromDB(rows, pollName) {
+
+    if (!Array.isArray(rows) || !pollName) return false;
+
+    Input_excelBaseData = {};
+
+    Input_excelBaseData[pollName] = rows.map(row => ({
+        voterCount: row.voterCount || "",
+        startNo: row.start || "",
+        endNo: row.end || "",
+        boxNo: row.boxNo || ""
+    }));
+
+    localStorage.setItem(        "Input_excelBaseData",        JSON.stringify(Input_excelBaseData)    );
+
+    return true;
+}
+
+async function Input_saveToFirestore() {
+
+    try {
+
+        const rows = [];
+        const nowTime = Input_getExcelTime();
+	
+        Input_elections.forEach((_, i) => {
 
 
-function saveToGoogle() {
-  
-   const notice = document.getElementById("changeNotice");
-   showSaving();
+            rows.push({
+		
+		election: Input_elections[i],
+	        voterCount: Input_excelBaseData[Input_getPollName()]?.[i]?.voterCount || "",
 
-   setTimeout(() => {
+                start: document.getElementById("Input_start_" + i).value || "",
+                end: document.getElementById("Input_end_" + i).value || "",
+                total: document.getElementById("Input_total_" + i).innerText.replace(/,/g,""),
 
-   saveData();
-   
-    const fileId = getCurrentFileId();
+                curr: document.getElementById("Input_curr_" + i).value || "",
 
-    if (!fileId) {
-	hideSaving();
-        markOffline();
-            notice.innerText = "📴 오프라인모드 : 엑셀 기준정보로 계속 작업합니다.";
-            notice.style.display = "block";
-        return;
-    }
+                noBalsong: document.getElementById("Input_NoBalsong_" + i).value || "",
+                geulJung: document.getElementById("Input_GeulJung_" + i).value || "",
+                giveBack: document.getElementById("Input_GiveBack_" + i).value || "",
+                returnKorea: document.getElementById("Input_ReturnKorea_" + i).value || "",
 
-    const pollName = getPollName();
+                dmg: document.getElementById("Input_dmg_" + i).value || "",
+                damageNos: Input_damageData[i] || "",
 
-    const data = {
-        fileId: fileId,
-        pollName: pollName,
-        curr: [],
-        noBalsong: [],
-        geulJung: [],
-        giveBack: [],
-        dmg: [],
-        damageNos: [],
-       doubleOut:  [],
-       returnKorea:  [],
-       dupSerial: [], 
-
-	changedIndex: []   //변경된 값만 저장
-    };
+                doubleOut: document.getElementById("Input_DoubleOut_" + i).value || "",
+                dupSerial: document.getElementById("Input_dupSerial_" + i).value || "",
 
 
-    // ⭐ 여기부터 변경된 값만 저장
-    elections.forEach((_, i) => {
+                 boxNo: Input_excelBaseData[Input_getPollName()]?.[i]?.boxNo || "",
 
-    const curr = {
-        curr: document.getElementById('curr_' + i).value || 0,
-        noBalsong: document.getElementById('NoBalsong_' + i).value || 0,
-        geulJung: document.getElementById('GeulJung_' + i).value || 0,
-        giveBack: document.getElementById('GiveBack_' + i).value || 0,
-        dmg: document.getElementById('dmg_' + i).value || 0,
-        damageNos: damageData[i] || "",
-        doubleOut: document.getElementById('DoubleOut_' + i).value || 0,
-        returnKorea: document.getElementById('ReturnKorea_' + i).value || 0,
-        dupSerial: document.getElementById('dupSerial_' + i).value || 0
-    };
+	         inputTime: nowTime,
+            });
 
-    const orig = originalData[i] || {};
+        });
 
-    let changed = false;
+        const election = Input_getCurrentElection();
 
-    for (let key in curr) {
-        if (   String(orig[key] ?? "") !== String(curr[key])    ) {
-            changed = true;
-            break;
-        }
-    }
+    const pollName = Input_getPollName();
 
-        if (changed) {
-            data.changedIndex.push(i);
+    const currentDB = Input_getCurrentDB();
+    const docRef = currentDB
+        .collection("polls")
+        .doc(election)
+        .collection("voting")
+        .doc(pollName);
 
-            data.curr[i] = curr.curr;
-            data.noBalsong[i] = curr.noBalsong;
-            data.geulJung[i] = curr.geulJung;
-            data.giveBack[i] = curr.giveBack;
-            data.dmg[i] = curr.dmg;
-            data.damageNos[i] = curr.damageNos;
-            data.doubleOut[i] = curr.doubleOut;
-            data.returnKorea[i] = curr.returnKorea;
-            data.dupSerial[i] = curr.dupSerial;
-        }
+    await docRef.set({
+        rows: rows,
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+	updatedBy: Input_sessionId
     });
-    // 여기까지 변경된 값만 저장
 
+        return true;
 
-        fetch(SCRIPT_URL, {
-        method: "POST",
-        body: JSON.stringify(data)
-    })
+    } catch(err){
+        return false;
+    }
+}
 
-    .then(res => res.text())
-    .then(res => {
-	hideSaving();
-	if (res.startsWith("❌")) {
-	        markOffline();
+function Input_getExcelTime() {
+    const now = new Date();
 
-	        isOnlineSaveState = falsee;  
-	        localStorage.setItem("isOnlineSaveState", "false");
+    return (
+        now.getHours() / 24 +
+        now.getMinutes() / 1440 +
+        now.getSeconds() / 86400 +
+        now.getMilliseconds() / 86400000
+    );
+}
 
-	            notice.innerText = "📴 오프라인 모드 : 현재 입력값으로 작성자료를 생성합니다.";
-            	notice.style.display = "block";
-	        return;
-	 }
-	markOnline();
+async function Input_loadFromFirestore(election, pollName) {
 
-	isOnlineSaveState = true;  
-	localStorage.setItem("isOnlineSaveState", "true");
+    const currentDB = Input_getCurrentDB();
 
-	 clearChanged();
+    const docRef = currentDB
+        .collection("polls")
+        .doc(election)
+        .collection("voting")
+        .doc(pollName);
 
-	setSavedState();    //20260614
-	localStorage.setItem("saveState", "saved");    //20260614
-	markSynced();
-	 document.getElementById("saveWarning").style.display = "none";  
-           alert("응답: " + res);
-    })
-    .catch(err => {
+    const snap = await docRef.get();
 
-            markOffline();
-	hideSaving();
+    if (!snap.exists) {
+        throw new Error("저장된 데이터가 없습니다.");
+    }
+
+    return snap.data().rows || [];
+}
+
+function Input_getCurrentElection() {
+    return Input_electionName;
+}
+
+async function Input_saveToDB() {
+
+    const notice = document.getElementById("Input_changeNotice");
+    Input_showSaving();
+
+    setTimeout(async () => {
+        Input_saveData();
+        const pollName = Input_getPollName();
+
+        const data = {
+            pollName: pollName,
+            curr: {},
+            noBalsong: {},
+            geulJung: {},
+            giveBack: {},
+            dmg: {},
+            damageNos: {},
+            doubleOut: {},
+            returnKorea: {},
+            dupSerial: {},
+            changedIndex: []
+        };
+
+        // ⭐ 변경된 값만 저장
+        Input_elections.forEach((_, i) => {
+
+            const curr = {
+                curr: document.getElementById('Input_curr_' + i).value || 0,
+                noBalsong: document.getElementById('Input_NoBalsong_' + i).value || 0,
+                geulJung: document.getElementById('Input_GeulJung_' + i).value || 0,
+                giveBack: document.getElementById('Input_GiveBack_' + i).value || 0,
+                dmg: document.getElementById('Input_dmg_' + i).value || 0,
+                damageNos: Input_damageData[i] || "",
+                doubleOut: document.getElementById('Input_DoubleOut_' + i).value || 0,
+                returnKorea: document.getElementById('Input_ReturnKorea_' + i).value || 0,
+                dupSerial: document.getElementById('Input_dupSerial_' + i).value || 0
+
+            };
+
+            const orig = Input_originalData[i] || {};
+
+            let changed = false;
+
+            for (let key in curr) {
+                if (String(orig[key] ?? "") !== String(curr[key])) {
+                    changed = true;
+                    break;
+                }
+            }
+
+            if (changed) {
+                data.changedIndex.push(i);
+
+                data.curr[i] = curr.curr;
+                data.noBalsong[i] = curr.noBalsong;
+                data.geulJung[i] = curr.geulJung;
+                data.giveBack[i] = curr.giveBack;
+                data.dmg[i] = curr.dmg;
+                data.damageNos[i] = curr.damageNos;
+                data.doubleOut[i] = curr.doubleOut;
+                data.returnKorea[i] = curr.returnKorea;
+                data.dupSerial[i] = curr.dupSerial;
+            }
+        });
+
+        document.getElementById("Input_saveWarning").style.display = "none";
+
+        const ok = await Promise.race([
+	    Input_saveToFirestore(),
+	    new Promise(resolve => setTimeout(() => resolve(false), 10000))
+	]);
+
+	Input_hideSaving();
+
+        if (!ok) {
+
+            Input_markOffline();
+
+            Input_isOnlineSaveState = false;
+            localStorage.setItem("Input_isOnlineSaveState", "false");
+
             notice.innerText = "📴 오프라인 모드 : 현재 입력값으로 작성자료를 생성합니다.";
             notice.style.display = "block";
 
-	    isOnlineSaveState = falsee;  
-	    localStorage.setItem("isOnlineSaveState", "false");
+        } else {
 
-    });
-   
-	document.getElementById("reportBtn").disabled = false;
-	document.getElementById("saveBtn").disabled = true;
+            Input_markOnline();
+
+            Input_isOnlineSaveState = true;
+            localStorage.setItem("Input_isOnlineSaveState", "true");
+
+            Input_clearChanged();
+
+            Input_setSavedState();
+            localStorage.setItem("Input_saveState", "saved");
+
+            Input_markSynced();
+	    Input_startFirestoreListener();
+
+	    notice.innerText = "";
+            notice.style.display = "none";
+            document.getElementById("Input_saveWarning").style.display = "none";
+        }
+
+        document.getElementById("Input_reportBtn").disabled = false;
+        document.getElementById("Input_saveBtn").disabled = true;
 
     }, 1000);
-
 }
 
+async function Input_loadFromDB(preloadedData = null) {
 
-// ✅ [추가] 투표구 + 선거명으로 정확한 행 찾기
-function findRowByPollAndElection(sheet, pollName, electionName) {
-  const values = sheet.getDataRange().getValues();
+    try {
+        Input_showLoading();
 
-  for (let r = 0; r < values.length; r++) {
-    const poll = values[r][0]; // A열 (투표구명)
-    const election = values[r][2]; // C열 (선거명)
+        const election = Input_getCurrentElection();
 
-    if (poll === pollName && election === electionName) {
-      return r + 1; // 시트 row (1부터 시작)
-    }
-  }
-  return null;
-}
+        if (!election) {
+            Input_hideLoading();
+            alert("선거명을 선택하세요.");
+            return;
+        }
 
+        const pollName = Input_getPollName();
+        const data = preloadedData ? preloadedData  : await Input_loadFromFirestore(election, pollName);
 
-async function loadFromGoogle() {
-    showLoading();
-
-    const fileId = getCurrentFileId();
-
-    if (!fileId) {
-        hideLoading();
-        alert("❌ 구글시트 링크 확인");
-        return false;
-    }
-
-    const pollName = getPollName();
-    
-return new Promise((resolve) => {
-
-    fetch(`${SCRIPT_URL}?fileId=${encodeURIComponent(fileId)}&pollName=${encodeURIComponent(pollName)}`)
-    .then(res => res.json())
-    .then(data => {
-
-        markOnline();
-	originalData = {}; //변경된 값만 저장
+        Input_markOnline();
+        Input_originalData = {};
 
         // 👉 핵심: 배열 그대로 처리
         data.forEach((item, i) => {
 
-	// 여기부터 변경된 값만 저장
-	originalData[i] = {
-            start: item.start || "",
-            curr: item.curr || "",
-            noBalsong: item.noBalsong || "",
-            geulJung: item.geulJung || "",
-            giveBack: item.giveBack || "",
-            returnKorea: item.returnKorea || "",
-            dmg: item.dmg || "",
-            damageNos: item.damageNos || "",
-            doubleOut: item.doubleOut || "",
-            dupSerial: item.dupSerial || "",
-            inputTime: item.inputTime || ""
-	};
-	// 여기까지 변경된 값만 저장
+            Input_originalData[i] = {
+                start: item.start || "",
+                curr: item.curr || "",
+                noBalsong: item.noBalsong || "",
+                geulJung: item.geulJung || "",
+                giveBack: item.giveBack || "",
+                returnKorea: item.returnKorea || "",
+                dmg: item.dmg || "",
+                damageNos: item.damageNos || "",
+                doubleOut: item.doubleOut || "",
+                dupSerial: item.dupSerial || "",
+                boxNo: item.boxNo || "",
+                inputTime: item.inputTime || ""
+            };
 
-	const excel = excelBaseData[getPollName()]?.[i];
-	document.getElementById('start_' + i).value =     item.start || excel?.startNo || "";
-	document.getElementById('end_' + i).value =    item.end || excel?.endNo || "";
+            const excel = Input_excelBaseData[Input_getPollName()]?.[i];
 
-            document.getElementById('total_' + i).innerText = Number(item.total || 0).toLocaleString();
+            document.getElementById('Input_start_' + i).value =                item.start || excel?.startNo || "";
 
-	document.getElementById('curr_' + i).value = item.curr || "";
- 
-	document.getElementById('dupSerial_' + i).value = item.dupSerial || "";
+            document.getElementById('Input_end_' + i).value =                item.end || excel?.endNo || "";
 
-	damageData[i] = item.damageNos || "";
+            document.getElementById('Input_total_' + i).innerText =                Number(item.total || 0).toLocaleString();
 
-       const list = (item.damageNos || "")
-           .split('/')
-           .map(v => v.trim())
-           .filter(v => v);
+            document.getElementById('Input_curr_' + i).value = item.curr || "";
+            document.getElementById('Input_dupSerial_' + i).value = item.dupSerial || "";
 
-       let count = 0;
+            Input_damageData[i] = item.damageNos || "";
 
-       list.forEach(val => {
-           if (val.includes("~")) {
-               const nums = val.replace("No. ", "").split("~");
-               const start = Number(nums[0]);
-               const end = Number(nums[1]);
+            const list = (item.damageNos || "")
+                .split("/")
+                .map(v => v.trim())
+                .filter(v => v);
 
-               if (start && end) {
-                   count += (end - start + 1);
-               }
-           } else {
-               count += 1;
-           }
-       });
+            let count = 0;
 
-     document.getElementById('dmg_' + i).value = count;
+            list.forEach(val => {
+                if (val.includes("~")) {
+                    const nums = val.replace("No. ", "").split("~");
+                    const start = Number(nums[0]);
+                    const end = Number(nums[1]);
 
-    document.getElementById('NoBalsong_' + i).value = item.noBalsong || "";
-    document.getElementById('GeulJung_' + i).value = item.geulJung || "";
-    document.getElementById('GiveBack_' + i).value = item.giveBack || "";
+                    if (start && end) {
+                        count += (end - start + 1);
+                    }
+                } else {
+                    count += 1;
+                }
+            });
 
-    document.getElementById('ReturnKorea_' + i).value = item.returnKorea || "";
-    document.getElementById('DoubleOut_' + i).value = item.doubleOut || "";
+            document.getElementById('Input_dmg_' + i).value = count;
+            document.getElementById('Input_NoBalsong_' + i).value = item.noBalsong || "";
+            document.getElementById('Input_GeulJung_' + i).value = item.geulJung || "";
+            document.getElementById('Input_GiveBack_' + i).value = item.giveBack || "";
+            document.getElementById('Input_ReturnKorea_' + i).value = item.returnKorea || "";
+            document.getElementById('Input_DoubleOut_' + i).value = item.doubleOut || "";
 
-
-            calc(i);
-	validateCurrRange(i);
+            Input_calc(i);
+            Input_validateCurrRange(i);
         });
 
-	// ✅ 구글 데이터를 excelBaseData 형식으로도 저장
-	excelBaseData = {};
-	excelBaseData[pollName] = [];
-
-	data.forEach(item => {
-	    excelBaseData[pollName].push({
-	        voterCount: item.voterCount || "",
-	        startNo: item.start || "",
-	        currNo: item.curr || "",
-	        endNo: item.end || ""
-	    });
-	});
-
-	localStorage.setItem(    "excelBaseData",    JSON.stringify(excelBaseData));
-	localStorage.setItem("excelLoaded", "true");
-
-
-
-
-
-
-
-
-
-
-
-// ✅ ⭐ 투표함관리번호 처리 (추가)
+        // ✅ 투표함관리번호 처리
         const boxSet = new Set();
 
         data.forEach(d => {
@@ -1405,115 +1555,246 @@ return new Promise((resolve) => {
         });
 
         const boxList = Array.from(boxSet);
-        localStorage.setItem("box_info", JSON.stringify(boxList));
 
-        let boxText = "📦 투표함관리번호: ";
-        boxText += boxList.join(" / ");
+        localStorage.setItem("Input_box_info", JSON.stringify(boxList));
 
-        document.getElementById("boxInfo").innerText = boxText;
-	
-	saveData();
+        document.getElementById("Input_boxInfo").innerText =            "📦 투표함관리번호: " + boxList.join(" / ");
 
-        hideLoading();
+        Input_saveData();
 
-	// 20260604
-	document.getElementById("saveBtn").disabled = false;     //false에서 true로 변경
-	document.getElementById("reportBtn").disabled = false;
-	document.getElementById("loadBaseInfoBtn").disabled = false;     // 기본정보 불러오기
-	localStorage.setItem("saveState", "saved");
-	localStorage.setItem("buttons_enabled", "Y");
+        Input_hideLoading();
 
-            setSavedState();  //20260614
-	markSynced();
-	document.getElementById("changeNotice").style.display = "none";
-	clearChanged();
-	resolve(true);
-    })
-    .catch(err => {
-	markOffline();
-	document.getElementById("loadBaseInfoBtn").disabled = true;
-	// fillStartEndFromExcel();
-        // loadOfflineBaseInfo();
+        // 20260604
+        document.getElementById("Input_saveBtn").disabled = false;
+        document.getElementById("Input_reportBtn").disabled = false;
+        document.getElementById("Input_loadBaseInfoBtn").disabled = false;
 
-//	hideLoading();
+        localStorage.setItem("Input_saveState", "saved");
+        localStorage.setItem("Input_buttons_enabled", "Y");
 
-//        const notice = document.getElementById("changeNotice");
-//        const excelLoaded = localStorage.getItem("excelLoaded") === "true";
+        Input_setSavedState();
+        Input_markSynced();
+        Input_startFirestoreListener();
 
-//        if (excelLoaded) {
-            // ✅ 엑셀 기준으로 계속 작업
-//            notice.innerText = "📴 오프라인 모드 : 현재 입력값으로 작성자료를 생성합니다.";
-//            notice.style.display = "block";
-//        } else {
-            // ❌ 엑셀도 없으므로 작업 불가
-//            notice.innerText = "⚠️ 온라인 연결에 실패했습니다. 먼저 엑셀파일을 불러와 주세요.";
-//            notice.style.display = "block";
-//        }
-        hideLoading();
+        document.getElementById("Input_changeNotice").style.display = "none";
+        Input_clearChanged();
 
-	document.getElementById("changeNotice").style.display = "none";
-	clearChanged();
-	resolve(false);
-    });
+        // DB에서 읽어오면 '새로 불러오기' 메시지 초기화	
+        Input_hasRemoteUpdate = false;
+        localStorage.removeItem("Input_remoteUpdateNotice");
 
-});
+    } catch (err) {
 
-}
+        Input_markOffline();
 
+        document.getElementById("Input_loadBaseInfoBtn").disabled = true;
 
+        Input_fillStartEndFromExcel();
 
-function toggleReport() {
-    const area = document.getElementById("reportArea");
+        Input_hideLoading();
 
-    if (area.style.display === "none") {
-        area.style.display = "block";
-        updateReportButtonText(true);   // 🔥 열기 → 닫기
-        loadReport();
-    } else {
-        area.style.display = "none";
-        updateReportButtonText(false);  // 🔥 닫기 → 열기
+        const notice = document.getElementById("Input_changeNotice");
+        const Input_excelLoaded = localStorage.getItem("Input_excelLoaded") === "true";
 
-        document.getElementById("changeNotice").innerText ="";
-        document.getElementById("changeNotice").style.display = "none";
+        if (Input_excelLoaded) {
+            notice.innerText = "📴 오프라인 모드 : 현재 입력값으로 작성자료를 생성합니다.";
+        } else {
+            notice.innerText = "⚠️ 온라인 연결에 실패했습니다. 먼저 엑셀파일을 불러와 주세요.";
+        }
+
+        notice.style.display = "block";
     }
 }
 
-function loadReport() {
+async function Input_loadFromDB_Original(preloadedData = null) {
+	try{     
+	    Input_showLoading();
 
-    const fileId = getCurrentFileId();
-    const pollName = getPollName();
+	    const election = Input_getCurrentElection();
 
-    showLoading();
+	    if (!election) {
+	        Input_hideLoading();
+	        alert("선거명을 선택하세요.");
+	        return;
+	    }
 
-    fetch(`${SCRIPT_URL}?fileId=${fileId}&pollName=${pollName}`)
-    .then(res => res.json())
-    .then(data => {
+	    const pollName = Input_getPollName();
 
-        markOnline();
+	     const data = preloadedData    ? preloadedData    : await Input_loadFromFirestore(election, pollName);
 
-        renderReport(data);
+	        Input_markOnline();
+		Input_originalData = {}; //변경된 값만 저장
 
-        hideLoading();
+	        // 👉 핵심: 배열 그대로 처리
+	        data.forEach((item, i) => {
 
-    })
-    .catch(err => {
-        console.error(err);
+		// 여기부터 변경된 값만 저장
+		Input_originalData[i] = {
+	            start: item.start || "",
+	            curr: item.curr || "",
+	            noBalsong: item.noBalsong || "",
+	            geulJung: item.geulJung || "",
+	            giveBack: item.giveBack || "",
+	            returnKorea: item.returnKorea || "",
+        	    dmg: item.dmg || "",
+	            damageNos: item.damageNos || "",
+	            doubleOut: item.doubleOut || "",
+	            dupSerial: item.dupSerial || "",
+		    boxNo: item.boxNo || "",
+	            inputTime: item.inputTime || ""
+		};
+		// 여기까지 변경된 값만 저장
 
-        markOffline();
+		const excel = Input_excelBaseData[Input_getPollName()]?.[i];
+		document.getElementById('Input_start_' + i).value =     item.start || excel?.startNo || "";
+		document.getElementById('Input_end_' + i).value =    item.end || excel?.endNo || "";
 
-        const offlineData = buildOfflineReportData();
+	        document.getElementById('Input_total_' + i).innerText = Number(item.total || 0).toLocaleString();
 
-        renderReport(offlineData);
+		document.getElementById('Input_curr_' + i).value = item.curr || "";
+ 
+		document.getElementById('Input_dupSerial_' + i).value = item.dupSerial || "";
 
-        hideLoading();
+		Input_damageData[i] = item.damageNos || "";
 
-        document.getElementById("changeNotice").innerText =  "⚠️ 오프라인 모드 : 현재 입력값으로 작성자료를 생성합니다.";
-        document.getElementById("changeNotice").style.display = "block";
-    });
+	       const list = (item.damageNos || "")  .split('/')   .map(v => v.trim())   .filter(v => v);
+
+	       let count = 0;
+
+	       list.forEach(val => {
+	           if (val.includes("~")) {
+	               const nums = val.replace("No. ", "").split("~");
+	               const start = Number(nums[0]);
+	               const end = Number(nums[1]);
+
+	               if (start && end) {
+	                   count += (end - start + 1);
+	               }
+	           } else {
+	               count += 1;
+	           }
+	       });
+
+	    document.getElementById('Input_dmg_' + i).value = count;
+
+	    document.getElementById('Input_NoBalsong_' + i).value = item.noBalsong || "";
+	    document.getElementById('Input_GeulJung_' + i).value = item.geulJung || "";
+	    document.getElementById('Input_GiveBack_' + i).value = item.giveBack || "";
+
+	    document.getElementById('Input_ReturnKorea_' + i).value = item.returnKorea || "";
+	    document.getElementById('Input_DoubleOut_' + i).value = item.doubleOut || "";
+
+	     Input_calc(i);
+	     Input_validateCurrRange(i);
+	        });
+
+	// ✅ ⭐ 투표함관리번호 처리 (추가)
+	        const boxSet = new Set();
+
+	        data.forEach(d => { 	            if (d.boxNo) boxSet.add(d.boxNo); 	        });
+
+	        const boxList = Array.from(boxSet);
+	        localStorage.setItem("Input_box_info", JSON.stringify(boxList));
+
+	        let boxText = "📦 투표함관리번호: ";
+	        boxText += boxList.join(" / ");
+
+	        document.getElementById("Input_boxInfo").innerText = boxText;
+	
+		Input_saveData();
+
+	        Input_hideLoading();
+
+		// 20260604
+		document.getElementById("Input_saveBtn").disabled = false;     //false에서 true로 변경
+		document.getElementById("Input_reportBtn").disabled = false;
+		document.getElementById("Input_loadBaseInfoBtn").disabled = false;     // 기본정보 불러오기
+		localStorage.setItem("Input_saveState", "saved");
+		localStorage.setItem("Input_buttons_enabled", "Y");
+
+	        Input_setSavedState();  //20260614
+		Input_markSynced();
+		Input_startFirestoreListener();
+	    }
+	    catch(err) {
+
+		Input_markOffline();
+		document.getElementById("Input_loadBaseInfoBtn").disabled = true;
+
+		Input_fillStartEndFromExcel();
+
+		Input_hideLoading();
+
+	        const notice = document.getElementById("Input_changeNotice");
+	        const Input_excelLoaded = localStorage.getItem("Input_excelLoaded") === "true";
+
+	        if (Input_excelLoaded) {
+
+	            // ✅ 엑셀 기준으로 계속 작업
+	            notice.innerText = "📴 오프라인 모드 : 현재 입력값으로 작성자료를 생성합니다.";
+	            notice.style.display = "block";
+	        } else {
+	            // ❌ 엑셀도 없으므로 작업 불가
+	            notice.innerText = "⚠️ 온라인 연결에 실패했습니다. 먼저 엑셀파일을 불러와 주세요.";
+	            notice.style.display = "block";
+	        }
+	        Input_hideLoading();
+	     }
+
+	    document.getElementById("Input_changeNotice").style.display = "none";
+	    Input_clearChanged();
 }
 
 
-function renderReport(data) {
+
+function Input_toggleReport() {
+    const area = document.getElementById("Input_reportArea");
+
+    if (area.style.display === "none") {
+        area.style.display = "block";
+        Input_updateReportButtonText(true);   // 🔥 열기 → 닫기
+        Input_loadReport();
+    } else {
+        area.style.display = "none";
+        Input_updateReportButtonText(false);  // 🔥 닫기 → 열기
+
+        document.getElementById("Input_changeNotice").innerText ="";
+        document.getElementById("Input_changeNotice").style.display = "none";
+        Input_restoreNotice();
+    }
+}
+
+function Input_loadReport() {
+
+    Input_showLoading();
+
+    try {
+
+        const data = Input_buildOfflineReportData(); // ← 핵심
+
+        Input_renderReport(data);
+
+        Input_markOnline();
+
+    } catch (err) {
+
+        Input_markOffline();
+
+        const offlineData = Input_buildOfflineReportData();
+
+        Input_renderReport(offlineData);
+
+        document.getElementById("Input_changeNotice").innerText =            "⚠️ 작성자료 생성 실패 / 오프라인 모드";
+        document.getElementById("Input_changeNotice").style.display = "block";
+
+    } finally {
+
+        Input_hideLoading();
+    }
+}
+
+
+function Input_renderReport(data) {
 
         let html = "<h3 style='margin:0;'>📊 투표록 2면 작성자료</h3>";
 
@@ -1545,7 +1826,8 @@ function renderReport(data) {
         data.forEach(d => {
             const sum = d.voter || 0;
             html += `<tr>
-            <td style="text-align:left">    ${electionDisplayMap[d.election] || d.election}</td>
+            <td style="text-align:left">${d.election}</td>
+
             <td style="text-align:right">${Number(d.list1 || 0).toLocaleString()}</td>
             <td style="text-align:right">${Number(d.list2 || 0).toLocaleString()}</td>
             <td style="text-align:right">${Number(d.noBalsong || 0).toLocaleString()}</td>
@@ -1566,11 +1848,11 @@ function renderReport(data) {
         </tr>`;
 
         data.forEach(d => {
-     const curr = Number(d.curr || 0);
-    const end = Number(d.end || 0);
+	    const curr = Number(d.curr || 0);
+	    const end = Number(d.end || 0);
 
             html += `<tr>
-            <td style="text-align:left">    ${electionDisplayMap[d.election] || d.election}</td>
+            <td style="text-align:left">${d.election}</td>
             <td style="text-align:right">${Number(d.total || 0).toLocaleString()}</td>
             <td style="text-align:right">${Number(d.issued || 0).toLocaleString()}</td>
             <td style="text-align:right">${Number(d.remain || 0).toLocaleString()}</td>
@@ -1590,103 +1872,89 @@ function renderReport(data) {
 
         html += "</table>";
 
-        document.getElementById("reportArea").innerHTML = html;
-
+        document.getElementById("Input_reportArea").innerHTML = html;
 }
 
-function buildOfflineReportData() {
 
-     const pollName = getPollName();
+function Input_buildOfflineReportData() {
 
-    const boxList =         JSON.parse(localStorage.getItem("box_info") || "[]");
+     const pollName = Input_getPollName();
+    const boxList = JSON.parse(localStorage.getItem("Input_box_info") || "[]");
+    const boxNo = [...new Set(boxList)].filter(v => v).join(" / ");
 
-    const box1 = boxList[0] || "";
-    const box2 = boxList[1] || "";
 
-    const boxNo =      [box1, box2]          .filter(v => v)          .join(" / ");
-
-    return elections.map((name, index) => ({
+    return Input_elections.map((name, index) => ({
 
         election: name,
 
-	 list1:    Number(        excelBaseData[pollName]?.[index]?.voterCount || 0    ),
+	 list1:    Number(        Input_excelBaseData[pollName]?.[index]?.voterCount || 0    ),
 
 	list2: (() => {
-	    const issued = Number(        document.getElementById(`issued_${index}`)?.textContent || 0    );
-	    const doubleOut = Number(        document.getElementById(`DoubleOut_${index}`)?.value || 0    );
+	    const issued = Number(        document.getElementById(`Input_issued_${index}`)?.textContent || 0    );
+	    const doubleOut = Number(        document.getElementById(`Input_DoubleOut_${index}`)?.value || 0    );
 	    const voter = issued - doubleOut;
-	    const noBalsong = Number(        document.getElementById(`NoBalsong_${index}`)?.value || 0    );
-	    const geulJung = Number(        document.getElementById(`GeulJung_${index}`)?.value || 0    );
-	    const giveBack = Number(        document.getElementById(`GiveBack_${index}`)?.value || 0    );
-	    const returnKorea = Number(        document.getElementById(`ReturnKorea_${index}`)?.value || 0    );
+	    const noBalsong = Number(        document.getElementById(`Input_NoBalsong_${index}`)?.value || 0    );
+	    const geulJung = Number(        document.getElementById(`Input_GeulJung_${index}`)?.value || 0    );
+	    const giveBack = Number(        document.getElementById(`Input_GiveBack_${index}`)?.value || 0    );
+	    const returnKorea = Number(        document.getElementById(`Input_ReturnKorea_${index}`)?.value || 0    );
 
 	    return voter        - noBalsong        - geulJung        - giveBack        - returnKorea;         })(),
 
 	boxNo,
 
-        curr:
-            Number(document.getElementById(`curr_${index}`)?.value || 0),
+        curr:            Number(document.getElementById(`Input_curr_${index}`)?.value || 0),
 
-        end:
-            Number(document.getElementById(`end_${index}`)?.value || 0),
+        end:            Number(document.getElementById(`Input_end_${index}`)?.value || 0),
 
-        noBalsong:
-            Number(document.getElementById(`NoBalsong_${index}`)?.value || 0),
+        noBalsong:            Number(document.getElementById(`Input_NoBalsong_${index}`)?.value || 0),
 
-        geulJung:
-            Number(document.getElementById(`GeulJung_${index}`)?.value || 0),
+        geulJung:            Number(document.getElementById(`Input_GeulJung_${index}`)?.value || 0),
 
-        giveBack:
-            Number(document.getElementById(`GiveBack_${index}`)?.value || 0),
+        giveBack:            Number(document.getElementById(`Input_GiveBack_${index}`)?.value || 0),
 
-        returnKorea:
-            Number(document.getElementById(`ReturnKorea_${index}`)?.value || 0),
+        returnKorea:            Number(document.getElementById(`Input_ReturnKorea_${index}`)?.value || 0),
 
 	 // 계 = 교부매수 - 이중교부매수
 	    voter: (() => {
-	        const issued = Number(     document.getElementById(`issued_${index}`)?.textContent || 0    );
-	        const doubleOut = Number(  document.getElementById(`DoubleOut_${index}`)?.value || 0       );
+	        const issued = Number(     document.getElementById(`Input_issued_${index}`)?.textContent || 0    );
+	        const doubleOut = Number(  document.getElementById(`Input_DoubleOut_${index}`)?.value || 0       );
 	        return issued - doubleOut;
 	    })(),
 
        total: (() => {
-	    const start = Number(document.getElementById(`start_${index}`)?.value || 0);
-	    const end   = Number(document.getElementById(`end_${index}`)?.value || 0);
-	    const dup   = Number(document.getElementById(`dupSerial_${index}`)?.value || 0);
+	    const start = Number(document.getElementById(`Input_start_${index}`)?.value || 0);
+	    const end   = Number(document.getElementById(`Input_end_${index}`)?.value || 0);
+	    const dup   = Number(document.getElementById(`Input_dupSerial_${index}`)?.value || 0);
 	    return start && end         ? (end - start + 1 + dup)         : 0;  })(),
 
         issued:
-            Number(document.getElementById(`issued_${index}`)?.textContent || 0),
-
+            Number(document.getElementById(`Input_issued_${index}`)?.textContent || 0),
         remain: (() => {
-	    const curr = Number(document.getElementById(`curr_${index}`)?.value || 0);
-	    const end = Number(document.getElementById(`end_${index}`)?.value || 0);
-	    const damage = Number(document.getElementById(`dmg_${index}`)?.value || 0);
+	    const curr = Number(document.getElementById(`Input_curr_${index}`)?.value || 0);
+	    const end = Number(document.getElementById(`Input_end_${index}`)?.value || 0);
+	    const damage = Number(document.getElementById(`Input_dmg_${index}`)?.value || 0);
 	    return curr && end         ? (end - curr + damage + 1)         : 0; })(),
 
-        damageNos:
-              damageData[index] || ""
+        damageNos:Input_damageData[index] || ""
     }));
 
 }
 
-function updateReportButtonText(isOpen = false) {
-    const area = document.getElementById('sheetSelect').value;
-    const poll = document.getElementById('pollType').value;
+function Input_updateReportButtonText(isOpen = false) {
+    const area = document.getElementById('Input_sheetSelect').value;
+    const poll = document.getElementById('Input_pollType').value;
 
-    const btn = document.getElementById('reportBtn');
+    const btn = document.getElementById('Input_reportBtn');
 
     const baseText = isOpen 
         ? "투표록 2면 작성자료 닫기" 
         : "투표록 2면 작성자료 열기";
 
     btn.innerHTML = `📊 <span style="color:#000000; font-weight:900;">    ${area}${poll} </span> ${baseText}`;
-
-
 }
 
-function loadBoxInfo() {
-    const saved = localStorage.getItem("box_info");
+function loadInput_boxInfo() {
+    const saved = localStorage.getItem("Input_box_info");
     if (!saved) return;
 
     const boxList = JSON.parse(saved);
@@ -1694,58 +1962,56 @@ function loadBoxInfo() {
     let boxText = "📦 투표함관리번호: ";
     boxText += boxList.join(" / ");
 
-    document.getElementById("boxInfo").innerText = boxText;
+    document.getElementById("Input_boxInfo").innerText = boxText;
 }
 
-function checkSelectionChanged() {
-    const currentArea = document.getElementById('sheetSelect').value;
-    const currentPoll = document.getElementById('pollType').value;
+function Input_checkSelectionChanged() {
+    const currentArea = document.getElementById('Input_sheetSelect').value;
+    const currentPoll = document.getElementById('Input_pollType').value;
 
-    const areaChanged = currentArea !== prevArea;
-    const pollChanged = currentPoll !== prevPoll;
+    const areaChanged = currentArea !== Input_prevArea;
+    const pollChanged = currentPoll !== Input_prevPoll;
 
-    if ((areaChanged || pollChanged) && prevArea && prevPoll) {
-        document.getElementById("changeNotice").innerText = "⚠️ 투표소가 변경되었습니다. 기본정보를 다시 불러오세요";
-        document.getElementById("changeNotice").style.display = "block";
+    if ((areaChanged || pollChanged) && Input_prevArea && Input_prevPoll) {
+        document.getElementById("Input_changeNotice").innerText =            "⚠️ 투표소가 변경되었습니다. 기본정보를 다시 불러오세요";
+        document.getElementById("Input_changeNotice").style.display = "block";
     }
 
-    if (linkChanged && prevDriveLink) {
-        document.getElementById("changeNotice").innerText =
-            "⚠️ 파일링크가 변경되었습니다. 기본정보를 다시 불러오세요";
-        document.getElementById("changeNotice").style.display = "block";
+    if (linkChanged && prevInput_driveLink) {
+        document.getElementById("Input_changeNotice").innerText =            "⚠️ 파일링크가 변경되었습니다. 기본정보를 다시 불러오세요";
+        document.getElementById("Input_changeNotice").style.display = "block";
     }
 
     // ⭐ 핵심: 무조건 최신값으로 갱신
-    prevArea = currentArea;
-    prevPoll = currentPoll;
-
+    Input_prevArea = currentArea;
+    Input_prevPoll = currentPoll;
 }
 
-function markChanged() {
-    isDataChanged = true;
+function Input_markChanged() {
+     Input_isDataChanged = true;
 
-    const warning = document.getElementById("saveWarning");
+     const warning = document.getElementById("Input_saveWarning");
+      warning.innerText =            "⚠️ 데이터가 변경되었습니다. 입력 후 반드시 저장하십시오.";
 
-        warning.innerText =            "⚠️ 데이터가 변경되었습니다. 입력 후 반드시 저장하십시오.";
+     warning.style.display = "block";
 
-    warning.style.display = "block";
+     Input_markDirty();
 
-    markDirty();
-
-    // 20260614 추가
-    document.getElementById("saveBtn").disabled = false;
-    document.getElementById("reportBtn").disabled = true;
+     // 20260614 추가
+     document.getElementById("Input_saveBtn").disabled = false;
+     document.getElementById("Input_reportBtn").disabled = true;
+  
 }
 
-function clearChanged() {
-    isDataChanged = false;
-    document.getElementById("saveWarning").style.display = "none";
+function Input_clearChanged() {
+    Input_isDataChanged = false;
+    document.getElementById("Input_saveWarning").style.display = "none";
 }
 
-function validateCurrRange(i) {
-    const start = parseInt(document.getElementById('start_' + i).value) || 0;
-    const end = parseInt(document.getElementById('end_' + i).value) || 0;
-    const currEl = document.getElementById('curr_' + i);
+function Input_validateCurrRange(i) {
+    const start = parseInt(document.getElementById('Input_start_' + i).value) || 0;
+    const end = parseInt(document.getElementById('Input_end_' + i).value) || 0;
+    const currEl = document.getElementById('Input_curr_' + i);
     const curr = parseInt(currEl.value) || 0;
 
     // 기존 표시 제거
@@ -1759,30 +2025,15 @@ function validateCurrRange(i) {
 }
 
 
-function extractFileId(url) {
-    const match = url.match(/\/d\/([a-zA-Z0-9-_]+)/);
-    return match ? match[1] : null;
-}
+function Input_openDamageModal(i) {
+    Input_currentDamageIndex = i;
 
+    Input_damageChanged = false;
 
-function getCurrentFileId() {
-
-    const area =        document.getElementById('sheetSelect').value;
-
-    const driveLink =        AREA_FILE_MAP[area];
-
-    return extractFileId(driveLink);
-}
-
-function openDamageModal(i) {
-    currentDamageIndex = i;
-
-    damageChanged = false;
-
-    const listBox = document.getElementById("damageList");
+    const listBox = document.getElementById("Input_damageList");
     listBox.innerHTML = "";
 
-    const existing = damageData[i] || "";
+    const existing = Input_damageData[i] || "";
 
     if (existing) {
         const arr = existing.split('/').map(v => v.trim()).filter(v => v);
@@ -1794,52 +2045,52 @@ function openDamageModal(i) {
                 <div style="display:flex; gap:5px; margin-bottom:5px;">
                     <input type="text" value="${clean}" 
                         style="flex:1; padding:10px; border:1px solid #ccc; border-radius:6px;">
-                    <button onclick="removeDamageInput(this)" 
+                    <button onclick="Input_removeDamageInput(this)" 
                         style="background:#dc2626;color:white;">삭제</button>
                 </div>
             `;
         });
     }
 
-    document.getElementById("newDamageInput").value = "";
-    document.getElementById("damageModal").style.display = "flex";
+    document.getElementById("Input_newDamageInput").value = "";
+    document.getElementById("Input_damageModal").style.display = "flex";
 
-    damageChanged = false;
-    updateSaveButtonState();
+    Input_damageChanged = false;
+    Input_updateSaveButtonState();
 }
 
-function removeDamageInput(btn) {
+function Input_removeDamageInput(btn) {
     btn.parentElement.remove(); 
-    damageChanged = true;
-    updateSaveButtonState();
+    Input_damageChanged = true;
+    Input_updateSaveButtonState();
 }
 
-function closeDamageModal() {
+function Input_closeDamageModal() {
     // 모달 숨기기
-    document.getElementById("damageModal").style.display = "none";
+    document.getElementById("Input_damageModal").style.display = "none";
 
     // 입력값 초기화
-    document.getElementById("newDamageInput").value = "";
-    document.getElementById("rangeStart").value = "";
-    document.getElementById("rangeEnd").value = "";
+    document.getElementById("Input_newDamageInput").value = "";
+    document.getElementById("Input_rangeStart").value = "";
+    document.getElementById("Input_rangeEnd").value = "";
 
     // 리스트 초기화
-    document.getElementById("damageList").innerHTML = "";
+    document.getElementById("Input_damageList").innerHTML = "";
 
     // 빨간 테두리 제거
-    document.querySelectorAll("#damageModal .input-error").forEach(el => {
+    document.querySelectorAll("#Input_damageModal .input-error").forEach(el => {
         el.classList.remove("input-error");
     });
 
-    damageChanged = false;
-    updateSaveButtonState();
+    Input_damageChanged = false;
+    Input_updateSaveButtonState();
 }
 
-function saveDamageNumbers() {
-    const inputs = document.querySelectorAll("#damageList input");
+function Input_saveDamageNumbers() {
+    const inputs = document.querySelectorAll("#Input_damageList input");
 
     for (let input of inputs) {
-        if (!validateDamageInput(input)) return; // ❗ 하나라도 틀리면 저장 중단
+        if (!Input_validateDamageInput(input)) return; // ❗ 하나라도 틀리면 저장 중단
     }
 
     let ranges = [];
@@ -1887,31 +2138,31 @@ function saveDamageNumbers() {
         }
     });
 
-    damageData[currentDamageIndex] = result.join(" / ");
+    Input_damageData[Input_currentDamageIndex] = result.join(" / ");
 
-    document.getElementById('dmg_' + currentDamageIndex).value = totalCount;
+    document.getElementById('Input_dmg_' + Input_currentDamageIndex).value = totalCount;
 
-    calc(currentDamageIndex);
-    markChanged();
+    Input_calc(Input_currentDamageIndex);
+    Input_markChanged();
 
-    closeDamageModal();
+    Input_closeDamageModal();
 
-    damageChanged = false;
-    updateSaveButtonState();
+    Input_damageChanged = false;
+    Input_updateSaveButtonState();
 }
 
 
-function clearDamage(i) {
+function Input_clearDamage(i) {
     if (!confirm("훼손번호를 모두 삭제하시겠습니까?")) return;
 
-    damageData[i] = "";
-    document.getElementById('dmg_' + i).value = "";
-    calc(i);
-    markChanged();
+    Input_damageData[i] = "";
+    document.getElementById('Input_dmg_' + i).value = "";
+    Input_calc(i);
+    Input_markChanged();
 }
 
-function addDamageInput() {
-    const input = document.getElementById("newDamageInput");
+function Input_addDamageInput() {
+    const input = document.getElementById("Input_newDamageInput");
     const val = input.value.trim();
 
     if (!val) {
@@ -1919,7 +2170,7 @@ function addDamageInput() {
         return;
     }
 
-    if (!validateDamageInput(input)) return;
+    if (!Input_validateDamageInput(input)) return;
 
     const newRange = parseRange(val);
     if (!newRange) {
@@ -1927,7 +2178,7 @@ function addDamageInput() {
         return;
     }
 
-    const listBox = document.getElementById("damageList");
+    const listBox = document.getElementById("Input_damageList");
 
     const newItem = document.createElement("div");
     newItem.style.display = "flex";
@@ -1937,8 +2188,8 @@ function addDamageInput() {
     newItem.innerHTML = `
         <input type="text" value="${val}" 
             style="flex:1; padding:10px; border:1px solid #ccc; border-radius:6px;"
-            oninput="this.classList.remove('input-error'); validateDamageInput(this); damageChanged = true; updateSaveButtonState();">
-        <button onclick="removeDamageInput(this)" 
+            oninput="this.classList.remove('input-error'); Input_validateDamageInput(this); Input_damageChanged = true; Input_updateSaveButtonState();">
+        <button onclick="Input_removeDamageInput(this)" 
             style="background:#dc2626;color:white;">삭제</button>
     `;
 
@@ -1947,15 +2198,15 @@ function addDamageInput() {
     input.value = "";
     input.focus();
 
-    damageChanged = true;
-    updateSaveButtonState();
+    Input_damageChanged = true;
+    Input_updateSaveButtonState();
 }
 
-function addDamageRange() {
-    const start = document.getElementById("rangeStart");
-    const end = document.getElementById("rangeEnd");
+function Input_addDamageRange() {
+    const start = document.getElementById("Input_rangeStart");
+    const end = document.getElementById("Input_rangeEnd");
 
-    if (!validateDamageInput(start) || !validateDamageInput(end)) return;
+    if (!Input_validateDamageInput(start) || !Input_validateDamageInput(end)) return;
 
     if (!start.value || !end.value) {
         alert("시작번호와 끝번호를 입력하세요");
@@ -1970,7 +2221,7 @@ function addDamageRange() {
         return;
     }
 
-    const listBox = document.getElementById("damageList");
+    const listBox = document.getElementById("Input_damageList");
 
     const newItem = document.createElement("div");
     newItem.style.display = "flex";
@@ -1980,8 +2231,8 @@ function addDamageRange() {
     newItem.innerHTML = `
         <input type="text" value="${val}" 
             style="flex:1; padding:10px; border:1px solid #ccc; border-radius:6px;"
-            oninput="this.classList.remove('input-error'); validateDamageInput(this); damageChanged = true; updateSaveButtonState();">
-        <button onclick="removeDamageInput(this)" 
+            oninput="this.classList.remove('input-error'); Input_validateDamageInput(this); Input_damageChanged = true; Input_updateSaveButtonState();">
+        <button onclick="Input_removeDamageInput(this)" 
             style="background:#dc2626;color:white;">삭제</button>
     `;
 
@@ -1990,8 +2241,8 @@ function addDamageRange() {
     start.value = "";
     end.value = "";
 
-    damageChanged = true;
-    updateSaveButtonState();
+    Input_damageChanged = true;
+    Input_updateSaveButtonState();
 }
 
 
@@ -2014,7 +2265,7 @@ function isOverlap(r1, r2) {
     return !(r1[1] < r2[0] || r2[1] < r1[0]);
 }
 
-function enforceNonNegative(el) {
+function Input_enforceNonNegative(el) {
     if (el.value === "") return;
 
     let val = Number(el.value);
@@ -2024,14 +2275,14 @@ function enforceNonNegative(el) {
     }
 }
 
-function validateDamageInput(inputEl) {
+function Input_validateDamageInput(inputEl) {
     const val = inputEl.value.trim();
     const range = parseRange(val);
 
-    const i = currentDamageIndex;
+    const i = Input_currentDamageIndex;
 
-    const start = parseInt(document.getElementById('start_' + i).value) || 0;
-    const end = parseInt(document.getElementById('end_' + i).value) || 0;
+    const start = parseInt(document.getElementById('Input_start_' + i).value) || 0;
+    const end = parseInt(document.getElementById('Input_end_' + i).value) || 0;
 
     inputEl.classList.remove("input-error");
 
@@ -2056,21 +2307,21 @@ function validateDamageInput(inputEl) {
     return true;
 }
 
-function updateSaveButtonState() {
-    const btn = document.querySelector("#damageModal button[onclick='saveDamageNumbers()']");
+function Input_updateSaveButtonState() {
+    const btn = document.querySelector("#Input_damageModal button[onclick='Input_saveDamageNumbers()']");
     if (!btn) return;
 
-    btn.disabled = !damageChanged;
-    btn.style.opacity = damageChanged ? "1" : "0.5";
+    btn.disabled = !Input_damageChanged;
+    btn.style.opacity = Input_damageChanged ? "1" : "0.5";
 }
 
-function confirmSelection() {
-    const btn = document.getElementById('confirmBtn');
+function Input_confirmSelection() {
+    const btn = document.getElementById('Input_confirmBtn');
 
     // ❗ 이미 눌렸으면 재실행 방지
     if (btn.disabled) return;
 
-    if (!localStorage.getItem("excelBaseData")) {
+    if (!localStorage.getItem("Input_excelBaseData")) {
         alert("먼저 엑셀 기준정보를 불러와 주세요.");
         return;
     }
@@ -2080,8 +2331,8 @@ function confirmSelection() {
     btn.disabled = true;
     btn.innerText = "확정됨";
     
-    const area = document.getElementById('sheetSelect');
-    const poll = document.getElementById('pollType');
+    const area = document.getElementById('Input_sheetSelect');
+    const poll = document.getElementById('Input_pollType');
 
     // 1️⃣ 잠금
     area.disabled = true;
@@ -2094,52 +2345,57 @@ function confirmSelection() {
         locked: true
     };
 
-    localStorage.setItem("selected_area", area.value);
-    localStorage.setItem("selected_poll", poll.value);
-    localStorage.setItem("selection_lock", JSON.stringify(data));
+    localStorage.setItem("Input_selected_area", area.value);
+    localStorage.setItem("Input_selected_poll", poll.value);
+    localStorage.setItem("Input_selection_lock", JSON.stringify(data));
    
-    localStorage.setItem("role_locked", "Y");
+    localStorage.setItem("Input_role_locked", "Y");
 
-    isConfirmed = true;
-   localStorage.setItem("isConfirmed", "Y");
+    Input_loadFromDB();
+
+    Input_isConfirmed = true;
+    localStorage.setItem("Input_isConfirmed", "Y");
 
     // 버튼 활성화 20260614
-    document.getElementById("saveBtn").disabled = true;     //false 에서 true로 변경
-    document.getElementById("reportBtn").disabled = false;
-    localStorage.setItem("saveState", "saved");
+    document.getElementById("Input_saveBtn").disabled = true;     //false 에서 true로 변경
+    document.getElementById("Input_reportBtn").disabled = false;
+    document.getElementById("Input_resetBtn").disabled = false;
+
+    localStorage.setItem("Input_saveState", "saved");
 
     // 상태 저장 20260614
-    localStorage.setItem("buttons_enabled", "Y");
+    localStorage.setItem("Input_buttons_enabled", "Y");
    
-   GooSheetInput_isInitialed = false;
+   Input_isInitialed = false;
 
-    setSavedState();  //20260614
+    Input_setSavedState();  //20260614
 
-    updateReportButtonText(false);
+    Input_updateReportButtonText(false);
 
-    setElectionDisabled(false);
+    Input_setElectionDisabled(false);
+
 }
 
 
-function applyLockState() {
-    const lock = localStorage.getItem("selection_lock");
+function Input_applyLockState() {
+    const lock = localStorage.getItem("Input_selection_lock");
 
     if (!lock) return;
 
     const data = JSON.parse(lock);
 
-    const area = document.getElementById('sheetSelect');
-    const poll = document.getElementById('pollType');
-    const btn = document.getElementById('confirmBtn');
+    const area = document.getElementById('Input_sheetSelect');
+    const poll = document.getElementById('Input_pollType');
+    const btn = document.getElementById('Input_confirmBtn');
 
     // 🔒 다시 잠금 적용
     area.value = data.area;
-     updatePollOptions();
+     Input_updatePollOptions();
 
     poll.value = data.poll;
 
-    updatePreview();
-    loadofflineBaseData();
+    updateInput_preview();
+    loadInput_offlineBaseData();
 
     area.disabled = true;
     poll.disabled = true;
@@ -2148,102 +2404,79 @@ function applyLockState() {
     btn.innerText = "확정됨";
 }
 
+function Input_showLoading() {
+    document.getElementById("Input_loadingOverlay").style.display = "flex";
+}
 
-function goMain() {
-
-    document.getElementById("mainScreen").style.display = "block";
-
-
-document.getElementById("topControls").style.display = "block";
-
-    // ⭐ 관리자 값이면 기본값으로 강제 복구
-    if (prevArea === "관리자") {
-        prevArea = "낭성면"; // 또는 기본값
-    }
-
-    document.getElementById("sheetSelect").value = prevArea || "";
-    updatePollOptions();
-    document.getElementById("pollType").value = prevPoll || "";
-    updatePreview();
-    loadofflineBaseData();
+function Input_hideLoading() {
+    document.getElementById("Input_loadingOverlay").style.display = "none";
 }
 
 
-
-
-function showLoading() {
-    document.getElementById("loadingOverlay").style.display = "flex";
+function Input_showSaving() {
+    document.getElementById("Input_SavingOverlay").style.display = "flex";
 }
 
-function hideLoading() {
-    document.getElementById("loadingOverlay").style.display = "none";
-}
-
-
-function showSaving() {
-    document.getElementById("SavingOverlay").style.display = "flex";
-}
-
-function hideSaving() {
-    document.getElementById("SavingOverlay").style.display = "none";
+function Input_hideSaving() {
+    document.getElementById("Input_SavingOverlay").style.display = "none";
 }
 
 
 
 
 function setDirtyState() {
-    document.getElementById("saveBtn").disabled = false;
-    document.getElementById("reportBtn").disabled = true;
+    document.getElementById("Input_saveBtn").disabled = false;
+    document.getElementById("Input_reportBtn").disabled = true;
 }
 
-function setSavedState() {
-    document.getElementById("saveBtn").disabled = true;
-    document.getElementById("reportBtn").disabled = false;
+function Input_setSavedState() {
+    document.getElementById("Input_saveBtn").disabled = true;
+    document.getElementById("Input_reportBtn").disabled = false;
 
-    localStorage.setItem("saveState", "saved");
+    localStorage.setItem("Input_saveState", "saved");
 }
 
 // ==========================
 // 서버 상태 관리
 // ==========================
 
-function markOnline() {
+function Input_markOnline() {
 
-    GooSheetInput_isServerOnline = true;
+    Input_isServerOnline = true;
     localStorage.setItem(
-        "serverStatus",
+        "Input_serverStatus",
         JSON.stringify({
             state: "online",
             time: new Date().toISOString()
         })
     );
 
-    updateServerStatusUI();
+    updateInput_serverStatusUI();
 }
 
-function markOffline() {
+function Input_markOffline() {
 
-    GooSheetInput_isServerOnline = false;
+    Input_isServerOnline = false;
     localStorage.setItem(
-        "serverStatus",
+        "Input_serverStatus",
         JSON.stringify({
             state: "offline",
             time: new Date().toISOString()
         })
     );
 
-    updateServerStatusUI();
+    updateInput_serverStatusUI();
 }
 
 
 
-function updateServerStatusUI() {
+function updateInput_serverStatusUI() {
 
-    const el = document.getElementById("serverStatus");
+    const el = document.getElementById("Input_serverStatus");
     if (!el) return;
 
     const saved = JSON.parse(
-        localStorage.getItem("serverStatus") || "{}"
+        localStorage.getItem("Input_serverStatus") || "{}"
     );
 
     if (saved.state === "online") {
@@ -2251,11 +2484,11 @@ function updateServerStatusUI() {
         const time = saved.time             ? new Date(saved.time).toLocaleTimeString("ko-KR", {           hour12: false,           hour: "2-digit",           minute: "2-digit",       })     : "";
 
         el.innerHTML =             "🟢 온라인 상태 (" + time + ")";         el.style.color = "green";
-	 GooSheetInput_isServerOnline = true;
+	 Input_isServerOnline = true;
     } else {
 
         el.innerHTML =             "🔴 오프라인 상태";         el.style.color = "red";
-	 GooSheetInput_isServerOnline = false;
+	 Input_isServerOnline = false;
     }
 
 
@@ -2267,7 +2500,7 @@ function updateServerStatusUI() {
 <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 
 <!-- 🧾 훼손번호 입력 팝업 -->
-<div id="damageModal" style="
+<div id="Input_damageModal" style="
     display:none;
     position:fixed;
     top:0; left:0;
@@ -2290,28 +2523,28 @@ function updateServerStatusUI() {
     ">
 
         <div style="display:flex; gap:8px; margin-top:auto;">
-            <button onclick="saveDamageNumbers()" style="flex:1; background:#10b981; color:white;">확인</button>
-            <button onclick="closeDamageModal()" style="flex:1; background:#64748b; color:white;">취소</button>
+            <button onclick="Input_saveDamageNumbers()" style="flex:1; background:#10b981; color:white;">확인</button>
+            <button onclick="Input_closeDamageModal()" style="flex:1; background:#64748b; color:white;">취소</button>
         </div>
 
 
 
 <div style="display:flex; gap:5px; margin-top:10px;">
-    <input type="number" id="newDamageInput" placeholder="번호 입력"
+    <input type="number" id="Input_newDamageInput" placeholder="번호 입력"
         style="flex:1; padding:10px; border:1px solid #ccc; border-radius:8px;">
     
-    <button onclick="addDamageInput()" 
+    <button onclick="Input_addDamageInput()" 
         style="background:#0ea5e9; color:white; padding:10px 12px; border-radius:8px;">
         ➕ 번호추가
     </button>
 </div>
 <div style="display:flex; gap:5px; margin-top:5px;">
-    <input type="number" id="rangeStart" placeholder="시작번호"
+    <input type="number" id="Input_rangeStart" placeholder="시작번호"
         style="flex:1; padding:10px; border:1px solid #ccc; border-radius:8px;">
-    <input type="number" id="rangeEnd" placeholder="끝번호"
+    <input type="number" id="Input_rangeEnd" placeholder="끝번호"
         style="flex:1; padding:10px; border:1px solid #ccc; border-radius:8px;">
     
-    <button onclick="addDamageRange()" 
+    <button onclick="Input_addDamageRange()" 
         style="background:#22c55e; color:white; padding:10px 12px; border-radius:8px;">
         ➕ 범위추가
     </button>
@@ -2334,14 +2567,14 @@ function updateServerStatusUI() {
 
 
         <!-- 기존 값 -->
-        <div id="existingDamage" style="
+        <div id="Input_existingDamage" style="
             font-size:13px;
             margin-bottom:10px;
             color:#334155;
             word-break:break-all;
         "></div>
 	<!-- 추가 -->
-	<div id="damageList" style="
+	<div id="Input_damageList" style="
 	    flex:1;
 	    overflow-y:auto;
 	    margin-bottom:10px;
@@ -2351,7 +2584,7 @@ function updateServerStatusUI() {
     </div>
 </div>
 
-<div id="loadingOverlay" style="
+<div id="Input_loadingOverlay" style="
     display:none;
     position:fixed;
     inset:0;
@@ -2378,7 +2611,7 @@ function updateServerStatusUI() {
     </div>
 </div>
 
-<div id="SavingOverlay" style="
+<div id="Input_SavingOverlay" style="
     display:none;
     position:fixed;
     inset:0;
