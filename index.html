@@ -1796,6 +1796,8 @@ function Input_loadReport() {
 
 function Input_renderReport(data) {
 
+console.log(data[0]);
+
         let html = "<h3 style='margin:0;'>📊 투표록 2면 작성자료</h3>";
 
         // ✅ ⭐ 투표함관리번호 먼저 만들기
@@ -1824,17 +1826,33 @@ function Input_renderReport(data) {
         </tr>`;
 
         data.forEach(d => {
-            const sum = d.voter || 0;
+	const issued = Number(d.total || 0) - Number(d.remain || 0);
+	const doubleOut = Number(d.doubleOut || 0);
+	const sum = issued - doubleOut;
+	d.voter = issued - doubleOut;	<!-- sum 대신 d.voter 사용 -->
+
+	const noBalsong = Number(d.noBalsong || 0);
+	const geulJung = Number(d.geulJung || 0);
+	const giveBack = Number(d.giveBack || 0);
+	const returnKorea = Number(d.returnKorea || 0);
+
+	const list2 = sum - noBalsong - geulJung - giveBack - returnKorea;
+	d.list2 = sum - noBalsong - geulJung - giveBack - returnKorea;     <!-- list2 대신 d.list2 사용 -->
+
+
+
             html += `<tr>
             <td style="text-align:left">${d.election}</td>
-
             <td style="text-align:right">${Number(d.list1 || 0).toLocaleString()}</td>
+
             <td style="text-align:right">${Number(d.list2 || 0).toLocaleString()}</td>
+
             <td style="text-align:right">${Number(d.noBalsong || 0).toLocaleString()}</td>
             <td style="text-align:right">${Number(d.geulJung || 0).toLocaleString()}</td>
             <td style="text-align:right">${Number(d.giveBack || 0).toLocaleString()}</td>
             <td style="text-align:right">${Number(d.returnKorea || 0).toLocaleString()}</td>
-            <td style="text-align:right">${Number(sum).toLocaleString()}</td>
+            <td style="text-align:right">${Number(d.voter).toLocaleString()}</td>     
+
             </tr>`;
         });
 
@@ -1850,6 +1868,8 @@ function Input_renderReport(data) {
         data.forEach(d => {
 	    const curr = Number(d.curr || 0);
 	    const end = Number(d.end || 0);
+
+	d.issued = Number(d.total || 0) - Number(d.remain || 0);
 
             html += `<tr>
             <td style="text-align:left">${d.election}</td>
@@ -1903,16 +1923,12 @@ function Input_buildOfflineReportData() {
 	boxNo,
 
         curr:            Number(document.getElementById(`Input_curr_${index}`)?.value || 0),
-
         end:            Number(document.getElementById(`Input_end_${index}`)?.value || 0),
-
         noBalsong:            Number(document.getElementById(`Input_NoBalsong_${index}`)?.value || 0),
-
         geulJung:            Number(document.getElementById(`Input_GeulJung_${index}`)?.value || 0),
-
         giveBack:            Number(document.getElementById(`Input_GiveBack_${index}`)?.value || 0),
-
         returnKorea:            Number(document.getElementById(`Input_ReturnKorea_${index}`)?.value || 0),
+        doubleOut:		 Number(document.getElementById(`Input_DoubleOut_${index}`)?.value || 0),
 
 	 // 계 = 교부매수 - 이중교부매수
 	    voter: (() => {
@@ -1929,6 +1945,7 @@ function Input_buildOfflineReportData() {
 
         issued:
             Number(document.getElementById(`Input_issued_${index}`)?.textContent || 0),
+
         remain: (() => {
 	    const curr = Number(document.getElementById(`Input_curr_${index}`)?.value || 0);
 	    const end = Number(document.getElementById(`Input_end_${index}`)?.value || 0);
