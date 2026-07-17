@@ -184,16 +184,17 @@ button:disabled {
 
     <div id="Input_preview" style="margin-top:8px; font-weight:bold;"></div>
 
-    <div id="Input_serverStatus"      style="font-weight:bold;margin-top:5px;"> 상태 확인중...  </div>
-
 </div>
 
+<div style="padding: 4px 10px;display:flex; gap:8px; align-items:center;">
 <input type="file"         id="Input_excelFile"         accept=".xlsx,.xls"         style="display:none;"  onchange="Input_loadExcelBaseInfo(event);">
 <button id="Input_loadExcelBtn"         onclick="document.getElementById('Input_excelFile').click();">     📂 엑셀파일 불러오기 </button>
+    <div id="Input_serverStatus"      style="font-weight:bold;margin-top:5px;"> 상태 확인중...  </div>
+</div>
 
 <!-- ✅ 파일 & 링크 영역 -->
 <div class="card"  >
-    <b style="display:none;">🔗 구글드라이브 파일 링크</b><br>
+    <b style="display:none;">🔗 구글드라이브 파일 링크</b>  <!--  <br> -->
     <input type="text" id="Input_driveLink" 
       placeholder="여기를 클릭한 후 구글드라이브 파일 링크를 붙여넣기 하세요" 
       style="width:100%; 
@@ -289,10 +290,9 @@ const Input_firebaseConfig1 = {
   messagingSenderId: "1028025835857",
   appId: "1:1028025835857:web:6d681969f1758827547370"
 };
+const Input_app1 = firebase.initializeApp(Input_firebaseConfig1, "Input_project1"); 
+const Input_db1 = Input_app1.firestore();
 
-firebase.initializeApp(Input_firebaseConfig1);
-
-const Input_db1 = firebase.firestore();
 
 const INPUT_AREA_FIRESTORE_MAP = {
     "낭성면": Input_db1,
